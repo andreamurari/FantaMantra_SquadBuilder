@@ -16,8 +16,12 @@ usa la [versione online](https://claude.ai/code/artifact/727c5d4a-a933-4586-bc1c
   (3-4-3, 3-4-1-2, 3-4-2-1, 3-5-2, 3-5-1-1, 4-3-3, 4-3-1-2, 4-4-2, 4-1-4-1, 4-4-1-1, 4-2-3-1)
   e confronti come si dispone la stessa rosa nei diversi sistemi.
 - **Solo ruolo esatto**: in uno slot puoi mettere solo giocatori che hanno quel ruolo Mantra.
-  Niente adattamento. `⚡` schiera in automatico (titolari per FVM + tutte le riserve compatibili
-  in panchina), `⌫` svuota il campo.
+  Niente adattamento. `⌫` svuota il campo.
+- **Schieramento automatico** (`⚡` e `⊞`): ogni giocatore va nel suo **ruolo più difensivo**
+  tra quelli presenti nel modulo, secondo l'ordine
+  `Por < Dc=B < Ds=Dd < M < E < C < T=W < A < Pc` (es. un M/C va a M, un Dc/Dd va a Dc).
+  Se quel ruolo è tutto occupato, il giocatore entra come **riserva** (non in un ruolo meno
+  difensivo). Il pallino mostra il ruolo effettivamente ricoperto.
 - Il pallino in campo prende il **colore del ruolo** come su fantacalcio.it: Por giallo,
   difensori verde, centrocampo azzurro, trequarti/ali viola, attacco rosso.
 - **Listone 2026/27** integrato (dal file `Quotazioni_Fantacalcio_*.xlsx`): cerca e filtra per

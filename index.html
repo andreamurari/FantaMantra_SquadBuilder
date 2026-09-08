@@ -427,9 +427,11 @@ input{font-family:inherit}
       Scegli un modulo per ognuno dei 4 campi e confronta come si dispone la stessa rosa.
       Tocca uno slot per assegnare un giocatore: puoi schierare <strong>solo chi ha quel
       ruolo Mantra esatto</strong>. Il pallino in campo prende il colore del ruolo (come su
-      fantacalcio.it). Con <strong>⊞</strong> (in Rosa) il giocatore va in ogni campo: se non
-      c'è uno slot libero entra come <strong>riserva</strong> — mostrato tra parentesi sotto
-      il titolare. Se cambi modulo, la riserva viene promossa quando il titolare non è più valido.
+      fantacalcio.it). Lo <strong>schieramento automatico</strong> (⚡ e ⊞) mette ogni giocatore
+      nel suo <strong>ruolo più difensivo</strong> tra quelli previsti dal modulo
+      (Por · Dc/B · Ds/Dd · M · E · C · T/W · A · Pc); se quel ruolo è tutto occupato, entra come
+      <strong>riserva</strong> — tra parentesi sotto il titolare.
+      Cambiando modulo la riserva viene promossa quando il titolare non è più valido.
       <span class="ib-legend">⚡ schiera in automatico · ⌫ svuota il campo</span>
     </p>
   </section>
@@ -618,6 +620,16 @@ const ROLE_GROUP = {
   A:"att", Pc:"att",
 };
 function roleGroup(r){ return ROLE_GROUP[r] || "cen"; }
+// quanto è "difensivo" un ruolo Mantra (0 = più difensivo, 8 = più offensivo)
+// ordine: Por < Dc=B < Ds=Dd < M < E < C < T=W < A < Pc
+const DEF_RANK = { Por:0, Dc:1, B:1, Ds:2, Dd:2, M:3, E:4, C:5, T:6, W:6, A:7, Pc:8 };
+function defRank(r){ return (r in DEF_RANK) ? DEF_RANK[r] : 4; }
+function rolesDefFirst(rm){ return rm.slice().sort((a,b)=> defRank(a)-defRank(b)); }
+// il ruolo che il giocatore ricopre in quello slot (il suo più difensivo compatibile)
+function playedRole(slotRoles, rm){
+  const m=rolesDefFirst(rm).filter(r=>slotRoles.includes(r));
+  return m[0] || rm[0];
+}
 function rosaById(id){ return state.rosa.find(p=>p.id===id); }
 function isStruck(idx){ return state.struck.includes(idx); }
 function toggleStruck(idx){
@@ -740,9 +752,10 @@ function renderBoards(){
       disc.setAttribute("aria-label",(player?player.n+" — ":"")+"slot "+s.roles.join("/"));
       disc.addEventListener("click",()=>openPicker(bi,i));
       if(player){
+        const pr=playedRole(s.roles, player.rm);
         wrap.classList.add("filled","fit-ok");
-        disc.classList.add("rg-"+roleGroup(player.rm[0]));
-        disc.textContent=player.rm[0];
+        disc.classList.add("rg-"+roleGroup(pr));
+        disc.textContent=pr;
         wrap.appendChild(disc);
         wrap.appendChild(el("div","cap",player.n));
         reservesOf(bi,i).forEach(rid=>{
@@ -950,6 +963,35 @@ function bestReserveSlot(bi, p){
   }
   return best;
 }
+// Schiera p nel campo bi dando priorità al ruolo PIÙ DIFENSIVO tra i suoi.
+// Prova i suoi ruoli dal più difensivo al più offensivo: primo slot libero -> titolare.
+// Se nessun ruolo ha uno slot libero -> riserva sotto un titolare del ruolo più difensivo
+// che esiste nel modulo. Ritorna true se ha piazzato il giocatore.
+function placeByDefPriority(bi, p){
+  const slots=FORMATIONS[state.boards[bi]], lu=state.lineups[bi], rv=state.reserves[bi];
+  // ruoli del giocatore che hanno almeno uno slot in questo modulo
+  const avail=p.rm.filter(r=> slots.some(s=>s.roles.includes(r)));
+  if(!avail.length) return false;
+  // il ruolo PIÙ DIFENSIVO tra quelli disponibili
+  const target=rolesDefFirst(avail)[0];
+  // 1) titolare: slot libero per target (a parità, lo slot più specifico)
+  const free=[];
+  for(let i=0;i<slots.length;i++) if(lu[i]==null && slots[i].roles.includes(target)) free.push(i);
+  if(free.length){
+    free.sort((a,b)=> slots[a].roles.length - slots[b].roles.length);
+    lu[free[0]]=p.id; return true;
+  }
+  // 2) target tutto occupato -> riserva sotto un titolare di quel ruolo (slot con meno riserve)
+  let best=-1, bestN=Infinity;
+  for(let i=0;i<slots.length;i++){
+    if(lu[i]!=null && slots[i].roles.includes(target)){
+      const n=(rv[i]||[]).length;
+      if(n<bestN){ bestN=n; best=i; }
+    }
+  }
+  if(best>=0){ (rv[best]=rv[best]||[]).push(p.id); return true; }
+  return false;
+}
 function canPlaceAnywhere(id){
   const p=rosaById(id); if(!p) return false;
   for(let bi=0;bi<4;bi++){
@@ -958,18 +1000,14 @@ function canPlaceAnywhere(id){
   }
   return false;
 }
-// mette il giocatore in OGNI campo: nel primo slot libero compatibile (titolare),
-// altrimenti come riserva sotto un titolare compatibile. Salta i campi dove è già presente
-// o dove non esiste nessuno slot con quel ruolo.
+// mette il giocatore in OGNI campo, nel ruolo più difensivo disponibile (titolare) o
+// come riserva. Salta i campi dove è già presente o senza slot per i suoi ruoli.
 function placeInAllBoards(id){
   const p=rosaById(id); if(!p) return;
   let changed=false;
   for(let bi=0;bi<4;bi++){
     if(slotOfPlayer(bi,id)>=0 || isReserve(bi,id)) continue;
-    const i=firstFreeSlot(bi,p);
-    if(i>=0){ state.lineups[bi][i]=id; changed=true; continue; }
-    const j=bestReserveSlot(bi,p);
-    if(j>=0){ (state.reserves[bi][j]=state.reserves[bi][j]||[]).push(id); changed=true; }
+    if(placeByDefPriority(bi,p)) changed=true;
   }
   if(changed){ save(); renderBoards(); renderRosa(); }
 }
@@ -983,24 +1021,14 @@ function removeFromAllBoards(id){
   if(changed){ save(); renderBoards(); renderRosa(); }
 }
 function autofillBoard(bi){
-  const slots=FORMATIONS[state.boards[bi]], lu=state.lineups[bi], rv=state.reserves[bi];
+  const lu=state.lineups[bi], rv=state.reserves[bi];
   const used=new Set([...Object.values(lu).map(Number), ...Object.values(rv).flat()]);
-  // 1) titolari: riempi gli slot liberi con i migliori per FVM
-  slots.forEach((s,i)=>{
-    if(lu[i]!=null) return;
-    const cand=state.rosa
-      .filter(p=>!used.has(p.id) && fits(s.roles,p.rm))
-      .sort((a,b)=> b.fvm-a.fvm);
-    if(cand.length){ lu[i]=cand[0].id; used.add(cand[0].id); }
-  });
-  // 2) riserve: metti in panchina i giocatori rimasti sotto un titolare compatibile
+  // ogni giocatore (dal più forte per FVM) va nel ruolo PIÙ DIFENSIVO disponibile tra i suoi;
+  // se quel ruolo è tutto occupato -> riserva.
   state.rosa
     .filter(p=>!used.has(p.id))
     .sort((a,b)=> b.fvm-a.fvm)
-    .forEach(p=>{
-      const j=bestReserveSlot(bi,p);
-      if(j>=0){ (rv[j]=rv[j]||[]).push(p.id); used.add(p.id); }
-    });
+    .forEach(p=>{ if(placeByDefPriority(bi,p)) used.add(p.id); });
   save(); renderBoards(); renderRosa();
 }
 
