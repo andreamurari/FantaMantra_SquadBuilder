@@ -660,10 +660,16 @@ document.getElementById("themeBtn").addEventListener("click",()=>{
 /* ============================================================
    HELPERS
    ============================================================ */
-// Ruolo esatto e basta — nessun adattamento.
+// Uno slot del modulo conta SOLO per il suo ruolo più offensivo (es. M/C = C, E/W = W,
+// W/A = A, A/Pc = Pc). A parità di rank valgono entrambi (es. Dc/B).
+function slotEffRoles(slotRoles){
+  const maxR=Math.max.apply(null, slotRoles.map(defRank));
+  return slotRoles.filter(r=> defRank(r)===maxR);
+}
+function slotEffRole(slotRoles){ return slotEffRoles(slotRoles)[0]; }
+// il giocatore "fitta" lo slot solo se ha il ruolo effettivo (più offensivo) dello slot
 function fits(slotRoles, playerRm){
-  for(const r of playerRm) if(slotRoles.includes(r)) return true;
-  return false;
+  return slotEffRoles(slotRoles).some(r=> playerRm.includes(r));
 }
 // gruppo colore del ruolo Mantra, come su fantacalcio.it
 const ROLE_GROUP = {
@@ -679,15 +685,10 @@ function roleGroup(r){ return ROLE_GROUP[r] || "cen"; }
 const DEF_RANK = { Por:0, Dc:1, B:1, Ds:2, Dd:2, M:3, E:4, C:5, T:6, W:6, A:7, Pc:8 };
 function defRank(r){ return (r in DEF_RANK) ? DEF_RANK[r] : 4; }
 function rolesDefFirst(rm){ return rm.slice().sort((a,b)=> defRank(a)-defRank(b)); }
-// ruolo "effettivo" di uno slot del modulo: nei ruoli doppi si guarda sempre il PIÙ OFFENSIVO
-// (es. lo slot M/C conta come C, W/A come A). A parità di rank tiene il primo elencato.
-function slotEffRole(slotRoles){
-  return slotRoles.slice().sort((a,b)=> defRank(b)-defRank(a))[0];
-}
-// true se il modulo del campo bi ha almeno uno slot che accetta un ruolo del giocatore
+// true se il modulo del campo bi ha uno slot il cui ruolo EFFETTIVO è tra quelli del giocatore
 function fitsBoard(bi, p){
   const slots=FORMATIONS[state.boards[bi]];
-  return slots.some(s=> s.roles.some(r=> p.rm.includes(r)));
+  return slots.some(s=> fits(s.roles, p.rm));
 }
 function isExcluded(bi, id){ return state.excluded[bi].includes(id); }
 function unExclude(bi, id){
@@ -1095,29 +1096,18 @@ function bestReserveSlot(bi, p){
 function placeByDefPriority(bi, p){
   if(isExcluded(bi, p.id)) return false;              // escluso a mano da questo campo
   const slots=FORMATIONS[state.boards[bi]], lu=state.lineups[bi], rv=state.reserves[bi];
-  const eff=slots.map(s=> slotEffRole(s.roles));      // ruolo effettivo (più offensivo) di ogni slot
-  const addRes=i=>{ (rv[i]=rv[i]||[]).push(p.id); return true; };
-
-  // ruoli del giocatore che coincidono col ruolo EFFETTIVO di almeno uno slot del modulo
-  const avail = p.rm.filter(r => eff.includes(r));
-  if(avail.length){
-    const target = rolesDefFirst(avail)[0];           // il PIÙ DIFENSIVO tra quelli disponibili
-    // titolare: primo slot libero con quel ruolo effettivo
-    for(let i=0;i<slots.length;i++) if(lu[i]==null && eff[i]===target){ lu[i]=p.id; return true; }
-    // quel ruolo è tutto occupato -> riserva sotto un suo titolare (slot con meno riserve)
-    let best=-1,bestN=Infinity;
-    for(let i=0;i<slots.length;i++)
-      if(lu[i]!=null && eff[i]===target){ const n=(rv[i]||[]).length; if(n<bestN){ bestN=n; best=i; } }
-    if(best>=0) return addRes(best);
-  }
-  // fallback: nessun suo ruolo è "effettivo" nel modulo (es. una W pura in un 4-3-3) ->
-  // riserva sotto uno slot che il giocatore comunque copre (ruoli grezzi)
-  for(const r of rolesDefFirst(p.rm)){
-    let best=-1,bestN=Infinity;
-    for(let i=0;i<slots.length;i++)
-      if(lu[i]!=null && slots[i].roles.includes(r)){ const n=(rv[i]||[]).length; if(n<bestN){ bestN=n; best=i; } }
-    if(best>=0) return addRes(best);
-  }
+  const effSets=slots.map(s=> slotEffRoles(s.roles));  // ruolo/i effettivo/i di ogni slot
+  // ruoli del giocatore che sono ruolo effettivo di almeno uno slot del modulo
+  const avail = p.rm.filter(r => effSets.some(set=> set.includes(r)));
+  if(!avail.length) return false;                      // non fitta il modulo -> jolly, niente da fare
+  const target = rolesDefFirst(avail)[0];              // il PIÙ DIFENSIVO tra quelli disponibili
+  // titolare: primo slot libero con quel ruolo effettivo
+  for(let i=0;i<slots.length;i++) if(lu[i]==null && effSets[i].includes(target)){ lu[i]=p.id; return true; }
+  // quel ruolo è tutto occupato -> riserva sotto un suo titolare (slot con meno riserve)
+  let best=-1,bestN=Infinity;
+  for(let i=0;i<slots.length;i++)
+    if(lu[i]!=null && effSets[i].includes(target)){ const n=(rv[i]||[]).length; if(n<bestN){ bestN=n; best=i; } }
+  if(best>=0){ (rv[best]=rv[best]||[]).push(p.id); return true; }
   return false;
 }
 // circle-plus abilitato se il giocatore è escluso da qualche campo o piazzabile da qualche parte
