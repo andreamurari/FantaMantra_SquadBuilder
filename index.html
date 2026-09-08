@@ -155,12 +155,18 @@ input{font-family:inherit}
 .jchip{
   display:inline-flex;align-items:center;gap:5px;
   background:var(--warn-weak);border:1px solid var(--warn);border-radius:6px;
-  padding:2px 6px;font-size:12px;font-weight:600;color:var(--ink);
+  padding:2px 5px 2px 6px;font-size:12px;font-weight:600;color:var(--ink);
+  transition:background .12s,border-color .12s;
 }
+.jchip:hover{background:var(--accent-weak);border-color:var(--accent)}
 .jchip i{
   font-style:normal;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:10.5px;
   letter-spacing:.02em;color:var(--warn);
 }
+.jchip:hover i{color:var(--accent)}
+.jchip .jx{display:inline-flex;color:var(--ink-faint)}
+.jchip .jx svg{width:12px;height:12px}
+.jchip:hover .jx{color:var(--accent)}
 .mod-select{
   flex:1;min-width:0;background:var(--panel-2);border:1px solid var(--line);color:var(--ink);
   border-radius:8px;padding:6px 8px;
@@ -474,7 +480,8 @@ input{font-family:inherit}
       (Por · Dc/B · Ds/Dd · M · E · C · T/W · A · Pc); uno slot doppio vale come il ruolo
       <strong>più offensivo</strong> (M/C = C). Se il ruolo è pieno il giocatore va in
       <strong>riserva</strong>, tra parentesi sotto il titolare. Chi non ha nessun ruolo previsto
-      dal modulo finisce tra i <strong>Jolly</strong>, sotto il campo.
+      dal modulo finisce tra i <strong>Jolly</strong> sotto il campo: toccane uno per toglierlo
+      dalla rosa.
       <span class="ib-legend" id="ibLegend"></span>
     </p>
   </section>
@@ -849,9 +856,14 @@ function renderBoards(){
       const jb=el("div","jolly");
       jb.appendChild(el("span","jolly-h","Jolly"));
       jolly.forEach(p=>{
-        const c=el("span","jchip");
+        const c=el("button","jchip"); c.type="button";
+        c.title="Rimuovi "+p.n+" dalla rosa";
+        c.setAttribute("aria-label","Rimuovi "+p.n+" dalla rosa");
         c.appendChild(el("b",null,p.n));
         c.appendChild(el("i",null,p.rm.join("/")));
+        const jx=el("span","jx"); jx.innerHTML=ic("x");
+        c.appendChild(jx);
+        c.addEventListener("click",()=>removeFromRosa(p.id));
         jb.appendChild(c);
       });
       board.appendChild(jb);
