@@ -121,6 +121,10 @@ input{font-family:inherit}
   display:inline-flex;align-items:center;gap:6px;transition:border-color .15s,color .15s;
 }
 .ghost:hover{border-color:var(--line-strong);color:var(--ink)}
+#resetBtn{color:var(--accent)}
+#resetBtn:hover{border-color:var(--accent);color:var(--accent)}
+#themeBtn{color:var(--c)}
+#themeBtn:hover{border-color:var(--c);color:var(--c)}
 
 /* ---------- layout ---------- */
 .layout{
@@ -150,10 +154,14 @@ input{font-family:inherit}
 .mini-status .warn{color:var(--warn)}
 .board-head .ib{
   flex:0 0 auto;width:28px;height:28px;border-radius:7px;border:1px solid var(--line);
-  background:var(--panel-2);color:var(--ink-soft);font-size:13px;line-height:1;
+  background:var(--panel-2);font-size:14px;line-height:1;
   display:flex;align-items:center;justify-content:center;
+  transition:background .12s,border-color .12s;
 }
-.board-head .ib:hover{border-color:var(--accent);color:var(--accent)}
+.board-head .ib-auto{color:var(--warn)}
+.board-head .ib-clear{color:var(--c)}
+.board-head .ib-auto:hover{background:var(--warn-weak);border-color:var(--warn)}
+.board-head .ib-clear:hover{background:var(--panel-3);border-color:var(--c)}
 
 .pitch{
   position:relative;width:100%;aspect-ratio:68/87;border-radius:7px;overflow:hidden;
@@ -275,29 +283,28 @@ input{font-family:inherit}
   color:var(--ok);border:1px solid var(--ok);border-radius:5px;padding:2px 5px;flex:0 0 auto;
 }
 .row .onfield.ris{color:var(--ink-faint);border-color:var(--line-strong)}
-.row .x{
+.row .x,.row .allfields,.row .removeall,.row .strike{
   flex:0 0 auto;width:30px;height:30px;border-radius:8px;border:1px solid var(--line);
-  background:var(--panel-2);color:var(--ink-faint);font-size:19px;line-height:1;
+  background:var(--panel-2);line-height:1;transition:background .12s,border-color .12s;
 }
-.row .x:hover{border-color:var(--accent);color:var(--accent)}
-.row .allfields,.row .removeall{
-  flex:0 0 auto;width:30px;height:30px;border-radius:8px;border:1px solid var(--line);
-  background:var(--panel-2);color:var(--ink-soft);font-size:16px;line-height:1;
-}
-.row .allfields:hover:not(:disabled){border-color:var(--ok);color:var(--ok)}
-.row .removeall:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
-.row .allfields:disabled,.row .removeall:disabled{opacity:.32;cursor:default}
+.row .x{color:var(--accent);font-size:19px}
+.row .allfields{color:var(--ok);font-size:16px}
+.row .removeall{color:var(--c);font-size:16px}
+.row .strike{color:var(--accent);font-size:14px}
+.row .x:hover{background:var(--accent-weak);border-color:var(--accent)}
+.row .strike:hover{background:var(--accent-weak);border-color:var(--accent)}
+.row .strike.strike-undo{color:var(--ok)}
+.row .strike.strike-undo:hover{background:var(--ok-weak);border-color:var(--ok)}
+.row .allfields:hover:not(:disabled){background:var(--ok-weak);border-color:var(--ok)}
+.row .removeall:hover:not(:disabled){background:var(--panel-3);border-color:var(--c)}
+.row .allfields:disabled,.row .removeall:disabled{opacity:.3;cursor:default}
 .row .add{
-  flex:0 0 auto;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);
+  flex:0 0 auto;border:1px solid var(--line);background:var(--panel-2);color:var(--ok);
   border-radius:8px;padding:6px 12px;font-weight:700;font-size:15px;
+  transition:background .12s,border-color .12s;
 }
-.row .add:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
-.row .add:disabled{opacity:.4;cursor:default}
-.row .strike{
-  flex:0 0 auto;width:30px;height:30px;border-radius:8px;border:1px solid var(--line);
-  background:var(--panel-2);color:var(--ink-faint);font-size:14px;line-height:1;
-}
-.row .strike:hover{border-color:var(--accent);color:var(--accent)}
+.row .add:hover:not(:disabled){background:var(--ok-weak);border-color:var(--ok)}
+.row .add:disabled{opacity:.45;cursor:default}
 .row.owned{opacity:.5}
 .row.struck{opacity:.55}
 .row.struck .nm{text-decoration:line-through;text-decoration-thickness:1.5px}
@@ -338,6 +345,11 @@ input{font-family:inherit}
 }
 .picker header h3{font-size:17px;letter-spacing:.04em;text-transform:uppercase}
 .picker header .slotrole{font-size:12px;color:var(--ink-faint);font-weight:600}
+.picker header .x{
+  flex:0 0 auto;width:28px;height:28px;border-radius:7px;border:1px solid var(--line);
+  background:var(--panel-2);color:var(--accent);font-size:18px;line-height:1;
+}
+.picker header .x:hover{background:var(--accent-weak);border-color:var(--accent)}
 .picker .list{overflow-y:auto}
 .picker .opt{
   width:100%;text-align:left;background:transparent;border:0;border-bottom:1px solid var(--line);
@@ -363,12 +375,14 @@ input{font-family:inherit}
   width:100%;background:var(--panel-2);border:1px solid var(--line);color:var(--ink);
   border-radius:9px;padding:9px;font-weight:700;font-size:13px;
 }
-.picker footer button:hover{border-color:var(--accent);color:var(--accent)}
+.picker footer button{color:var(--accent)}
+.picker footer button:hover{background:var(--accent-weak);border-color:var(--accent)}
 .picker .resline{
   display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px;
   font-size:13px;font-weight:600;color:var(--ink-soft);
 }
-.picker .resline .x{width:28px;height:28px;padding:0;font-size:17px;flex:0 0 auto}
+.picker .resline .x{width:28px;height:28px;padding:0;font-size:17px;flex:0 0 auto;color:var(--accent)}
+.picker .resline .x:hover{background:var(--accent-weak);border-color:var(--accent)}
 
 .picker.pricebox{width:min(380px,100%)}
 .pricebody{padding:16px}
@@ -436,7 +450,8 @@ input{font-family:inherit}
       come <strong>riserva</strong> — tra parentesi sotto il titolare — senza scalare a un ruolo
       meno difensivo. Cambiando modulo la riserva è promossa se il titolare non è più valido.
       Il pallino mostra il ruolo dello slot del modulo; il colore è quello del ruolo del giocatore.
-      <span class="ib-legend">⚡ schiera in automatico · ⌫ svuota il campo</span>
+      <span class="ib-legend"><b style="color:var(--warn)">⚡</b> schiera in automatico ·
+      <b style="color:var(--c)">⌫</b> svuota il campo</span>
     </p>
   </section>
 
@@ -736,10 +751,10 @@ function renderBoards(){
     if(st.filled===st.total) ms.classList.add("ok");
     head.appendChild(ms);
 
-    const auto=el("button","ib","⚡"); auto.type="button"; auto.title="Schiera automaticamente";
+    const auto=el("button","ib ib-auto","⚡"); auto.type="button"; auto.title="Schiera automaticamente";
     auto.addEventListener("click",()=>autofillBoard(bi));
     head.appendChild(auto);
-    const clr=el("button","ib","⌫"); clr.type="button"; clr.title="Svuota campo";
+    const clr=el("button","ib ib-clear","⌫"); clr.type="button"; clr.title="Svuota campo";
     clr.addEventListener("click",()=>clearBoard(bi));
     head.appendChild(clr);
     board.appendChild(head);
@@ -896,7 +911,7 @@ function renderResults(){
     const qt=el("span","qt num", String(p.qt)); qt.title="Quotazione Mantra fantacalcio.it";
     row.appendChild(qt);
     if(!own){
-      const strk=el("button","strike", struck?"↩":"✗"); strk.type="button";
+      const strk=el("button","strike"+(struck?" strike-undo":""), struck?"↩":"✗"); strk.type="button";
       strk.title=struck?"Rimetti tra i disponibili":"Depenna: preso da un'altra squadra";
       strk.setAttribute("aria-label",(struck?"Ripristina ":"Depenna ")+p.n);
       strk.addEventListener("click",()=>toggleStruck(p.idx));
