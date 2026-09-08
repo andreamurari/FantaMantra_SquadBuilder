@@ -3,10 +3,12 @@
 Tool per l'asta del Fantacalcio **Mantra**: un campetto interattivo per vedere come si sta
 costruendo la rosa mentre l'asta va avanti.
 
+**▶ [Apri il tool online](https://claude.ai/code/artifact/727c5d4a-a933-4586-bc1c-c6f8bc5d209c)** (usabile anche da telefono)
+
 ## Uso
 
-Apri **`index.html`** con un doppio click (funziona offline, senza installare nulla).
-Versione online (usabile anche da telefono): https://claude.ai/code/artifact/727c5d4a-a933-4586-bc1c-c6f8bc5d209c
+Apri **`index.html`** con un doppio click (funziona offline, senza installare nulla), oppure
+usa la [versione online](https://claude.ai/code/artifact/727c5d4a-a933-4586-bc1c-c6f8bc5d209c).
 
 ## Cosa fa
 
