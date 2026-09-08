@@ -435,6 +435,7 @@ input{font-family:inherit}
       (lo slot M/C accoglie una C, non una M). Se quel ruolo è tutto occupato il giocatore entra
       come <strong>riserva</strong> — tra parentesi sotto il titolare — senza scalare a un ruolo
       meno difensivo. Cambiando modulo la riserva è promossa se il titolare non è più valido.
+      Il pallino mostra il ruolo dello slot del modulo; il colore è quello del ruolo del giocatore.
       <span class="ib-legend">⚡ schiera in automatico · ⌫ svuota il campo</span>
     </p>
   </section>
@@ -752,15 +753,16 @@ function renderBoards(){
       const pid=lu[i];
       const player=pid!=null?rosaById(pid):null;
       const disc=el("button","disc"); disc.type="button";
-      disc.setAttribute("aria-label",(player?player.n+" — ":"")+"slot "+s.roles.join("/"));
+      // il pallino mostra sempre il ruolo dello SLOT del modulo (M/C, W/A, …)
+      const roleStr=s.roles.join("/");
+      disc.textContent=roleStr;
+      if(roleStr.length>=6) disc.classList.add("disc-xs");
+      else if(roleStr.length>=4) disc.classList.add("disc-sm");
+      disc.setAttribute("aria-label",(player?player.n+" — ":"")+"slot "+roleStr);
       disc.addEventListener("click",()=>openPicker(bi,i));
       if(player){
-        const roleStr=player.rm.join("/");
         wrap.classList.add("filled","fit-ok");
-        disc.classList.add("rg-"+roleGroup(player.rm[0]));
-        if(roleStr.length>=6) disc.classList.add("disc-xs");
-        else if(roleStr.length>=4) disc.classList.add("disc-sm");
-        disc.textContent=roleStr;
+        disc.classList.add("rg-"+roleGroup(player.rm[0]));   // colore = ruolo del giocatore
         wrap.appendChild(disc);
         wrap.appendChild(el("div","cap",player.n));
         reservesOf(bi,i).forEach(rid=>{
@@ -768,7 +770,6 @@ function renderBoards(){
           if(rp) wrap.appendChild(el("div","res","("+rp.n+")"));
         });
       } else {
-        disc.textContent=s.roles.join("/");
         wrap.appendChild(disc);
       }
       pitch.appendChild(wrap);

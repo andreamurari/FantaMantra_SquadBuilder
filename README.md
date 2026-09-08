@@ -25,7 +25,8 @@ usa la [versione online](https://claude.ai/code/artifact/727c5d4a-a933-4586-bc1c
   - se quel ruolo è tutto occupato il giocatore va in **riserva**, senza scalare a un ruolo
     meno difensivo. Es. con due M/C in un 3-4-2-1: uno titolare sulla M, l'altro riserva,
     e lo slot M/C resta libero per una C.
-  - Il pallino in campo mostra il/i ruolo/i originale/i del giocatore (es. `W/A`).
+  - Il pallino in campo mostra il ruolo dello **slot del modulo** (`M/C`, `W/A`…); il colore
+    è quello del ruolo principale del giocatore.
 - Il pallino in campo prende il **colore del ruolo** come su fantacalcio.it: Por giallo,
   difensori verde, centrocampo azzurro, trequarti/ali viola, attacco rosso.
 - **Listone 2026/27** integrato (dal file `Quotazioni_Fantacalcio_*.xlsx`): cerca e filtra per
