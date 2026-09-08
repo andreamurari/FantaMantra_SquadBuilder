@@ -310,14 +310,14 @@ input{font-family:inherit}
 }
 .row .x{color:var(--accent)}
 .row .allfields{color:var(--ok)}
-.row .removeall{color:var(--c)}
+.row .removeall{color:var(--accent)}
 .row .strike{color:var(--accent)}
 .row .x:hover{background:var(--accent-weak);border-color:var(--accent)}
 .row .strike:hover{background:var(--accent-weak);border-color:var(--accent)}
 .row .strike.strike-undo{color:var(--ok)}
 .row .strike.strike-undo:hover{background:var(--ok-weak);border-color:var(--ok)}
 .row .allfields:hover:not(:disabled){background:var(--ok-weak);border-color:var(--ok)}
-.row .removeall:hover:not(:disabled){background:var(--panel-3);border-color:var(--c)}
+.row .removeall:hover:not(:disabled){background:var(--accent-weak);border-color:var(--accent)}
 .row .allfields:disabled,.row .removeall:disabled{opacity:.3;cursor:default}
 .row .add{
   color:var(--ok);
@@ -715,8 +715,8 @@ const el = (t,c,txt)=>{ const e=document.createElement(t); if(c)e.className=c; i
 const ICONS = {
   zap:'<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',
   eraser:'<path d="m7 21-4.3-4.3a2.4 2.4 0 0 1 0-3.4l9.6-9.6a2.4 2.4 0 0 1 3.4 0l5.6 5.6a2.4 2.4 0 0 1 0 3.4L13 21"/><path d="M22 21H8"/><path d="m5 11 9 9"/>',
-  boxIn:'<path d="M4 13v5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/><path d="M12 3v11"/><path d="m8 10 4 4 4-4"/>',
-  boxOut:'<path d="M4 13v5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/><path d="M12 14V3"/><path d="m8 7 4-4 4 4"/>',
+  circlePlus:'<circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/>',
+  circleX:'<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>',
   ban:'<circle cx="12" cy="12" r="9.5"/><path d="m5.3 5.3 13.4 13.4"/>',
   undo:'<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H9"/>',
   plus:'<path d="M5 12h14"/><path d="M12 5v14"/>',
@@ -910,12 +910,12 @@ function renderRosa(){
       row.appendChild(who);
       if(placedSomewhere(p.id)) row.appendChild(el("span","onfield","IN CAMPO"));
       else if(usedAnywhere(p.id)) row.appendChild(el("span","onfield ris","RISERVA"));
-      const all=iconBtn("allfields","boxIn","Metti nel primo slot libero di ogni campo");
+      const all=iconBtn("allfields","circlePlus","Metti nel primo slot libero di ogni campo");
       all.setAttribute("aria-label","Metti "+p.n+" nel primo slot libero di ogni campo");
       all.disabled = !canPlaceAnywhere(p.id);
       all.addEventListener("click",()=>placeInAllBoards(p.id));
       row.appendChild(all);
-      const none=iconBtn("removeall","boxOut","Togli da tutti i campi (titolare o riserva)");
+      const none=iconBtn("removeall","circleX","Togli da tutti i campi (titolare o riserva)");
       none.setAttribute("aria-label","Togli "+p.n+" da tutti i campi");
       none.disabled = !usedAnywhere(p.id);
       none.addEventListener("click",()=>removeFromAllBoards(p.id));
@@ -1293,8 +1293,8 @@ function renderAll(){
   document.getElementById("ibLegend").innerHTML =
     L('var(--warn)','zap','schiera automatico') +
     L('var(--c)','eraser','svuota campo') +
-    L('var(--ok)','boxIn','in ogni campo') +
-    L('var(--c)','boxOut','via da ogni campo');
+    L('var(--ok)','circlePlus','in ogni campo') +
+    L('var(--accent)','circleX','via da ogni campo');
 })();
 
 renderAll();
