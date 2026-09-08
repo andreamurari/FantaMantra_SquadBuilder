@@ -144,6 +144,23 @@ input{font-family:inherit}
   padding:8px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px;
 }
 .board-head{display:flex;align-items:center;gap:6px}
+.jolly{
+  display:flex;flex-wrap:wrap;align-items:center;gap:5px;
+  padding-top:7px;border-top:1px dashed var(--line-strong);
+}
+.jolly-h{
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:11px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--warn);
+}
+.jchip{
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--warn-weak);border:1px solid var(--warn);border-radius:6px;
+  padding:2px 6px;font-size:12px;font-weight:600;color:var(--ink);
+}
+.jchip i{
+  font-style:normal;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:10.5px;
+  letter-spacing:.02em;color:var(--warn);
+}
 .mod-select{
   flex:1;min-width:0;background:var(--panel-2);border:1px solid var(--line);color:var(--ink);
   border-radius:8px;padding:6px 8px;
@@ -420,7 +437,10 @@ input{font-family:inherit}
 .hint{font-size:11.5px;color:var(--ink-faint);padding:10px 2px 0;line-height:1.55}
 .hint a{color:var(--ink-soft)}
 .hint strong{color:var(--ink-soft)}
-.hint .ib-legend{display:block;margin-top:4px;opacity:.85}
+.hint .ib-legend{display:flex;flex-wrap:wrap;gap:5px 14px;margin-top:7px;opacity:.95;font-weight:600}
+.hint .ib-legend .lgi{display:inline-flex;align-items:center;gap:4px}
+.hint .ib-legend .lgc{display:inline-flex}
+.hint .ib-legend svg{width:14px;height:14px}
 
 @media (prefers-reduced-motion:reduce){ *{transition:none!important} }
 </style>
@@ -448,17 +468,14 @@ input{font-family:inherit}
     </div>
     <p class="hint">
       Scegli un modulo per ognuno dei 4 campi e confronta come si dispone la stessa rosa.
-      Tocca uno slot per assegnare un giocatore: puoi schierare <strong>solo chi ha quel
-      ruolo Mantra esatto</strong>. Il pallino in campo prende il colore del ruolo (come su
-      fantacalcio.it). Lo <strong>schieramento automatico</strong> (⚡ e ⊞): ogni giocatore va
-      nel suo <strong>ruolo più difensivo</strong> (Por · Dc/B · Ds/Dd · M · E · C · T/W · A · Pc),
-      mentre uno slot doppio del modulo vale sempre come il suo ruolo <strong>più offensivo</strong>
-      (lo slot M/C accoglie una C, non una M). Se quel ruolo è tutto occupato il giocatore entra
-      come <strong>riserva</strong> — tra parentesi sotto il titolare — senza scalare a un ruolo
-      meno difensivo. Cambiando modulo la riserva è promossa se il titolare non è più valido.
-      Il pallino mostra il ruolo dello slot del modulo; il colore è quello del ruolo del giocatore.
-      <span class="ib-legend"><b style="color:var(--warn)">⚡</b> schiera in automatico ·
-      <b style="color:var(--c)">⌫</b> svuota il campo</span>
+      Tocca uno slot per assegnare un giocatore: solo <strong>ruolo Mantra esatto</strong>.
+      Il pallino mostra il ruolo dello slot, colorato come il ruolo del giocatore (fantacalcio.it).
+      Lo schieramento automatico mette ogni giocatore nel suo <strong>ruolo più difensivo</strong>
+      (Por · Dc/B · Ds/Dd · M · E · C · T/W · A · Pc); uno slot doppio vale come il ruolo
+      <strong>più offensivo</strong> (M/C = C). Se il ruolo è pieno il giocatore va in
+      <strong>riserva</strong>, tra parentesi sotto il titolare. Chi non ha nessun ruolo previsto
+      dal modulo finisce tra i <strong>Jolly</strong>, sotto il campo.
+      <span class="ib-legend" id="ibLegend"></span>
     </p>
   </section>
 
@@ -656,6 +673,11 @@ function rolesDefFirst(rm){ return rm.slice().sort((a,b)=> defRank(a)-defRank(b)
 function slotEffRole(slotRoles){
   return slotRoles.slice().sort((a,b)=> defRank(b)-defRank(a))[0];
 }
+// true se il modulo del campo bi ha almeno uno slot che accetta un ruolo del giocatore
+function fitsBoard(bi, p){
+  const slots=FORMATIONS[state.boards[bi]];
+  return slots.some(s=> s.roles.some(r=> p.rm.includes(r)));
+}
 function rosaById(id){ return state.rosa.find(p=>p.id===id); }
 function isStruck(idx){ return state.struck.includes(idx); }
 function toggleStruck(idx){
@@ -820,6 +842,21 @@ function renderBoards(){
       pitch.appendChild(wrap);
     });
     board.appendChild(pitch);
+
+    // Jolly: giocatori della rosa senza alcun ruolo previsto da questo modulo
+    const jolly=state.rosa.filter(p=>!fitsBoard(bi,p)).sort((a,b)=> b.fvm-a.fvm);
+    if(jolly.length){
+      const jb=el("div","jolly");
+      jb.appendChild(el("span","jolly-h","Jolly"));
+      jolly.forEach(p=>{
+        const c=el("span","jchip");
+        c.appendChild(el("b",null,p.n));
+        c.appendChild(el("i",null,p.rm.join("/")));
+        jb.appendChild(c);
+      });
+      board.appendChild(jb);
+    }
+
     host.appendChild(board);
   });
 }
@@ -1249,5 +1286,16 @@ function renderAll(){
   document.getElementById("pane-rosa").hidden = name!=="rosa";
   document.getElementById("pane-listone").hidden = name!=="listone";
 }
+
+(function fillLegend(){
+  const L=(col,name,label)=>
+    '<span class="lgi"><span class="lgc" style="color:'+col+'">'+ic(name)+'</span>'+label+'</span>';
+  document.getElementById("ibLegend").innerHTML =
+    L('var(--warn)','zap','schiera automatico') +
+    L('var(--c)','eraser','svuota campo') +
+    L('var(--ok)','gridPlus','in ogni campo') +
+    L('var(--c)','gridMinus','via da ogni campo');
+})();
+
 renderAll();
 </script>

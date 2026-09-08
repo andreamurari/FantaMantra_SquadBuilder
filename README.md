@@ -27,6 +27,8 @@ usa la [versione online](https://claude.ai/code/artifact/727c5d4a-a933-4586-bc1c
     e lo slot M/C resta libero per una C.
   - Il pallino in campo mostra il ruolo dello **slot del modulo** (`M/C`, `W/A`…); il colore
     è quello del ruolo principale del giocatore.
+  - Sotto ogni campo, la sezione **Jolly** elenca i giocatori della rosa che non hanno nessun
+    ruolo previsto da quel modulo (es. una `E` in un 4-3-3).
 - Il pallino in campo prende il **colore del ruolo** come su fantacalcio.it: Por giallo,
   difensori verde, centrocampo azzurro, trequarti/ali viola, attacco rosso.
 - **Listone 2026/27** integrato (dal file `Quotazioni_Fantacalcio_*.xlsx`): cerca e filtra per
