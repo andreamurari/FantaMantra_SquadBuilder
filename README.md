@@ -20,8 +20,9 @@ usa la [versione online](https://claude.ai/code/artifact/727c5d4a-a933-4586-bc1c
   in panchina), `⌫` svuota il campo.
 - Il pallino in campo prende il **colore del ruolo** come su fantacalcio.it: Por giallo,
   difensori verde, centrocampo azzurro, trequarti/ali viola, attacco rosso.
-- **Listone 2026/27** integrato (dal file `Quotazioni_Fantacalcio_*.xlsx`): cerca, filtra per
-  ruolo Mantra e aggiungi gli acquisti con il prezzo pagato.
+- **Listone 2026/27** integrato (dal file `Quotazioni_Fantacalcio_*.xlsx`): cerca e filtra per
+  ruolo Mantra; quando aggiungi un acquisto ti viene chiesto il **prezzo pagato** (pre-compilato
+  con la quotazione), poi comunque modificabile dalla rosa.
 - In **Rosa**, ogni giocatore ha due tasti: `⊞` lo mette in ogni campo — nel primo slot libero
   compatibile come titolare, oppure come **riserva** (mostrata tra parentesi sotto il titolare)
   se non ci sono slot liberi; salta i campi senza nessuno slot per quel ruolo. `⊟` lo toglie da

@@ -368,6 +368,20 @@ input{font-family:inherit}
 }
 .picker .resline .x{width:28px;height:28px;padding:0;font-size:17px;flex:0 0 auto}
 
+.picker.pricebox{width:min(380px,100%)}
+.pricebody{padding:16px}
+.pricebody label{
+  display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-faint);font-weight:700;margin-bottom:7px;
+}
+.priceinput{
+  width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;
+  padding:12px 14px;color:var(--ink);font-weight:700;font-size:26px;
+  font-variant-numeric:tabular-nums;text-align:center;
+}
+.priceinput:focus-visible{outline:2.5px solid var(--accent);outline-offset:1px}
+.pricehint{margin-top:9px;font-size:12px;color:var(--ink-faint);font-weight:600;text-align:center}
+
 .rolelegend{
   display:flex;flex-wrap:wrap;gap:6px 14px;padding:10px 2px 2px;
   font-size:11px;font-weight:600;color:var(--ink-soft);
@@ -871,7 +885,7 @@ function renderResults(){
     }
     const add=el("button","add", own?"✓":"+"); add.type="button";
     add.disabled=own||struck;
-    add.addEventListener("click",()=>addToRosa(p));
+    add.addEventListener("click",()=>openPriceDialog(p));
     row.appendChild(add);
     box.appendChild(row);
   });
@@ -884,9 +898,10 @@ function renderResults(){
 /* ============================================================
    MUTATIONS
    ============================================================ */
-function addToRosa(p){
+function addToRosa(p, price){
   if(state.rosa.some(x=>x.idx===p.idx)) return;
-  state.rosa.push({ id:state.seq++, idx:p.idx, n:p.n, team:p.team, r:p.r, rm:p.rm.slice(), fvm:p.fvm, qt:p.qt, price:p.qt });
+  const pr = (price==null || isNaN(price)) ? p.qt : Math.max(0, Math.round(price));
+  state.rosa.push({ id:state.seq++, idx:p.idx, n:p.n, team:p.team, r:p.r, rm:p.rm.slice(), fvm:p.fvm, qt:p.qt, price:pr });
   save(); renderRosa(); renderResults(); renderBudget();
 }
 function removeFromRosa(id){
@@ -1077,6 +1092,45 @@ function closePicker(){
   pickerOpen=false;
 }
 addEventListener("keydown",e=>{ if(e.key==="Escape" && pickerOpen) closePicker(); });
+
+// chiede il prezzo pagato prima di aggiungere il giocatore alla rosa
+function openPriceDialog(p){
+  if(state.rosa.some(x=>x.idx===p.idx)) return;
+  const back=el("div","backdrop"); back.id="pickerBack";
+  back.addEventListener("click",e=>{ if(e.target===back) closePicker(); });
+  const box=el("div","picker pricebox"); box.setAttribute("role","dialog"); box.setAttribute("aria-modal","true");
+
+  const head=el("header");
+  const ht=el("div");
+  ht.appendChild(el("h3",null,"Prezzo d'acquisto"));
+  ht.appendChild(el("div","slotrole", p.n+" · "+p.team+" · "+p.rm.join("/")));
+  head.appendChild(ht);
+  const close=el("button","x","×"); close.type="button"; close.setAttribute("aria-label","Annulla");
+  close.addEventListener("click",closePicker);
+  head.appendChild(close);
+  box.appendChild(head);
+
+  const body=el("div","pricebody");
+  const lab=el("label",null,"Crediti pagati"); lab.setAttribute("for","priceDlgInput");
+  const inp=el("input","priceinput num"); inp.type="number"; inp.min="0"; inp.step="1";
+  inp.id="priceDlgInput"; inp.value=p.qt;
+  body.appendChild(lab); body.appendChild(inp);
+  body.appendChild(el("div","pricehint","Quotazione Mantra di riferimento: "+p.qt));
+  box.appendChild(body);
+
+  const foot=el("footer");
+  const ok=el("button",null,"Aggiungi alla rosa"); ok.type="button";
+  const confirm=()=>{ addToRosa(p, +inp.value); closePicker(); };
+  ok.addEventListener("click",confirm);
+  inp.addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); confirm(); } });
+  foot.appendChild(ok);
+  box.appendChild(foot);
+
+  back.appendChild(box);
+  document.body.appendChild(back);
+  pickerOpen=true;
+  setTimeout(()=>{ inp.focus(); inp.select(); }, 30);
+}
 
 /* ============================================================
    WIRE UP
