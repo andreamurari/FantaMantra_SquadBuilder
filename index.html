@@ -158,15 +158,15 @@ input{font-family:inherit}
   padding:2px 5px 2px 6px;font-size:12px;font-weight:600;color:var(--ink);
   transition:background .12s,border-color .12s;
 }
-.jchip:hover{background:var(--accent-weak);border-color:var(--accent)}
+button.jchip:hover{background:var(--ok-weak);border-color:var(--ok)}
 .jchip i{
   font-style:normal;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:10.5px;
   letter-spacing:.02em;color:var(--warn);
 }
-.jchip:hover i{color:var(--accent)}
-.jchip .jx{display:inline-flex;color:var(--ink-faint)}
-.jchip .jx svg{width:12px;height:12px}
-.jchip:hover .jx{color:var(--accent)}
+button.jchip:hover i{color:var(--ok)}
+.jchip .jx{display:inline-flex;color:var(--ok)}
+.jchip .jx svg{width:13px;height:13px}
+.jchip-fix{opacity:.72;cursor:default}
 .mod-select{
   flex:1;min-width:0;background:var(--panel-2);border:1px solid var(--line);color:var(--ink);
   border-radius:8px;padding:6px 8px;
@@ -479,9 +479,11 @@ input{font-family:inherit}
       Lo schieramento automatico mette ogni giocatore nel suo <strong>ruolo più difensivo</strong>
       (Por · Dc/B · Ds/Dd · M · E · C · T/W · A · Pc); uno slot doppio vale come il ruolo
       <strong>più offensivo</strong> (M/C = C). Se il ruolo è pieno il giocatore va in
-      <strong>riserva</strong>, tra parentesi sotto il titolare. Chi non ha nessun ruolo previsto
-      dal modulo finisce tra i <strong>Jolly</strong> sotto il campo: toccane uno per toglierlo
-      dalla rosa.
+      <strong>riserva</strong>, tra parentesi sotto il titolare.
+      Sotto il campo la sezione <strong>Jolly</strong> raccoglie chi non ha nessun ruolo previsto
+      dal modulo <em>e</em> chi hai tolto a mano dal campo — con <span style="color:var(--warn);font-weight:700">svuota campo</span>
+      (tutto il campo) o con il <span style="color:var(--accent);font-weight:700">circle-x</span> (un giocatore, da ogni campo).
+      Tocca un jolly con la <span style="color:var(--ok);font-weight:700">+</span> per rimetterlo in campo.
       <span class="ib-legend" id="ibLegend"></span>
     </p>
   </section>
@@ -618,7 +620,7 @@ const DEFAULT_BOARDS = ["3-4-3","3-5-2","4-3-3","4-4-2"];
    STATE  (4 campi indipendenti: state.boards[i] modulo, state.lineups[i] schieramento)
    ============================================================ */
 const KEY = "campetto-mantra-v1";
-function fresh(){ return { budget:500, boards:DEFAULT_BOARDS.slice(), lineups:[{},{},{},{}], reserves:[{},{},{},{}], rosa:[], struck:[], hideStruck:false, seq:1, tab:"rosa", roleFilter:"", search:"" }; }
+function fresh(){ return { budget:500, boards:DEFAULT_BOARDS.slice(), lineups:[{},{},{},{}], reserves:[{},{},{},{}], excluded:[[],[],[],[]], rosa:[], struck:[], hideStruck:false, seq:1, tab:"rosa", roleFilter:"", search:"" }; }
 function load(){ try{ return JSON.parse(localStorage.getItem(KEY)); }catch(e){ return null; } }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
 function migrate(s){
@@ -632,6 +634,7 @@ function migrate(s){
   if(!Array.isArray(s.boards)  || s.boards.length!==4)  s.boards  = DEFAULT_BOARDS.slice();
   if(!Array.isArray(s.lineups) || s.lineups.length!==4) s.lineups = [{},{},{},{}];
   if(!Array.isArray(s.reserves) || s.reserves.length!==4) s.reserves = [{},{},{},{}];
+  if(!Array.isArray(s.excluded) || s.excluded.length!==4) s.excluded = [[],[],[],[]];
   if(!Array.isArray(s.rosa)) s.rosa=[];
   if(!Array.isArray(s.struck)) s.struck=[];
   if(typeof s.hideStruck!=="boolean") s.hideStruck=false;
@@ -684,6 +687,21 @@ function slotEffRole(slotRoles){
 function fitsBoard(bi, p){
   const slots=FORMATIONS[state.boards[bi]];
   return slots.some(s=> s.roles.some(r=> p.rm.includes(r)));
+}
+function isExcluded(bi, id){ return state.excluded[bi].includes(id); }
+function unExclude(bi, id){
+  const a=state.excluded[bi], i=a.indexOf(id);
+  if(i>=0){ a.splice(i,1); return true; }
+  return false;
+}
+function excludeFromBoard(bi, id){
+  if(!state.excluded[bi].includes(id)){ state.excluded[bi].push(id); return true; }
+  return false;
+}
+// Jolly del campo bi = giocatori senza ruolo utile nel modulo OPPURE esclusi a mano
+function jollyList(bi){
+  return state.rosa.filter(p=> !fitsBoard(bi,p) || isExcluded(bi,p.id))
+    .sort((a,b)=> b.fvm-a.fvm);
 }
 function rosaById(id){ return state.rosa.find(p=>p.id===id); }
 function isStruck(idx){ return state.struck.includes(idx); }
@@ -777,6 +795,9 @@ function pruneBoard(bi){
   for(const k in rv){
     if(lu[k]==null && rv[k].length){ lu[k]=rv[k].shift(); if(!rv[k].length) delete rv[k]; changed=true; }
   }
+  // 4. esclusioni di giocatori non più in rosa
+  const cleaned=state.excluded[bi].filter(id=> rosaById(id));
+  if(cleaned.length!==state.excluded[bi].length){ state.excluded[bi]=cleaned; changed=true; }
   return changed;
 }
 function pruneAll(){ let c=false; for(let bi=0;bi<4;bi++) if(pruneBoard(bi)) c=true; if(c) save(); }
@@ -850,20 +871,30 @@ function renderBoards(){
     });
     board.appendChild(pitch);
 
-    // Jolly: giocatori della rosa senza alcun ruolo previsto da questo modulo
-    const jolly=state.rosa.filter(p=>!fitsBoard(bi,p)).sort((a,b)=> b.fvm-a.fvm);
+    // Jolly del campo: chi non ha ruoli nel modulo + chi è stato escluso a mano
+    const jolly=jollyList(bi);
     if(jolly.length){
       const jb=el("div","jolly");
       jb.appendChild(el("span","jolly-h","Jolly"));
       jolly.forEach(p=>{
-        const c=el("button","jchip"); c.type="button";
-        c.title="Rimuovi "+p.n+" dalla rosa";
-        c.setAttribute("aria-label","Rimuovi "+p.n+" dalla rosa");
+        const restorable = fitsBoard(bi,p) && isExcluded(bi,p.id);  // escluso ma potrebbe rientrare
+        const c=el(restorable?"button":"span", "jchip"+(restorable?"":" jchip-fix"));
         c.appendChild(el("b",null,p.n));
         c.appendChild(el("i",null,p.rm.join("/")));
-        const jx=el("span","jx"); jx.innerHTML=ic("x");
-        c.appendChild(jx);
-        c.addEventListener("click",()=>removeFromRosa(p.id));
+        if(restorable){
+          c.type="button";
+          c.title="Rimetti "+p.n+" in questo campo";
+          c.setAttribute("aria-label",c.title);
+          const jr=el("span","jx"); jr.innerHTML=ic("circlePlus");
+          c.appendChild(jr);
+          c.addEventListener("click",()=>{
+            unExclude(bi,p.id);
+            if(slotOfPlayer(bi,p.id)<0 && !isReserve(bi,p.id)) placeByDefPriority(bi,p);
+            save(); renderBoards(); renderRosa();
+          });
+        } else {
+          c.title=p.n+" non ha nessun ruolo previsto da questo modulo";
+        }
         jb.appendChild(c);
       });
       board.appendChild(jb);
@@ -922,14 +953,14 @@ function renderRosa(){
       row.appendChild(who);
       if(placedSomewhere(p.id)) row.appendChild(el("span","onfield","IN CAMPO"));
       else if(usedAnywhere(p.id)) row.appendChild(el("span","onfield ris","RISERVA"));
-      const all=iconBtn("allfields","circlePlus","Metti nel primo slot libero di ogni campo");
-      all.setAttribute("aria-label","Metti "+p.n+" nel primo slot libero di ogni campo");
+      const all=iconBtn("allfields","circlePlus","Rimetti disponibile e schiera in ogni campo");
+      all.setAttribute("aria-label","Rimetti "+p.n+" disponibile e schiera in ogni campo");
       all.disabled = !canPlaceAnywhere(p.id);
       all.addEventListener("click",()=>placeInAllBoards(p.id));
       row.appendChild(all);
-      const none=iconBtn("removeall","circleX","Togli da tutti i campi (titolare o riserva)");
-      none.setAttribute("aria-label","Togli "+p.n+" da tutti i campi");
-      none.disabled = !usedAnywhere(p.id);
+      const none=iconBtn("removeall","circleX","Togli da ogni campo (va tra i Jolly)");
+      none.setAttribute("aria-label","Togli "+p.n+" da ogni campo");
+      none.disabled = !canRemoveEverywhere(p.id);
       none.addEventListener("click",()=>removeFromAllBoards(p.id));
       row.appendChild(none);
       const price=el("input","price num"); price.type="number"; price.min="0"; price.value=p.price;
@@ -1019,6 +1050,7 @@ function removeFromRosa(id){
   for(let bi=0;bi<4;bi++){
     const lu=state.lineups[bi]; for(const k in lu) if(lu[k]===id) delete lu[k];
     dropReserve(bi,id);
+    unExclude(bi,id);
   }
   state.rosa=state.rosa.filter(p=>p.id!==id);
   save(); renderAll();
@@ -1040,7 +1072,13 @@ function removeReserve(bi, slotIdx, id){
   if(!rv[slotIdx].length) delete rv[slotIdx];
   save(); closePicker(); renderBoards(); renderRosa();
 }
-function clearBoard(bi){ state.lineups[bi]={}; state.reserves[bi]={}; save(); renderBoards(); renderRosa(); }
+// svuota campo: toglie tutti dal campo e li mette tra i Jolly (esclusi) di quel campo
+function clearBoard(bi){
+  const placed=new Set([...Object.values(state.lineups[bi]).map(Number), ...Object.values(state.reserves[bi]).flat()]);
+  placed.forEach(id=> excludeFromBoard(bi,id));
+  state.lineups[bi]={}; state.reserves[bi]={};
+  save(); renderBoards(); renderRosa();
+}
 
 // primo slot libero (vuoto + ruolo esatto) di un campo per un giocatore; -1 se non c'è
 function firstFreeSlot(bi, p){
@@ -1066,6 +1104,7 @@ function bestReserveSlot(bi, p){
 // Se nessun ruolo ha uno slot libero -> riserva sotto un titolare del ruolo più difensivo
 // che esiste nel modulo. Ritorna true se ha piazzato il giocatore.
 function placeByDefPriority(bi, p){
+  if(isExcluded(bi, p.id)) return false;              // escluso a mano da questo campo
   const slots=FORMATIONS[state.boards[bi]], lu=state.lineups[bi], rv=state.reserves[bi];
   const eff=slots.map(s=> slotEffRole(s.roles));      // ruolo effettivo (più offensivo) di ogni slot
   const addRes=i=>{ (rv[i]=rv[i]||[]).push(p.id); return true; };
@@ -1092,35 +1131,45 @@ function placeByDefPriority(bi, p){
   }
   return false;
 }
+// circle-plus abilitato se il giocatore è escluso da qualche campo o piazzabile da qualche parte
 function canPlaceAnywhere(id){
   const p=rosaById(id); if(!p) return false;
   for(let bi=0;bi<4;bi++){
+    if(isExcluded(bi,id)) return true;
     if(slotOfPlayer(bi,id)>=0 || isReserve(bi,id)) continue;
     if(firstFreeSlot(bi,p)>=0 || bestReserveSlot(bi,p)>=0) return true;
   }
   return false;
 }
-// mette il giocatore in OGNI campo, nel ruolo più difensivo disponibile (titolare) o
-// come riserva. Salta i campi dove è già presente o senza slot per i suoi ruoli.
+// circle-x abilitato se il giocatore è in un campo o non ancora escluso ovunque
+function canRemoveEverywhere(id){
+  if(usedAnywhere(id)) return true;
+  for(let bi=0;bi<4;bi++) if(!isExcluded(bi,id)) return true;
+  return false;
+}
+// CIRCLE-PLUS: rimette il giocatore disponibile in OGNI campo e lo schiera dove può.
 function placeInAllBoards(id){
   const p=rosaById(id); if(!p) return;
   let changed=false;
   for(let bi=0;bi<4;bi++){
+    if(unExclude(bi,id)) changed=true;
     if(slotOfPlayer(bi,id)>=0 || isReserve(bi,id)) continue;
     if(placeByDefPriority(bi,p)) changed=true;
   }
   if(changed){ save(); renderBoards(); renderRosa(); }
 }
-// toglie il giocatore da tutti i campi, titolare o riserva (resta in rosa)
+// CIRCLE-X: toglie il giocatore da ogni campo e lo mette tra i Jolly (escluso) di tutti.
 function removeFromAllBoards(id){
   let changed=false;
   for(let bi=0;bi<4;bi++){
     const lu=state.lineups[bi]; for(const k in lu) if(lu[k]===id){ delete lu[k]; changed=true; }
     if(dropReserve(bi,id)) changed=true;
+    if(excludeFromBoard(bi,id)) changed=true;
   }
   if(changed){ save(); renderBoards(); renderRosa(); }
 }
 function autofillBoard(bi){
+  state.excluded[bi]=[];                    // ripristino completo: annulla le esclusioni manuali
   const lu=state.lineups[bi], rv=state.reserves[bi];
   const used=new Set([...Object.values(lu).map(Number), ...Object.values(rv).flat()]);
   // ogni giocatore (dal più forte per FVM) va nel ruolo PIÙ DIFENSIVO disponibile tra i suoi;
