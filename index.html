@@ -851,8 +851,8 @@ function renderBoards(){
       const pid=lu[i];
       const player=pid!=null?rosaById(pid):null;
       const disc=el("button","disc"); disc.type="button";
-      // il pallino mostra sempre il ruolo dello SLOT del modulo (M/C, W/A, …)
-      const roleStr=s.roles.join("/");
+      // il pallino mostra il ruolo EFFETTIVO dello slot (il più offensivo): E/W -> W, M/C -> C …
+      const roleStr=slotEffRoles(s.roles).join("/");
       disc.textContent=roleStr;
       if(roleStr.length>=6) disc.classList.add("disc-xs");
       else if(roleStr.length>=4) disc.classList.add("disc-sm");
