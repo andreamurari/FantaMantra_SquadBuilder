@@ -172,8 +172,10 @@ input{font-family:inherit}
   display:flex;align-items:center;justify-content:center;
   font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:11.5px;line-height:1;
   color:#fff;border:2px dashed rgba(255,255,255,.5);background:rgba(0,0,0,.26);
-  transition:transform .12s ease;
+  transition:transform .12s ease;white-space:nowrap;
 }
+.slot .disc.disc-sm{font-size:9px;letter-spacing:-.2px}
+.slot .disc.disc-xs{font-size:7px;letter-spacing:-.4px}
 .slot button.disc{cursor:pointer}
 .slot button.disc:hover{transform:scale(1.09)}
 /* colori ruolo come su fantacalcio.it: Por giallo · Dif verde · Cen azzurro · Tre/Ala viola · Att rosso */
@@ -631,11 +633,6 @@ function rolesDefFirst(rm){ return rm.slice().sort((a,b)=> defRank(a)-defRank(b)
 function slotEffRole(slotRoles){
   return slotRoles.slice().sort((a,b)=> defRank(b)-defRank(a))[0];
 }
-// il ruolo che il giocatore ricopre in quello slot (il suo più difensivo compatibile)
-function playedRole(slotRoles, rm){
-  const m=rolesDefFirst(rm).filter(r=>slotRoles.includes(r));
-  return m[0] || rm[0];
-}
 function rosaById(id){ return state.rosa.find(p=>p.id===id); }
 function isStruck(idx){ return state.struck.includes(idx); }
 function toggleStruck(idx){
@@ -758,10 +755,12 @@ function renderBoards(){
       disc.setAttribute("aria-label",(player?player.n+" — ":"")+"slot "+s.roles.join("/"));
       disc.addEventListener("click",()=>openPicker(bi,i));
       if(player){
-        const pr=playedRole(s.roles, player.rm);
+        const roleStr=player.rm.join("/");
         wrap.classList.add("filled","fit-ok");
-        disc.classList.add("rg-"+roleGroup(pr));
-        disc.textContent=pr;
+        disc.classList.add("rg-"+roleGroup(player.rm[0]));
+        if(roleStr.length>=6) disc.classList.add("disc-xs");
+        else if(roleStr.length>=4) disc.classList.add("disc-sm");
+        disc.textContent=roleStr;
         wrap.appendChild(disc);
         wrap.appendChild(el("div","cap",player.n));
         reservesOf(bi,i).forEach(rid=>{
