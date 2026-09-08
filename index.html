@@ -480,10 +480,11 @@ button.jchip:hover i{color:var(--ok)}
       (Por · Dc/B · Ds/Dd · M · E · C · T/W · A · Pc); uno slot doppio vale come il ruolo
       <strong>più offensivo</strong> (M/C = C). Se il ruolo è pieno il giocatore va in
       <strong>riserva</strong>, tra parentesi sotto il titolare.
-      Sotto il campo la sezione <strong>Jolly</strong> raccoglie chi non ha nessun ruolo previsto
-      dal modulo <em>e</em> chi hai tolto a mano dal campo — con <span style="color:var(--warn);font-weight:700">svuota campo</span>
-      (tutto il campo) o con il <span style="color:var(--accent);font-weight:700">circle-x</span> (un giocatore, da ogni campo).
-      Tocca un jolly con la <span style="color:var(--ok);font-weight:700">+</span> per rimetterlo in campo.
+      Sotto il campo la sezione <strong>Jolly</strong> mostra chi non ha nessun ruolo previsto dal modulo.
+      Il <span style="color:var(--accent);font-weight:700">circle-x</span> nasconde un giocatore da ogni
+      campo (via da campo e Jolly, resta in rosa); la gomma <em>svuota campo</em> azzera campo e Jolly di
+      quel campo. Il <span style="color:var(--ok);font-weight:700">circle-plus</span> lo rimette in campo,
+      <span style="color:var(--warn);font-weight:700">⚡</span> ripristina tutto.
       <span class="ib-legend" id="ibLegend"></span>
     </p>
   </section>
@@ -698,9 +699,10 @@ function excludeFromBoard(bi, id){
   if(!state.excluded[bi].includes(id)){ state.excluded[bi].push(id); return true; }
   return false;
 }
-// Jolly del campo bi = giocatori senza ruolo utile nel modulo OPPURE esclusi a mano
+// Jolly del campo bi = giocatori senza ruolo utile nel modulo e NON nascosti a mano.
+// (circle-x e "svuota campo" nascondono il giocatore: non compare né in campo né tra i Jolly.)
 function jollyList(bi){
-  return state.rosa.filter(p=> !fitsBoard(bi,p) || isExcluded(bi,p.id))
+  return state.rosa.filter(p=> !fitsBoard(bi,p) && !isExcluded(bi,p.id))
     .sort((a,b)=> b.fvm-a.fvm);
 }
 function rosaById(id){ return state.rosa.find(p=>p.id===id); }
@@ -871,30 +873,16 @@ function renderBoards(){
     });
     board.appendChild(pitch);
 
-    // Jolly del campo: chi non ha ruoli nel modulo + chi è stato escluso a mano
+    // Jolly del campo: chi non ha nessun ruolo previsto dal modulo (e non nascosto a mano)
     const jolly=jollyList(bi);
     if(jolly.length){
       const jb=el("div","jolly");
       jb.appendChild(el("span","jolly-h","Jolly"));
       jolly.forEach(p=>{
-        const restorable = fitsBoard(bi,p) && isExcluded(bi,p.id);  // escluso ma potrebbe rientrare
-        const c=el(restorable?"button":"span", "jchip"+(restorable?"":" jchip-fix"));
+        const c=el("span","jchip jchip-fix");
+        c.title=p.n+" non ha nessun ruolo previsto da questo modulo";
         c.appendChild(el("b",null,p.n));
         c.appendChild(el("i",null,p.rm.join("/")));
-        if(restorable){
-          c.type="button";
-          c.title="Rimetti "+p.n+" in questo campo";
-          c.setAttribute("aria-label",c.title);
-          const jr=el("span","jx"); jr.innerHTML=ic("circlePlus");
-          c.appendChild(jr);
-          c.addEventListener("click",()=>{
-            unExclude(bi,p.id);
-            if(slotOfPlayer(bi,p.id)<0 && !isReserve(bi,p.id)) placeByDefPriority(bi,p);
-            save(); renderBoards(); renderRosa();
-          });
-        } else {
-          c.title=p.n+" non ha nessun ruolo previsto da questo modulo";
-        }
         jb.appendChild(c);
       });
       board.appendChild(jb);
@@ -1072,10 +1060,11 @@ function removeReserve(bi, slotIdx, id){
   if(!rv[slotIdx].length) delete rv[slotIdx];
   save(); closePicker(); renderBoards(); renderRosa();
 }
-// svuota campo: toglie tutti dal campo e li mette tra i Jolly (esclusi) di quel campo
+// svuota campo: azzera campo E jolly di quel campo (i giocatori restano in rosa, nascosti)
 function clearBoard(bi){
-  const placed=new Set([...Object.values(state.lineups[bi]).map(Number), ...Object.values(state.reserves[bi]).flat()]);
-  placed.forEach(id=> excludeFromBoard(bi,id));
+  jollyList(bi).forEach(p=> excludeFromBoard(bi, p.id));                 // nascondi i jolly a vista
+  [...Object.values(state.lineups[bi]).map(Number),
+   ...Object.values(state.reserves[bi]).flat()].forEach(id=> excludeFromBoard(bi, id));
   state.lineups[bi]={}; state.reserves[bi]={};
   save(); renderBoards(); renderRosa();
 }

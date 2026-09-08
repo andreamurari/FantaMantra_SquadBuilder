@@ -27,10 +27,10 @@ usa la [versione online](https://claude.ai/code/artifact/727c5d4a-a933-4586-bc1c
     e lo slot M/C resta libero per una C.
   - Il pallino in campo mostra il ruolo dello **slot del modulo** (`M/C`, `W/A`…); il colore
     è quello del ruolo principale del giocatore.
-  - Sotto ogni campo la sezione **Jolly** raccoglie chi non ha nessun ruolo previsto dal modulo
-    (es. una `E` in un 4-3-3) **e** chi hai escluso a mano dal campo: con la gomma *svuota campo*
-    (tutto il campo) o con il *circle-x* di un giocatore (da ogni campo). Tocca un jolly con `+`
-    per rimetterlo in campo; `⚡` annulla tutte le esclusioni di quel campo.
+  - Sotto ogni campo la sezione **Jolly** mostra chi non ha nessun ruolo previsto dal modulo
+    (es. una `E` in un 4-3-3). Il **circle-x** nasconde un giocatore da ogni campo (via da campo
+    *e* Jolly, resta in rosa); la gomma *svuota campo* azzera campo e Jolly di quel campo. Il
+    **circle-plus** lo rimette in campo, `⚡` ripristina tutto.
 - Il pallino in campo prende il **colore del ruolo** come su fantacalcio.it: Por giallo,
   difensori verde, centrocampo azzurro, trequarti/ali viola, attacco rosso.
 - **Listone 2026/27** integrato (dal file `Quotazioni_Fantacalcio_*.xlsx`): cerca e filtra per
