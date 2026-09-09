@@ -796,6 +796,39 @@ function righeModulo(mod){
   return _righe[mod]=map;
 }
 
+// Le righe hanno una spaziatura fissa, ma il contenuto di uno slot (nome +
+// fino a 4 riserve) puo' essere piu' alto della spaziatura quando la
+// panchina e' piena — soprattutto se lo slot sta esattamente sopra un
+// altro (stessa x), come un centrocampista centrale sopra un difensore
+// centrale. Dopo il primo posizionamento si misura ogni slot e, se il suo
+// contenuto invade il disco della riga sotto, lo slot viene spostato un
+// po' piu' in alto: solo quel tanto che serve, solo dove serve davvero.
+function correggiSovrapposizioni(pitch){
+  const pr = pitch.getBoundingClientRect();
+  if(!pr.height) return;                  // pitch non ancora visibile (es. tab nascosta)
+  const info = [...pitch.querySelectorAll(".slot")].map(w=>{
+    const discR = w.querySelector(".disc").getBoundingClientRect();
+    const corpo = w.querySelector(".bench") || w.querySelector(".cap");
+    return { wrap:w, discTop:discR.top, corpoRect: corpo?corpo.getBoundingClientRect():null };
+  });
+  const SAFETY = 6;   // px minimi fra un nome e il disco della riga sotto
+  info.forEach(a=>{
+    if(!a.corpoRect) return;
+    let invasione = 0;
+    info.forEach(b=>{
+      if(a===b || b.discTop<=a.discTop) return;         // b non e' sotto ad a
+      const br = b.wrap.querySelector(".disc").getBoundingClientRect();
+      // solo le coppie che si contendono davvero lo spazio in orizzontale
+      if(a.corpoRect.right<br.left || a.corpoRect.left>br.right) return;
+      invasione = Math.max(invasione, a.corpoRect.bottom+SAFETY-br.top);
+    });
+    if(invasione>0){
+      const attuale = parseFloat(a.wrap.style.top);
+      a.wrap.style.top = Math.max(BANDA_ALTA-4, attuale - invasione/pr.height*100) + "%";
+    }
+  });
+}
+
 const PITCH_SVG = '<svg viewBox="0 0 680 1000" preserveAspectRatio="none" aria-hidden="true">'
   + '<g fill="none" stroke="rgba(255,255,255,.7)" stroke-width="3">'
   + '<rect x="12" y="12" width="656" height="976"/>'
@@ -927,6 +960,8 @@ function renderBoards(){
       pitch.appendChild(wrap);
     });
     board.appendChild(pitch);
+    host.appendChild(board);         // agganciato subito: serve per misurare
+    correggiSovrapposizioni(pitch);
 
     // Fuori campo: chi non è schierato. È anche l'area dove rilasciare un
     // giocatore per toglierlo dal campo.
@@ -948,7 +983,6 @@ function renderBoards(){
     if(!fuori.length) jb.appendChild(el("span","jolly-drop-empty","tutta la rosa è in campo"));
     jb.appendChild(el("span","jolly-drop","trascina qui per togliere dal campo"));
     board.appendChild(jb);
-    host.appendChild(board);
   });
 }
 
