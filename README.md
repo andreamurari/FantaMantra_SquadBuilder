@@ -17,16 +17,18 @@ usa la [versione online](https://claude.ai/code/artifact/727c5d4a-a933-4586-bc1c
   e confronti come si dispone la stessa rosa nei diversi sistemi.
 - **Solo ruolo esatto**: in uno slot puoi mettere solo giocatori che hanno quel ruolo Mantra.
   Niente adattamento. `⌫` svuota il campo.
-- **Schieramento automatico** (`⚡` e `⊞`):
-  - lato **giocatore** si guarda il ruolo **più difensivo** — ordine
-    `Por < Dc=B < Ds=Dd < M < E < C < T=W < A < Pc` (un M/C è una M, un Dc/Dd è una Dc);
-  - lato **modulo** uno slot doppio vale sempre come il suo ruolo **più offensivo**
-    (lo slot `M/C` è una C, `W/A` è una A, `A/Pc` è una Pc);
-  - se quel ruolo è tutto occupato il giocatore va in **riserva**, senza scalare a un ruolo
-    meno difensivo. Es. con due M/C in un 3-4-2-1: uno titolare sulla M, l'altro riserva,
-    e lo slot M/C resta libero per una C.
-  - Il pallino in campo mostra il ruolo dello **slot del modulo** (`M/C`, `W/A`…); il colore
-    è quello del ruolo principale del giocatore.
+- **Match ruolo**: un giocatore entra in uno slot **solo se il suo ruolo più difensivo
+  coincide col ruolo più offensivo dello slot**.
+  - lato **giocatore** conta il ruolo **più difensivo** (ordine
+    `Por < Dc=B < Ds=Dd < M < E < C < T=W < A < Pc`): un `E/W` è una **E**, un `Dd/Dc` una **Dc**,
+    un `M/C` una **M**;
+  - lato **modulo** uno slot doppio conta come il ruolo **più offensivo**: `M/C`→C, `E/W`→W,
+    `W/A`→A, `T/A`→A, `C/T`→T, `A/Pc`→Pc (`Dc/B` a pari livello valgono entrambi);
+  - quindi un `E/W` non entra in uno slot `E/W` (che vale W) e finisce nei **Jolly**; entra
+    invece in uno slot `E` puro. Con due `M/C` in un 3-4-2-1: uno titolare sulla `M`, l'altro
+    riserva sulla `M`, lo slot `M/C` resta per una `C`.
+  - Il pallino mostra il ruolo **completo** dello slot (`M/C`, `E/W`…); il colore è quello del
+    ruolo principale del giocatore.
   - Sotto ogni campo la sezione **Jolly** mostra chi non ha nessun ruolo previsto dal modulo
     (es. una `E` in un 4-3-3). Il **circle-x** nasconde un giocatore da ogni campo (via da campo
     *e* Jolly, resta in rosa); la gomma *svuota campo* azzera campo e Jolly di quel campo. Il

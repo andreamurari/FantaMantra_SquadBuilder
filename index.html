@@ -476,9 +476,9 @@ button.jchip:hover i{color:var(--ok)}
       Scegli un modulo per ognuno dei 4 campi e confronta come si dispone la stessa rosa.
       Tocca uno slot per assegnare un giocatore: solo <strong>ruolo Mantra esatto</strong>.
       Il pallino mostra il ruolo dello slot, colorato come il ruolo del giocatore (fantacalcio.it).
-      Lo schieramento automatico mette ogni giocatore nel suo <strong>ruolo più difensivo</strong>
-      (Por · Dc/B · Ds/Dd · M · E · C · T/W · A · Pc); uno slot doppio vale come il ruolo
-      <strong>più offensivo</strong> (M/C = C). Se il ruolo è pieno il giocatore va in
+      Un giocatore entra in uno slot solo se il suo <strong>ruolo più difensivo</strong>
+      (Por · Dc/B · Ds/Dd · M · E · C · T/W · A · Pc) coincide col ruolo <strong>più offensivo</strong>
+      dello slot (M/C = C, E/W = W, W/A = A). Es. un E/W non entra in uno slot E/W, va nei Jolly. Se il ruolo è pieno il giocatore va in
       <strong>riserva</strong>, tra parentesi sotto il titolare.
       Sotto il campo la sezione <strong>Jolly</strong> mostra chi non ha nessun ruolo previsto dal modulo.
       Il <span style="color:var(--accent);font-weight:700">circle-x</span> nasconde un giocatore da ogni
@@ -660,16 +660,23 @@ document.getElementById("themeBtn").addEventListener("click",()=>{
 /* ============================================================
    HELPERS
    ============================================================ */
-// Uno slot del modulo conta SOLO per il suo ruolo più offensivo (es. M/C = C, E/W = W,
-// W/A = A, A/Pc = Pc). A parità di rank valgono entrambi (es. Dc/B).
+// Uno slot del modulo conta SOLO per il suo ruolo più OFFENSIVO (M/C=C, E/W=W, W/A=A, A/Pc=Pc,
+// C/T=T, T/A=A). A parità di rank valgono entrambi (es. Dc/B).
 function slotEffRoles(slotRoles){
   const maxR=Math.max.apply(null, slotRoles.map(defRank));
   return slotRoles.filter(r=> defRank(r)===maxR);
 }
 function slotEffRole(slotRoles){ return slotEffRoles(slotRoles)[0]; }
-// il giocatore "fitta" lo slot solo se ha il ruolo effettivo (più offensivo) dello slot
+// Il giocatore conta SOLO per il suo ruolo più DIFENSIVO (Dd/Dc=Dc, M/C=M, E/W=E, W/A=W).
+// A parità di rank valgono entrambi (es. Dd/Ds).
+function playerKeyRoles(rm){
+  const minR=Math.min.apply(null, rm.map(defRank));
+  return rm.filter(r=> defRank(r)===minR);
+}
+// Match: il ruolo più difensivo del giocatore deve coincidere col ruolo più offensivo dello slot.
 function fits(slotRoles, playerRm){
-  return slotEffRoles(slotRoles).some(r=> playerRm.includes(r));
+  const se=slotEffRoles(slotRoles);
+  return playerKeyRoles(playerRm).some(r=> se.includes(r));
 }
 // gruppo colore del ruolo Mantra, come su fantacalcio.it
 const ROLE_GROUP = {
@@ -851,8 +858,8 @@ function renderBoards(){
       const pid=lu[i];
       const player=pid!=null?rosaById(pid):null;
       const disc=el("button","disc"); disc.type="button";
-      // il pallino mostra il ruolo EFFETTIVO dello slot (il più offensivo): E/W -> W, M/C -> C …
-      const roleStr=slotEffRoles(s.roles).join("/");
+      // il pallino mostra il ruolo completo dello slot del modulo (E/W, M/C, W/A …)
+      const roleStr=s.roles.join("/");
       disc.textContent=roleStr;
       if(roleStr.length>=6) disc.classList.add("disc-xs");
       else if(roleStr.length>=4) disc.classList.add("disc-sm");
@@ -1096,17 +1103,18 @@ function bestReserveSlot(bi, p){
 function placeByDefPriority(bi, p){
   if(isExcluded(bi, p.id)) return false;              // escluso a mano da questo campo
   const slots=FORMATIONS[state.boards[bi]], lu=state.lineups[bi], rv=state.reserves[bi];
-  const effSets=slots.map(s=> slotEffRoles(s.roles));  // ruolo/i effettivo/i di ogni slot
-  // ruoli del giocatore che sono ruolo effettivo di almeno uno slot del modulo
-  const avail = p.rm.filter(r => effSets.some(set=> set.includes(r)));
-  if(!avail.length) return false;                      // non fitta il modulo -> jolly, niente da fare
-  const target = rolesDefFirst(avail)[0];              // il PIÙ DIFENSIVO tra quelli disponibili
-  // titolare: primo slot libero con quel ruolo effettivo
-  for(let i=0;i<slots.length;i++) if(lu[i]==null && effSets[i].includes(target)){ lu[i]=p.id; return true; }
-  // quel ruolo è tutto occupato -> riserva sotto un suo titolare (slot con meno riserve)
+  const ok = i => fits(slots[i].roles, p.rm);         // ruolo difensivo del giocatore == ruolo offensivo dello slot
+  // titolare: slot libero che combacia (a parità, lo slot più specifico)
+  const free=[];
+  for(let i=0;i<slots.length;i++) if(lu[i]==null && ok(i)) free.push(i);
+  if(free.length){
+    free.sort((a,b)=> slots[a].roles.length - slots[b].roles.length);
+    lu[free[0]]=p.id; return true;
+  }
+  // altrimenti riserva sotto un titolare che combacia (slot con meno riserve)
   let best=-1,bestN=Infinity;
   for(let i=0;i<slots.length;i++)
-    if(lu[i]!=null && effSets[i].includes(target)){ const n=(rv[i]||[]).length; if(n<bestN){ bestN=n; best=i; } }
+    if(lu[i]!=null && ok(i)){ const n=(rv[i]||[]).length; if(n<bestN){ bestN=n; best=i; } }
   if(best>=0){ (rv[best]=rv[best]||[]).push(p.id); return true; }
   return false;
 }
