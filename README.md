@@ -1,5 +1,9 @@
 # Campetto Mantra
 
+**▶ [Campetto Mantra](https://claude.ai/code/artifact/727c5d4a-a933-4586-bc1c-c6f8bc5d209c)** ·
+**▶ [Campetto Lega](https://andreamurari.github.io/fantamantra-campetti/campetto_lega.html)**
+— usabili anche da telefono.
+
 Due tool separati, stesso motore di ruoli Mantra:
 
 | Tool | File | A cosa serve | Dati |
