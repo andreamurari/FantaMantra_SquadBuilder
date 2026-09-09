@@ -121,7 +121,7 @@ input,select{font-family:inherit}
 .team-select{
   background:var(--panel);border:1px solid var(--line-strong);color:var(--ink);
   border-radius:9px;padding:8px 12px;
-  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:21px;letter-spacing:.04em;
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:20px;letter-spacing:.05em;
 }
 .ghost{
   background:var(--panel);border:1px solid var(--line);color:var(--ink-soft);
@@ -163,6 +163,10 @@ input,select{font-family:inherit}
   background:var(--warn-weak);border:1px solid var(--warn);border-radius:6px;
   padding:2px 6px;font-size:15.5px;font-weight:600;color:var(--ink);opacity:.72;
 }
+/* fuori campo ma schierabile nel modulo: verde, per distinguerlo dal Jolly */
+.jchip-ok{background:var(--ok-weak);border-color:var(--ok)}
+.jchip-ok i{color:var(--ok)!important}
+.jolly-drop-empty{font-size:13px;color:var(--ink-faint);font-style:italic}
 .jchip i{
   font-style:normal;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:14px;
   letter-spacing:.02em;color:var(--warn);
@@ -284,7 +288,7 @@ body.dragging .jolly-drop{opacity:1}
 
 .teamcard{padding:14px 16px}
 .teamcard h2{
-  font-size:25px;letter-spacing:.03em;text-transform:uppercase;margin-bottom:11px;
+  font-size:22px;letter-spacing:.04em;text-transform:uppercase;margin-bottom:11px;
   display:flex;align-items:center;gap:8px;
 }
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center}
@@ -307,7 +311,7 @@ body.dragging .jolly-drop{opacity:1}
 }
 .grp h3{font-size:20px;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:7px}
 .grp .count{font-size:15.5px;font-weight:700;color:var(--ink-faint);font-variant-numeric:tabular-nums}
-.mrole{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+.mrole{width:6px;height:6px;border-radius:50%;flex:0 0 auto}
 .mrole.rg-por{background:#e7b93b} .mrole.rg-dif{background:#37a862} .mrole.rg-cen{background:#3a8dd6}
 .mrole.rg-tre{background:#8a5cd0} .mrole.rg-att{background:#e5344e}
 
@@ -335,6 +339,11 @@ body.dragging .jolly-drop{opacity:1}
 }
 .tag.u21{border-color:var(--ok);color:var(--ok)}
 .tag.pres{border-color:var(--warn);color:var(--warn)}
+/* tipo contratto: il caso normale (Indeterminato) resta neutro */
+.tag.contr{border-color:var(--line-strong);color:var(--ink-soft)}
+.tag.contr.c-prim{border-color:var(--ok);color:var(--ok)}
+.tag.contr.c-pre{border-color:var(--c);color:var(--c)}
+.tag.contr.c-hold{border-color:var(--bad);color:var(--bad)}
 .tag.scad{border-color:var(--accent);color:var(--accent)}
 .row .onfield{
   font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:12px;letter-spacing:.04em;
@@ -343,11 +352,11 @@ body.dragging .jolly-drop{opacity:1}
 }
 .row .onfield.ris{color:var(--ink-faint);border-color:var(--line-strong)}
 .row .costo{
-  flex:0 0 auto;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:21px;
+  flex:0 0 auto;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:19px;
   font-variant-numeric:tabular-nums;white-space:nowrap;min-width:34px;text-align:right;
 }
 .row .qtref{
-  flex:0 0 auto;font-size:15px;font-weight:700;color:var(--ink-faint);
+  flex:0 0 auto;font-size:17px;font-weight:700;color:var(--ink-faint);
   font-variant-numeric:tabular-nums;white-space:nowrap;min-width:24px;text-align:right;
 }
 .row .allfields,.row .removeall{
@@ -390,8 +399,6 @@ body.dragging .jolly-drop{opacity:1}
 }
 .picker .opt:hover{background:var(--panel-2)}
 .picker .opt .who{flex:1;min-width:0}
-.picker .opt .nm{font-size:18px;font-weight:600}
-.picker .opt .tm{display:block;font-size:14.5px;color:var(--ink-faint);font-weight:500}
 .picker .opt .tag.ok{background:var(--ok-weak);color:var(--ok);border-color:var(--ok)}
 .picker .opt .tag.bad{background:var(--bad-weak);color:var(--bad);border-color:var(--bad)}
 .picker .opt.placed{opacity:.45}
@@ -692,10 +699,16 @@ function excludeFromBoard(bi, id){
   if(!a.includes(id)){ a.push(id); return true; }
   return false;
 }
-function jollyList(bi){
-  return roster().filter(p=> !fitsBoard(bi,p) && !isExcluded(bi,p.i))
+// Chi sta FUORI dal campo: né titolare né in panchina, e non nascosto a mano.
+// Comprende i Jolly veri (nessuno slot compatibile nel modulo) e chi
+// semplicemente non è schierato: sono tutti trascinabili in campo, ed è da
+// qui che ci si aspetta di vederli comparire quando li si toglie dal campo.
+function fuoriCampo(bi){
+  return roster().filter(p=> !posizione(bi,p.i) && !isExcluded(bi,p.i))
     .sort((a,b)=> b.q-a.q);
 }
+// Jolly vero: il modulo non prevede nessuno slot per lui
+function isJolly(bi,p){ return !fitsBoard(bi,p); }
 function slotOfPlayer(bi, id){
   const lu=cur().lineups[bi];
   for(const k in lu) if(lu[k]===id) return +k;
@@ -871,19 +884,24 @@ function renderBoards(){
     });
     board.appendChild(pitch);
 
-    // fuori dal campo: i Jolly, e l'area dove rilasciare per togliere dal campo
-    const jolly=jollyList(bi);
+    // Fuori campo: chi non è schierato. È anche l'area dove rilasciare un
+    // giocatore per toglierlo dal campo.
+    const fuori=fuoriCampo(bi);
     const jb=el("div","jolly");
     jb.dataset.drop="fuori"; jb.dataset.bi=bi;
-    jb.appendChild(el("span","jolly-h", jolly.length?"Jolly":"Fuori campo"));
-    jolly.forEach(p=>{
-      const c=el("span","jchip");
-      c.title=p.n+" ("+p.rm.join("/")+") non ha nessun ruolo previsto da questo modulo — trascinalo in campo per forzarlo";
+    jb.appendChild(el("span","jolly-h","Fuori campo"));
+    fuori.forEach(p=>{
+      const jolly=isJolly(bi,p);
+      const c=el("span","jchip"+(jolly?"":" jchip-ok"));
+      c.title = jolly
+        ? p.n+" ("+p.rm.join("/")+") non ha nessun ruolo previsto da questo modulo — trascinalo in campo per forzarlo"
+        : p.n+" ("+p.rm.join("/")+") è schierabile in questo modulo — trascinalo su uno slot";
       c.appendChild(el("b",null,p.n));
       c.appendChild(el("i",null,p.rm.join("/")));
       rendiTrascinabile(c, {bi, id:p.i}, p.n, null);
       jb.appendChild(c);
     });
+    if(!fuori.length) jb.appendChild(el("span","jolly-drop-empty","tutta la rosa è in campo"));
     jb.appendChild(el("span","jolly-drop","trascina qui per togliere dal campo"));
     board.appendChild(jb);
     host.appendChild(board);
@@ -894,6 +912,16 @@ const GROUPS = [
   ["por","Portieri"], ["dif","Difensori"], ["cen","Centrocampo"],
   ["tre","Trequarti / Ali"], ["att","Attacco"],
 ];
+// tipi contratto della lega (enum tipologia_contratto del database):
+// per esteso non ci starebbero in riga, il nome completo è nel tooltip
+const CONTR_BREVE = {
+  "Indeterminato":"Indet.", "Primavera":"Primavera", "Fanta-Prestito":"Fanta-prest.",
+  "Prestito Reale":"Prest. reale", "Hold":"Hold", "Svincolato":"Svinc.",
+};
+const CONTR_CLASSE = {
+  "Indeterminato":"", "Primavera":"c-prim", "Fanta-Prestito":"c-pre",
+  "Prestito Reale":"c-pre", "Hold":"c-hold", "Svincolato":"",
+};
 function annoScad(p){ return p.sc ? p.sc.slice(0,4) : null; }
 function isU21(p){
   const soglia = (DATA.cfg && DATA.cfg.u21) || 0;
@@ -935,6 +963,11 @@ function renderRosa(){
 
       const badges=el("div","rolebadges");
       p.rm.forEach(r=> badges.appendChild(el("span","rb rg-"+roleGroup(r), r)));
+      if(p.tc){
+        const t=el("span","tag contr "+CONTR_CLASSE[p.tc], CONTR_BREVE[p.tc] || p.tc);
+        t.title="Contratto: "+p.tc;
+        badges.appendChild(t);
+      }
       const a=annoScad(p);
       if(a) badges.appendChild(el("span","tag"+(scadeSubito(p)?" scad":""), "→"+a));
       if(isU21(p)) badges.appendChild(el("span","tag u21","U21"));
@@ -1062,7 +1095,7 @@ function autofillBoard(bi){
 }
 function clearBoard(bi){
   const t=cur();
-  jollyList(bi).forEach(p=> excludeFromBoard(bi, p.i));
+  fuoriCampo(bi).forEach(p=> excludeFromBoard(bi, p.i));   // nascondi anche chi è fuori campo
   [...Object.values(t.lineups[bi]).map(Number),
    ...Object.values(t.reserves[bi]).flat()].forEach(id=> excludeFromBoard(bi, id));
   t.lineups[bi]={}; t.reserves[bi]={}; t.forced[bi]=[];

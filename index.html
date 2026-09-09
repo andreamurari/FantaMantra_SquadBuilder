@@ -168,6 +168,10 @@ button.jchip:hover i{color:var(--ok)}
 .jchip .jx{display:inline-flex;color:var(--ok)}
 .jchip .jx svg{width:13px;height:13px}
 .jchip-fix{opacity:.72;cursor:default}
+/* fuori campo ma schierabile nel modulo: verde, per distinguerlo dal Jolly */
+.jchip-ok{background:var(--ok-weak);border-color:var(--ok)}
+.jchip-ok i{color:var(--ok)!important}
+.jolly-drop-empty{font-size:13px;color:var(--ink-faint);font-style:italic}
 .mod-select{
   flex:1;min-width:0;background:var(--panel-2);border:1px solid var(--line);color:var(--ink);
   border-radius:8px;padding:6px 8px;
@@ -778,10 +782,16 @@ function excludeFromBoard(bi, id){
 }
 // Jolly del campo bi = giocatori senza ruolo utile nel modulo e NON nascosti a mano.
 // (circle-x e "svuota campo" nascondono il giocatore: non compare né in campo né tra i Jolly.)
-function jollyList(bi){
-  return state.rosa.filter(p=> !fitsBoard(bi,p) && !isExcluded(bi,p.id))
+// Chi sta FUORI dal campo: né titolare né in panchina, e non nascosto a mano.
+// Comprende i Jolly veri (nessuno slot compatibile nel modulo) e chi
+// semplicemente non è schierato: sono tutti trascinabili in campo, ed è da
+// qui che ci si aspetta di vederli comparire quando li si toglie dal campo.
+function fuoriCampo(bi){
+  return state.rosa.filter(p=> !posizione(bi,p.id) && !isExcluded(bi,p.id))
     .sort((a,b)=> b.fvm-a.fvm);
 }
+// Jolly vero: il modulo non prevede nessuno slot per lui
+function isJolly(bi,p){ return !fitsBoard(bi,p); }
 function rosaById(id){ return state.rosa.find(p=>p.id===id); }
 function isStruck(idx){ return state.struck.includes(idx); }
 function toggleStruck(idx){
@@ -972,20 +982,24 @@ function renderBoards(){
     });
     board.appendChild(pitch);
 
-    // Jolly del campo (nessun ruolo previsto dal modulo) e area dove
-    // rilasciare un giocatore per toglierlo dal campo
-    const jolly=jollyList(bi);
+    // Fuori campo: chi non è schierato. È anche l'area dove rilasciare un
+    // giocatore per toglierlo dal campo.
+    const fuori=fuoriCampo(bi);
     const jb=el("div","jolly");
     jb.dataset.drop="fuori"; jb.dataset.bi=bi;
-    jb.appendChild(el("span","jolly-h", jolly.length?"Jolly":"Fuori campo"));
-    jolly.forEach(p=>{
-      const c=el("span","jchip");
-      c.title=p.n+" ("+p.rm.join("/")+") non ha nessun ruolo previsto da questo modulo — trascinalo in campo per forzarlo";
+    jb.appendChild(el("span","jolly-h","Fuori campo"));
+    fuori.forEach(p=>{
+      const jolly=isJolly(bi,p);
+      const c=el("span","jchip"+(jolly?"":" jchip-ok"));
+      c.title = jolly
+        ? p.n+" ("+p.rm.join("/")+") non ha nessun ruolo previsto da questo modulo — trascinalo in campo per forzarlo"
+        : p.n+" ("+p.rm.join("/")+") è schierabile in questo modulo — trascinalo su uno slot";
       c.appendChild(el("b",null,p.n));
       c.appendChild(el("i",null,p.rm.join("/")));
       rendiTrascinabile(c, {bi, id:p.id}, p.n, null);
       jb.appendChild(c);
     });
+    if(!fuori.length) jb.appendChild(el("span","jolly-drop-empty","tutta la rosa è in campo"));
     jb.appendChild(el("span","jolly-drop","trascina qui per togliere dal campo"));
     board.appendChild(jb);
 
@@ -1168,7 +1182,7 @@ function removeReserve(bi, slotIdx, id){
 }
 // svuota campo: azzera campo E jolly di quel campo (i giocatori restano in rosa, nascosti)
 function clearBoard(bi){
-  jollyList(bi).forEach(p=> excludeFromBoard(bi, p.id));                 // nascondi i jolly a vista
+  fuoriCampo(bi).forEach(p=> excludeFromBoard(bi, p.id));                // nascondi anche chi è fuori campo
   [...Object.values(state.lineups[bi]).map(Number),
    ...Object.values(state.reserves[bi]).flat()].forEach(id=> excludeFromBoard(bi, id));
   state.lineups[bi]={}; state.reserves[bi]={}; state.forced[bi]=[];

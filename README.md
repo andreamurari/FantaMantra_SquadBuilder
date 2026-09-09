@@ -42,9 +42,10 @@ usa la [versione online](https://claude.ai/code/artifact/727c5d4a-a933-4586-bc1c
     riserva sulla `M`, lo slot `M/C` resta per una `C`.
   - Il pallino mostra il ruolo **completo** dello slot (`M/C`, `E/W`…); il colore è quello del
     ruolo principale del giocatore.
-  - Sotto ogni campo la sezione **Jolly** mostra chi non ha nessun ruolo previsto dal modulo
-    (es. una `E` in un 4-3-3), oppure chi è stato nascosto a mano da **Rosa** (vedi sotto) —
-    in quel caso non ci compare nemmeno.
+  - Sotto ogni campo la sezione **Fuori campo** elenca chi non è schierato, e serve da riserva
+    di giocatori da trascinare in campo. I chip **ambra** sono i *Jolly* veri, che il modulo non
+    prevede (es. una `E` in un 4-3-3); quelli **verdi** sarebbero schierabili ma non sono in
+    campo. Chi viene nascosto a mano da **Rosa** (vedi sotto) non compare nemmeno lì.
 - **Trascinamento**: riordini il campo a mano trascinando (funziona anche da telefono). Una
   riserva sul disco del suo slot **scambia col titolare**; un titolare su un altro disco scambia
   i due; sotto ogni titolare c'è la **panchina**, che tiene al massimo **4 riserve per ruolo**;
@@ -126,8 +127,9 @@ rose aggiornate ogni ora, apribile da telefono e condivisibile con la lega.
 - Stessa logica di **match ruolo esatto**, riserve, Jolly e **trascinamento** del Campetto
   Mantra: l'enum `ruolo_mantra` del database (`Por, Dd, Dc, Ds, B, E, M, C, W, T, A, Pc`)
   coincide con i ruoli che il campetto già gestisce.
-- Per ogni giocatore: quotazione, **costo del contratto**, anno di **scadenza** (in rosso se
-  scade entro l'anno prossimo), badge **U21** e, per chi è arrivato in prestito, da chi.
+- Per ogni giocatore: quotazione, **costo del contratto**, **tipo di contratto** (Indeterminato,
+  Primavera, Fanta-prestito, Prestito reale, Hold), anno di **scadenza** (in rosso se scade
+  entro l'anno prossimo), badge **U21** e, per chi è arrivato in prestito, da chi.
 - In alto: numero di giocatori, **monte costi**, **crediti** disponibili e U21 in rosa.
 
 ### Come si aggiorna
