@@ -49,6 +49,49 @@ usa la [versione online](https://claude.ai/code/artifact/727c5d4a-a933-4586-bc1c
 - **Budget**: spesa, residuo e conteggio 0/25 con obiettivi per reparto (3/8/8/6).
 - Tutto viene salvato nel browser (localStorage), niente account.
 
+## Aggiornare il listone
+
+I dati dei giocatori sono incollati dentro `index.html` come array JavaScript (`const RAW = [...]`,
+riga ~531). Si rigenerano dal file Excel con lo script **`build_players.py`**.
+
+### Procedura normale (nuovo file da fantacalcio.it)
+
+1. Scarica il listone aggiornato da fantacalcio.it → **Quotazioni → Esporta** (Excel).
+2. Metti il file `.xlsx` nella cartella del progetto (nome tipo `Quotazioni_Fantacalcio_*.xlsx`).
+   Puoi tenere anche il vecchio: lo script usa **il `.xlsx` più recente** della cartella.
+3. Installa la dipendenza una volta sola: `pip install openpyxl`
+4. Esegui: `python build_players.py`
+5. Ricarica `index.html` nel browser (o ripubblica l'artifact). `git commit` per salvare.
+
+Lo script legge il foglio **`Tutti`** e le colonne `Nome`, `Squadra`, `R`, `RM`, `Qt.A M`,
+`FVM M`. I ruoli Mantra multipli (`Ds;E`) vengono convertiti in `Ds/E`.
+
+### Se modifichi l'Excel a mano (aggiungere/cambiare righe)
+
+Puoi aggiungere giocatori o correggere quotazioni direttamente nel `.xlsx`, purché la struttura
+resti quella dell'export di fantacalcio.it:
+
+- **Foglio** chiamato `Tutti` (se lo rinomini, lo script usa il primo foglio).
+- **Riga 1** = titolo, **riga 2** = intestazioni, **dati dalla riga 3** in poi.
+- Non spostare/rinominare le colonne usate: `Nome`, `Squadra`, `R`, `RM`, `Qt.A M`, `FVM M`
+  (l'ordine non conta, i nomi sì; altre colonne vengono ignorate).
+- Per ogni riga nuova compila almeno `Nome`; le righe con `Nome` vuoto vengono saltate.
+- `R` = ruolo macro (`P`/`D`/`C`/`A`), `RM` = ruoli Mantra separati da `;` (es. `Dd;E`).
+- `Qt.A M` = quotazione asta Mantra (numero), `FVM M` = fantavalore di mercato (numero).
+
+Poi esegui `python build_players.py` come sopra.
+
+### Nomi accentati corrotti
+
+L'export di fantacalcio.it a volte scrive i caratteri accentati come `�` (es. `Montip�`).
+Lo script li corregge con la mappa `FIX` in cima a `build_players.py`. Se dopo l'esecuzione
+compare l'avviso `ATTENZIONE, nomi ancora corrotti`, aggiungi le coppie
+`"Nome� corrotto": "Nome corretto"` alla mappa `FIX` e rilancia lo script.
+
 ## Note
 
-- Per aggiornare il listone, rigenera la lista `RAW` in `index.html` dal nuovo xlsx.
+- Nessun build step, nessun account: `index.html` è autosufficiente. Unica dipendenza runtime
+  i Google Fonts (Barlow / Barlow Condensed).
+- Lo stato (rose, moduli, prezzi, depennati) è salvato nel `localStorage` del browser.
+- `build_players.py` richiede solo `openpyxl` e non serve per usare il tool, solo per
+  aggiornare il listone.
