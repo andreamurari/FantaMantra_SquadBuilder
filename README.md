@@ -1,4 +1,4 @@
-# Campetto Asta
+# Campetto FantaMantra
 
 **▶ [Campetto Asta](https://andreamurari.github.io/fantamantra-campetti/)** ·
 **▶ [Campetto Lega](https://andreamurari.github.io/fantamantra-campetti/campetto_lega.html)**
