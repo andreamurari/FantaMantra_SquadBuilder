@@ -132,9 +132,9 @@ input{font-family:inherit}
 /* ---------- layout ---------- */
 .layout{
   max-width:var(--maxw);margin:0 auto;padding:6px 20px 40px;
-  display:grid;grid-template-columns:minmax(0,1fr) minmax(312px,398px);gap:20px;align-items:start;
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(330px,424px);gap:20px;align-items:start;
 }
-@media (max-width:1120px){ .layout{grid-template-columns:minmax(0,1fr) minmax(300px,360px)} }
+@media (max-width:1120px){ .layout{grid-template-columns:minmax(0,1fr) minmax(310px,380px)} }
 @media (max-width:980px){ .layout{grid-template-columns:1fr} }
 
 /* ---------- boards (4 campetti affiancati) ---------- */
@@ -203,14 +203,14 @@ button.jchip:hover i{color:var(--ok)}
 }
 .slot.low{flex-direction:column-reverse}
 .slot .disc{
-  width:37px;height:37px;border-radius:50%;flex:0 0 auto;
+  width:40px;height:40px;border-radius:50%;flex:0 0 auto;
   display:flex;align-items:center;justify-content:center;
-  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:13.5px;line-height:1;
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:15px;line-height:1;
   color:#fff;border:2px dashed rgba(255,255,255,.5);background:rgba(0,0,0,.26);
   transition:transform .12s ease;white-space:nowrap;
 }
-.slot .disc.disc-sm{font-size:10.5px;letter-spacing:-.2px}
-.slot .disc.disc-xs{font-size:8.5px;letter-spacing:-.4px}
+.slot .disc.disc-sm{font-size:11.5px;letter-spacing:-.2px}
+.slot .disc.disc-xs{font-size:9px;letter-spacing:-.4px}
 .slot button.disc{cursor:pointer}
 .slot button.disc:hover{transform:scale(1.09)}
 /* colori ruolo come su fantacalcio.it: Por giallo · Dif verde · Cen azzurro · Tre/Ala viola · Att rosso */
@@ -225,7 +225,7 @@ button.jchip:hover i{color:var(--ok)}
 .slot.filled .disc.rg-att{background:#e5344e}
 .slot.fit-bad .disc{background:#8a938e}
 .slot .cap,.slot .res{
-  font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:15px;line-height:1.05;
+  font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:16.5px;line-height:1.05;
   color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.95), 0 0 3px rgba(0,0,0,.6);max-width:100%;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
@@ -275,8 +275,8 @@ button.jchip:hover i{color:var(--ok)}
   display:flex;align-items:center;justify-content:space-between;
   padding:9px 14px 7px;border-bottom:1px solid var(--line);
 }
-.grp h3{font-size:15px;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:7px}
-.grp .count{font-size:12px;font-weight:700;color:var(--ink-faint);font-variant-numeric:tabular-nums}
+.grp h3{font-size:16.5px;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:7px}
+.grp .count{font-size:13px;font-weight:700;color:var(--ink-faint);font-variant-numeric:tabular-nums}
 .grp .count.full{color:var(--ok)}
 .grp .count.over{color:var(--accent)}
 
@@ -287,15 +287,15 @@ button.jchip:hover i{color:var(--ok)}
 .row:last-child{border-bottom:0}
 .row .who{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
 .row .nmline{display:flex;align-items:baseline;gap:6px;min-width:0}
-.row .nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
-.row .tm{font-size:11px;color:var(--ink-faint);font-weight:500;white-space:nowrap;flex:0 0 auto}
+.row .nm{font-size:15.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.row .tm{font-size:12px;color:var(--ink-faint);font-weight:500;white-space:nowrap;flex:0 0 auto}
 .row .qtref{
-  flex:0 0 auto;font-size:11px;font-weight:700;color:var(--ink-faint);
+  flex:0 0 auto;font-size:14px;font-weight:700;color:var(--ink-faint);
   font-variant-numeric:tabular-nums;white-space:nowrap;
 }
 .rolebadges{display:flex;gap:3px;flex-wrap:wrap}
 .rb{
-  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:12.5px;line-height:1;
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:13.5px;line-height:1;
   padding:2px 5px;border-radius:4px;background:var(--panel-3);color:var(--ink-soft);letter-spacing:.02em;
 }
 .rb.rg-por{background:#e7b93b;color:#33260a}
@@ -307,19 +307,15 @@ button.jchip:hover i{color:var(--ok)}
 .mrole.P{background:var(--p)} .mrole.D{background:var(--d)} .mrole.C{background:var(--c)} .mrole.A{background:var(--a)}
 
 .row .price{
-  width:56px;flex:0 0 auto;text-align:right;background:var(--panel-2);border:1px solid var(--line);
-  border-radius:7px;padding:6px 7px;color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums;font-size:15px;
+  width:58px;flex:0 0 auto;text-align:right;background:var(--panel-2);border:1px solid var(--line);
+  border-radius:7px;padding:6px 7px;color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums;font-size:16px;
 }
-.row .nums{
-  flex:0 0 auto;text-align:right;line-height:1.3;font-variant-numeric:tabular-nums;
+.row .nmline .onfield{
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:10px;letter-spacing:.04em;
+  text-transform:uppercase;color:var(--ok);border:1px solid var(--ok);border-radius:4px;
+  padding:0 4px;flex:0 0 auto;align-self:center;line-height:1.5;
 }
-.row .nums span{display:block;font-size:12px;font-weight:700;color:var(--ink-soft)}
-.row .nums .f{font-size:10.5px;font-weight:600;color:var(--ink-faint)}
-.row .onfield{
-  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:11px;letter-spacing:.03em;
-  color:var(--ok);border:1px solid var(--ok);border-radius:5px;padding:2px 4px;flex:0 0 auto;
-}
-.row .onfield.ris{color:var(--ink-faint);border-color:var(--line-strong)}
+.row .nmline .onfield.ris{color:var(--ink-faint);border-color:var(--line-strong)}
 .row .x,.row .allfields,.row .removeall,.row .strike,.row .add{
   flex:0 0 auto;width:30px;height:30px;border-radius:8px;border:1px solid var(--line);
   background:var(--panel-2);line-height:1;transition:background .12s,border-color .12s;
@@ -931,11 +927,12 @@ function roleBadges(rm){
   rm.forEach(r=>w.appendChild(el("span","rb rg-"+roleGroup(r), r)));
   return w;
 }
-function playerWho(p){
+function playerWho(p, badge){
   const w=el("div","who");
   const nl=el("div","nmline");
   nl.appendChild(el("span","nm",p.n));
   nl.appendChild(el("span","tm",p.team));
+  if(badge) nl.appendChild(badge);
   w.appendChild(nl);
   w.appendChild(roleBadges(p.rm));
   return w;
@@ -962,9 +959,10 @@ function renderRosa(){
     list.sort((a,b)=>b.fvm-a.fvm);
     list.forEach(p=>{
       const row=el("div","row");
-      row.appendChild(playerWho(p));
-      if(placedSomewhere(p.id)) row.appendChild(el("span","onfield","IN CAMPO"));
-      else if(usedAnywhere(p.id)) row.appendChild(el("span","onfield ris","RISERVA"));
+      let badge=null;
+      if(placedSomewhere(p.id)) badge=el("span","onfield","in campo");
+      else if(usedAnywhere(p.id)) badge=el("span","onfield ris","riserva");
+      row.appendChild(playerWho(p, badge));
       const all=iconBtn("allfields","circlePlus","Rimetti disponibile e schiera in ogni campo");
       all.setAttribute("aria-label","Rimetti "+p.n+" disponibile e schiera in ogni campo");
       all.disabled = !canPlaceAnywhere(p.id);
@@ -1026,11 +1024,8 @@ function renderResults(){
     const own=owned.has(p.idx), struck=isStruck(p.idx) && !own;
     const row=el("div","row"+(own?" owned":"")+(struck?" struck":""));
     row.appendChild(playerWho(p));
-    const nums=el("div","nums");
-    const q=el("span",null,String(p.qt)); q.title="Quotazione Mantra";
-    const f=el("span","f", String(p.fvm)); f.title="FVM Mantra";
-    nums.appendChild(q); nums.appendChild(f);
-    row.appendChild(nums);
+    const q=el("span","qtref", String(p.qt)); q.title="Quotazione Mantra";
+    row.appendChild(q);
     if(!own){
       const strk=iconBtn("strike"+(struck?" strike-undo":""), struck?"undo":"ban",
         struck?"Rimetti tra i disponibili":"Depenna: preso da un'altra squadra");
