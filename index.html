@@ -227,11 +227,10 @@ button.jchip:hover i{color:var(--ok)}
   color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.95), 0 0 3px rgba(0,0,0,.6);max-width:100%;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-.slot .res{color:rgba(255,255,255,.82)}
-/* Il titolare e' gia' identificato dal disco colorato, quindi il suo nome puo'
-   stare piu' piccolo: e' cio' che sfoltisce il campo senza toccare le riserve,
-   che invece si riconoscono solo dal nome. */
+/* Corpi ridotti sul campo: l'ingombro verticale lo fanno le riserve, che
+   possono essere quattro per slot, quindi stanno piu' piccole del titolare. */
 .slot .cap{font-size:15px}
+.slot .res{color:rgba(255,255,255,.82);font-size:12px;line-height:1.1}
 
 /* ---------- trascinamento ---------- */
 /* touch-action:none serve a non far scrollare la pagina mentre si trascina */
