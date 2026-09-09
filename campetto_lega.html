@@ -224,16 +224,15 @@ input,select{font-family:inherit}
   color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.95), 0 0 3px rgba(0,0,0,.6);max-width:100%;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-/* le riserve sono fino a 4 per slot: se avessero il corpo del titolare
-   le panchine si accavallerebbero fra loro sul campo */
-.slot .res{color:rgba(255,255,255,.82);font-size:15px;line-height:1}
+.slot .res{color:rgba(255,255,255,.82)}
 
 /* ---------- trascinamento ---------- */
 /* touch-action:none serve a non far scrollare la pagina mentre si trascina */
 .drag-src{touch-action:none;cursor:grab;-webkit-user-select:none;user-select:none}
 body.dragging{cursor:grabbing}
 body.dragging *{cursor:grabbing!important}
-.ghost{
+/* NON chiamarlo .ghost: e' gia' la classe dei pulsanti della barra in alto */
+.drag-ghost{
   position:fixed;z-index:200;pointer-events:none;transform:translate(-50%,-140%);
   background:var(--panel);border:1px solid var(--accent);border-radius:8px;
   padding:4px 9px;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:18px;
@@ -981,7 +980,7 @@ function renderRosa(){
       all.addEventListener("click",()=>placeInAllBoards(p.i));
       row.appendChild(all);
 
-      const none=iconBtn("removeall","circleX","Togli da ogni campo");
+      const none=iconBtn("removeall","circleX","Togli da ogni campo (va tra i Fuori campo)");
       none.setAttribute("aria-label","Togli "+p.n+" da ogni campo");
       none.disabled = !canRemoveEverywhere(p.i);
       none.addEventListener("click",()=>removeFromAllBoards(p.i));
@@ -1058,11 +1057,9 @@ function canPlaceAnywhere(id){
   }
   return false;
 }
-function canRemoveEverywhere(id){
-  if(usedAnywhere(id)) return true;
-  for(let bi=0;bi<4;bi++) if(!isExcluded(bi,id)) return true;
-  return false;
-}
+// ha senso solo se il giocatore e' schierato da qualche parte: toglierlo lo
+// riporta fra i Fuori campo, non lo nasconde
+function canRemoveEverywhere(id){ return usedAnywhere(id); }
 function placeInAllBoards(id){
   const p=playerById(id); if(!p) return;
   let changed=false;
@@ -1078,7 +1075,7 @@ function removeFromAllBoards(id){
   for(let bi=0;bi<4;bi++){
     const lu=cur().lineups[bi]; for(const k in lu) if(lu[k]===id){ delete lu[k]; changed=true; }
     if(dropReserve(bi,id)) changed=true;
-    if(excludeFromBoard(bi,id)) changed=true;
+    setForced(bi,id,false);          // non e' piu' in campo: niente forzatura
   }
   if(changed){ save(); renderBoards(); renderRosa(); }
 }
@@ -1213,7 +1210,7 @@ function rendiTrascinabile(node, src, etichetta, onClick){
   node.classList.add("drag-src");
   node.addEventListener("pointerdown", e=>{
     if(e.button!=null && e.button>0) return;
-    document.querySelectorAll(".ghost").forEach(g=>g.remove());   // niente fantasmi orfani
+    document.querySelectorAll(".drag-ghost").forEach(g=>g.remove());   // niente fantasmi orfani
     drag={src, etichetta, x0:e.clientX, y0:e.clientY, mosso:false, ghost:null, target:null, node};
     try{ node.setPointerCapture(e.pointerId); }catch(_){}
   });
@@ -1224,7 +1221,7 @@ function rendiTrascinabile(node, src, etichetta, onClick){
       if(Math.hypot(e.clientX-drag.x0, e.clientY-drag.y0) < 6) return;
       drag.mosso=true;
       document.body.classList.add("dragging");
-      const g=el("div","ghost", drag.etichetta);
+      const g=el("div","drag-ghost", drag.etichetta);
       document.body.appendChild(g);
       drag.ghost=g;
     }

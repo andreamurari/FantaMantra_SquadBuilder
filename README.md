@@ -45,7 +45,8 @@ usa la [versione online](https://claude.ai/code/artifact/727c5d4a-a933-4586-bc1c
   - Sotto ogni campo la sezione **Fuori campo** elenca chi non è schierato, e serve da riserva
     di giocatori da trascinare in campo. I chip **ambra** sono i *Jolly* veri, che il modulo non
     prevede (es. una `E` in un 4-3-3); quelli **verdi** sarebbero schierabili ma non sono in
-    campo. Chi viene nascosto a mano da **Rosa** (vedi sotto) non compare nemmeno lì.
+    campo. L'unica cosa che svuota anche questa sezione è `🧹` *svuota campo*, che nasconde
+    tutti i giocatori da quel campo.
 - **Trascinamento**: riordini il campo a mano trascinando (funziona anche da telefono). Una
   riserva sul disco del suo slot **scambia col titolare**; un titolare su un altro disco scambia
   i due; sotto ogni titolare c'è la **panchina**, che tiene al massimo **4 riserve per ruolo**;
@@ -63,7 +64,8 @@ usa la [versione online](https://claude.ai/code/artifact/727c5d4a-a933-4586-bc1c
 - In **Rosa**, ogni giocatore ha tre tasti: `⊕` lo mette in ogni campo — nel primo slot libero
   compatibile come titolare, oppure come **riserva** (mostrata tra parentesi sotto il titolare)
   se non ci sono slot liberi; salta i campi senza nessuno slot per quel ruolo. `⊗` lo toglie da
-  tutti i campi (titolare o riserva). `🗑️` lo rimuove del tutto dalla rosa (l'acquisto viene
+  tutti i campi (titolare o riserva) e lo rimanda fra i **Fuori campo**, da dove puoi
+  ritrascinarlo. `🗑️` lo rimuove del tutto dalla rosa (l'acquisto viene
   annullato). Cambiando modulo, una riserva viene promossa se il titolare del suo slot non è
   più valido. Le riserve si tolgono anche dal popup dello slot.
 - Nel **Listone**, `🚫` depenna il giocatore quando lo compra un'altra squadra (testo barrato,
