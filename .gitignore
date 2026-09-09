@@ -1,3 +1,6 @@
 __pycache__/
 *.pyc
 ~$*.xlsx
+
+# credenziali DB della lega: MAI committare
+.db_url

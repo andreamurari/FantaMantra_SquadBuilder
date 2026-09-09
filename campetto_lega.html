@@ -1,0 +1,1160 @@
+<title>Campetto Lega</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Le rose della lega sul campetto Mantra: scegli una squadra, confronta 4 moduli, controlla costi e scadenze dei contratti.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
+
+<style>
+/* ============================================================
+   CAMPETTO LEGA — stessi token del Campetto Mantra
+   L'erba resta erba in ogni tema; cambia la cornice.
+   ============================================================ */
+:root{
+  --grass-a:#2f8551; --grass-b:#2b7b4a;
+
+  --bg:#e9efe9;
+  --panel:#ffffff;
+  --panel-2:#f1f5f0;
+  --panel-3:#e7ede6;
+  --ink:#152219;
+  --ink-soft:#5c6c63;
+  --ink-faint:#8a9990;
+  --line:#d7dfd5;
+  --line-strong:#c3cdc0;
+
+  --accent:#e5344e;
+  --accent-ink:#ffffff;
+  --accent-weak:#fdecee;
+
+  --ok:#2f9e5b;   --ok-weak:#e5f3ea;
+  --warn:#c9821c;  --warn-weak:#f6ecd8;
+  --bad:#94a09a;   --bad-weak:#eef1ee;
+
+  --p:#d8a629; --d:#2f9e8f; --c:#3f8fd0; --a:#e5344e;
+
+  --shadow:0 1px 2px rgba(20,40,28,.06), 0 8px 24px rgba(20,40,28,.08);
+  --radius:14px;
+  --maxw:1640px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0c110d;
+    --panel:#141b16;
+    --panel-2:#1a221c;
+    --panel-3:#212b23;
+    --ink:#e7efe8;
+    --ink-soft:#93a399;
+    --ink-faint:#67766d;
+    --line:#26312a;
+    --line-strong:#334036;
+
+    --accent:#f04a61;
+    --accent-ink:#12070a;
+    --accent-weak:#2a1418;
+
+    --ok:#45bd77; --ok-weak:#14251b;
+    --warn:#e0a441; --warn-weak:#2a2113;
+    --bad:#6c7873; --bad-weak:#1c241f;
+
+    --p:#e0b23f; --d:#3fb5a4; --c:#54a3e0; --a:#f04a61;
+
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0c110d;
+  --panel:#141b16;
+  --panel-2:#1a221c;
+  --panel-3:#212b23;
+  --ink:#e7efe8;
+  --ink-soft:#93a399;
+  --ink-faint:#67766d;
+  --line:#26312a;
+  --line-strong:#334036;
+
+  --accent:#f04a61;
+  --accent-ink:#12070a;
+  --accent-weak:#2a1418;
+
+  --ok:#45bd77; --ok-weak:#14251b;
+  --warn:#e0a441; --warn-weak:#2a2113;
+  --bad:#6c7873; --bad-weak:#1c241f;
+
+  --p:#e0b23f; --d:#3fb5a4; --c:#54a3e0; --a:#f04a61;
+
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.4);
+}
+
+*{box-sizing:border-box}
+button svg{display:block;width:19px;height:19px;flex:0 0 auto}
+.ghost svg{width:17px;height:17px}
+.board-head .ib svg{width:18px;height:18px}
+html,body{height:100%}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Barlow",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  font-size:17.5px;line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{font-family:"Barlow Condensed","Arial Narrow",sans-serif;margin:0;line-height:1.05;text-wrap:balance}
+button{font-family:inherit;cursor:pointer}
+input,select{font-family:inherit}
+:focus-visible{outline:2.5px solid var(--accent);outline-offset:2px;border-radius:6px}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- top bar ---------- */
+.topbar{
+  max-width:var(--maxw);margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  padding:16px 20px 10px;
+}
+.brand{display:flex;flex-direction:column;gap:1px}
+.brand b{
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;
+  font-size:30px;letter-spacing:.4px;text-transform:uppercase;
+}
+.brand b i{color:var(--accent);font-style:normal}
+.brand span{font-size:14px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);font-weight:600}
+.top-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.team-select{
+  background:var(--panel);border:1px solid var(--line-strong);color:var(--ink);
+  border-radius:9px;padding:8px 12px;
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:21px;letter-spacing:.04em;
+}
+.ghost{
+  background:var(--panel);border:1px solid var(--line);color:var(--ink-soft);
+  border-radius:9px;padding:7px 12px;font-size:15px;font-weight:600;
+  display:inline-flex;align-items:center;gap:6px;transition:border-color .15s,color .15s;
+}
+.ghost:hover{border-color:var(--line-strong);color:var(--ink)}
+#resetBtn{color:var(--accent)}
+#resetBtn:hover{border-color:var(--accent);color:var(--accent)}
+#themeBtn{color:var(--c)}
+#themeBtn:hover{border-color:var(--c);color:var(--c)}
+
+/* ---------- layout ---------- */
+.layout{
+  max-width:var(--maxw);margin:0 auto;padding:6px 20px 40px;
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(360px,486px);gap:20px;align-items:start;
+}
+@media (max-width:1180px){ .layout{grid-template-columns:minmax(0,1fr) minmax(330px,420px)} }
+@media (max-width:980px){ .layout{grid-template-columns:1fr} }
+
+/* ---------- campetti ---------- */
+.boards{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media (max-width:980px){ .boards{grid-template-columns:1fr} }
+.board{
+  background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  padding:8px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px;
+}
+.board-head{display:flex;align-items:center;gap:6px}
+.jolly{
+  display:flex;flex-wrap:wrap;align-items:center;gap:5px;
+  padding-top:7px;border-top:1px dashed var(--line-strong);
+}
+.jolly-h{
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:14.5px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--warn);
+}
+.jchip{
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--warn-weak);border:1px solid var(--warn);border-radius:6px;
+  padding:2px 6px;font-size:15.5px;font-weight:600;color:var(--ink);opacity:.72;
+}
+.jchip i{
+  font-style:normal;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:14px;
+  letter-spacing:.02em;color:var(--warn);
+}
+.mod-select{
+  flex:1;min-width:0;background:var(--panel-2);border:1px solid var(--line);color:var(--ink);
+  border-radius:8px;padding:6px 8px;
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:20px;letter-spacing:.05em;
+}
+.board-head .ib{
+  flex:0 0 auto;width:33px;height:33px;border-radius:7px;border:1px solid var(--line);
+  background:var(--panel-2);font-size:17px;line-height:1;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .12s,border-color .12s;
+}
+.board-head .ib-auto{color:var(--warn)}
+.board-head .ib-clear{color:var(--c)}
+.board-head .ib-auto:hover{background:var(--warn-weak);border-color:var(--warn)}
+.board-head .ib-clear:hover{background:var(--panel-3);border-color:var(--c)}
+
+.pitch{
+  position:relative;width:100%;aspect-ratio:68/87;border-radius:7px;overflow:hidden;
+  background:repeating-linear-gradient(180deg,var(--grass-a) 0 9.0909%,var(--grass-b) 9.0909% 18.1818%);
+}
+.pitch > svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+
+.slot{
+  position:absolute;transform:translate(-50%,-50%);
+  width:26%;min-width:56px;
+  display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;
+}
+.slot .disc{
+  width:47px;height:47px;border-radius:50%;flex:0 0 auto;
+  display:flex;align-items:center;justify-content:center;
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:18px;line-height:1;
+  color:#fff;border:2px dashed rgba(255,255,255,.5);background:rgba(0,0,0,.26);
+  transition:transform .12s ease;white-space:nowrap;
+}
+.slot .disc.disc-sm{font-size:14px;letter-spacing:-.2px}
+.slot .disc.disc-xs{font-size:11px;letter-spacing:-.4px}
+.slot button.disc{cursor:pointer}
+.slot button.disc:hover{transform:scale(1.09)}
+/* colori ruolo come su fantacalcio.it */
+.slot.filled .disc{
+  border-style:solid;border-color:rgba(255,255,255,.92);color:#fff;
+  background:#7c8a83;box-shadow:0 2px 8px rgba(0,0,0,.5);
+}
+.slot.filled .disc.rg-por{background:#e7b93b;color:#33260a}
+.slot.filled .disc.rg-dif{background:#37a862}
+.slot.filled .disc.rg-cen{background:#3a8dd6}
+.slot.filled .disc.rg-tre{background:#8a5cd0}
+.slot.filled .disc.rg-att{background:#e5344e}
+.slot .cap,.slot .res{
+  font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:20px;line-height:1.05;
+  color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.95), 0 0 3px rgba(0,0,0,.6);max-width:100%;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.slot .res{color:rgba(255,255,255,.82)}
+
+/* ---------- pannello squadra ---------- */
+.squad-pane{display:flex;flex-direction:column;gap:14px;position:sticky;top:12px}
+@media (max-width:980px){ .squad-pane{position:static} }
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+
+.teamcard{padding:14px 16px}
+.teamcard h2{
+  font-size:25px;letter-spacing:.03em;text-transform:uppercase;margin-bottom:11px;
+  display:flex;align-items:center;gap:8px;
+}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center}
+.stats > div{background:var(--panel-2);border-radius:10px;padding:9px 4px}
+.stats .k{display:block;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);font-weight:700}
+.stats .v{
+  display:block;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:27.5px;
+  font-variant-numeric:tabular-nums;margin-top:2px;
+}
+.stats .v.ok{color:var(--ok)}
+.stats .v.warn{color:var(--warn)}
+
+.pane{max-height:min(62vh,720px);overflow-y:auto;scrollbar-width:thin}
+@media (max-width:980px){ .pane{max-height:none} }
+
+.grp{
+  position:sticky;top:0;z-index:1;background:var(--panel);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:9px 14px 7px;border-bottom:1px solid var(--line);
+}
+.grp h3{font-size:20px;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:7px}
+.grp .count{font-size:15.5px;font-weight:700;color:var(--ink-faint);font-variant-numeric:tabular-nums}
+.mrole{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+.mrole.rg-por{background:#e7b93b} .mrole.rg-dif{background:#37a862} .mrole.rg-cen{background:#3a8dd6}
+.mrole.rg-tre{background:#8a5cd0} .mrole.rg-att{background:#e5344e}
+
+.row{display:flex;align-items:center;gap:7px;padding:7px 12px;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row .who{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
+.row .nmline{display:flex;align-items:baseline;gap:6px;min-width:0;flex-wrap:wrap}
+.row .nm{font-size:18.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.row .tm{font-size:14.5px;color:var(--ink-faint);font-weight:500;white-space:nowrap;flex:0 0 auto}
+.rolebadges{display:flex;gap:3px;flex-wrap:wrap;align-items:center}
+.rb{
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:16px;line-height:1;
+  padding:2px 5px;border-radius:4px;background:var(--panel-3);color:var(--ink-soft);letter-spacing:.02em;
+}
+.rb.rg-por{background:#e7b93b;color:#33260a}
+.rb.rg-dif{background:#37a862;color:#fff}
+.rb.rg-cen{background:#3a8dd6;color:#fff}
+.rb.rg-tre{background:#8a5cd0;color:#fff}
+.rb.rg-att{background:#e5344e;color:#fff}
+/* etichette contratto */
+.tag{
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:13px;letter-spacing:.04em;
+  padding:1px 5px;border-radius:4px;text-transform:uppercase;white-space:nowrap;
+  border:1px solid var(--line-strong);color:var(--ink-faint);
+}
+.tag.u21{border-color:var(--ok);color:var(--ok)}
+.tag.pres{border-color:var(--warn);color:var(--warn)}
+.tag.scad{border-color:var(--accent);color:var(--accent)}
+.row .onfield{
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:12px;letter-spacing:.04em;
+  text-transform:uppercase;color:var(--ok);border:1px solid var(--ok);border-radius:4px;
+  padding:0 4px;flex:0 0 auto;align-self:center;line-height:1.5;
+}
+.row .onfield.ris{color:var(--ink-faint);border-color:var(--line-strong)}
+.row .costo{
+  flex:0 0 auto;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:21px;
+  font-variant-numeric:tabular-nums;white-space:nowrap;min-width:34px;text-align:right;
+}
+.row .qtref{
+  flex:0 0 auto;font-size:15px;font-weight:700;color:var(--ink-faint);
+  font-variant-numeric:tabular-nums;white-space:nowrap;min-width:24px;text-align:right;
+}
+.row .allfields,.row .removeall{
+  flex:0 0 auto;width:35px;height:35px;border-radius:8px;border:1px solid var(--line);
+  background:var(--panel-2);line-height:1;transition:background .12s,border-color .12s;
+  display:flex;align-items:center;justify-content:center;padding:0;
+}
+.row .allfields{color:var(--ok)}
+.row .removeall{color:var(--accent)}
+.row .allfields:hover:not(:disabled){background:var(--ok-weak);border-color:var(--ok)}
+.row .removeall:hover:not(:disabled){background:var(--accent-weak);border-color:var(--accent)}
+.row .allfields:disabled,.row .removeall:disabled{opacity:.3;cursor:default}
+
+.empty{padding:26px 16px;text-align:center;color:var(--ink-faint);font-size:15.5px}
+
+/* ---------- popup slot ---------- */
+.backdrop{
+  position:fixed;inset:0;background:rgba(8,16,11,.55);z-index:50;
+  display:flex;align-items:center;justify-content:center;padding:18px;
+}
+.picker{
+  width:min(460px,100%);max-height:82vh;display:flex;flex-direction:column;
+  background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;
+}
+.picker header{
+  padding:13px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+.picker header h3{font-size:20.5px;letter-spacing:.04em;text-transform:uppercase}
+.picker header .slotrole{font-size:14.5px;color:var(--ink-faint);font-weight:600}
+.picker header .x{
+  flex:0 0 auto;width:33px;height:33px;border-radius:7px;border:1px solid var(--line);
+  background:var(--panel-2);color:var(--accent);
+  display:flex;align-items:center;justify-content:center;
+}
+.picker header .x:hover{background:var(--accent-weak);border-color:var(--accent)}
+.picker .list{overflow-y:auto}
+.picker .opt{
+  width:100%;text-align:left;background:transparent;border:0;border-bottom:1px solid var(--line);
+  padding:10px 16px;display:flex;align-items:center;gap:9px;color:var(--ink);
+}
+.picker .opt:hover{background:var(--panel-2)}
+.picker .opt .who{flex:1;min-width:0}
+.picker .opt .nm{font-size:18px;font-weight:600}
+.picker .opt .tm{display:block;font-size:14.5px;color:var(--ink-faint);font-weight:500}
+.picker .opt .tag.ok{background:var(--ok-weak);color:var(--ok);border-color:var(--ok)}
+.picker .opt .tag.bad{background:var(--bad-weak);color:var(--bad);border-color:var(--bad)}
+.picker .opt.placed{opacity:.45}
+.picker .opt:disabled{cursor:default}
+.picker .opt:disabled:hover{background:transparent}
+.picker .divider{
+  padding:7px 16px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;
+  color:var(--ink-faint);background:var(--panel-2);border-bottom:1px solid var(--line);
+}
+.picker footer{padding:11px 16px;border-top:1px solid var(--line)}
+.picker footer button{
+  width:100%;background:var(--panel-2);border:1px solid var(--line);color:var(--accent);
+  border-radius:9px;padding:9px;font-weight:700;font-size:15.5px;
+}
+.picker footer button:hover{background:var(--accent-weak);border-color:var(--accent)}
+.picker .resline{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px;
+  font-size:15.5px;font-weight:600;color:var(--ink-soft);
+}
+.picker .resline .x{
+  width:33px;height:33px;padding:0;flex:0 0 auto;color:var(--accent);
+  border:1px solid var(--line);background:var(--panel-2);border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+}
+.picker .resline .x:hover{background:var(--accent-weak);border-color:var(--accent)}
+
+.rolelegend{
+  display:flex;flex-wrap:wrap;gap:6px 14px;padding:10px 2px 2px;
+  font-size:13px;font-weight:600;color:var(--ink-soft);
+}
+.rolelegend span{display:inline-flex;align-items:center;gap:5px}
+.rolelegend i{width:11px;height:11px;border-radius:50%;flex:0 0 auto;border:1px solid rgba(255,255,255,.35)}
+.rolelegend i.rg-por{background:#e7b93b}
+.rolelegend i.rg-dif{background:#37a862}
+.rolelegend i.rg-cen{background:#3a8dd6}
+.rolelegend i.rg-tre{background:#8a5cd0}
+.rolelegend i.rg-att{background:#e5344e}
+
+.hint{font-size:14px;color:var(--ink-faint);padding:10px 2px 0;line-height:1.55}
+.hint strong{color:var(--ink-soft)}
+.hint .ib-legend{display:flex;flex-wrap:wrap;gap:5px 14px;margin-top:7px;opacity:.95;font-weight:600}
+.hint .ib-legend .lgi{display:inline-flex;align-items:center;gap:4px}
+.hint .ib-legend .lgc{display:inline-flex}
+.hint .ib-legend svg{width:14px;height:14px}
+.src{font-size:13px;color:var(--ink-faint);padding:6px 2px 0;font-weight:600}
+.src b{color:var(--ok);font-weight:700}
+
+@media (prefers-reduced-motion:reduce){ *{transition:none!important} }
+</style>
+
+<header class="topbar">
+  <div class="brand">
+    <b>Campetto <i>Lega</i></b>
+    <span>Rose e contratti sul campo Mantra</span>
+  </div>
+  <div class="top-actions">
+    <select class="team-select" id="teamSelect" aria-label="Scegli la squadra"></select>
+    <button class="ghost" id="themeBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6.4 6.4 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>Tema</button>
+    <button class="ghost" id="resetBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 2.6-6.4L3 8"/><path d="M3 3v5h5"/></svg>Svuota i campi</button>
+  </div>
+</header>
+
+<main class="layout">
+  <section class="field-pane">
+    <div class="boards" id="boards"></div>
+    <div class="rolelegend" aria-label="Colori dei ruoli">
+      <span><i class="rg-por"></i>Por</span>
+      <span><i class="rg-dif"></i>Difensori</span>
+      <span><i class="rg-cen"></i>Centrocampo</span>
+      <span><i class="rg-tre"></i>Trequarti / Ali</span>
+      <span><i class="rg-att"></i>Attacco</span>
+    </div>
+    <p class="hint">
+      Scegli una squadra della lega e confronta come la sua rosa si dispone in 4 moduli Mantra.
+      Tocca uno slot per assegnare un giocatore: solo <strong>ruolo Mantra esatto</strong>, niente
+      adattamento. Un giocatore entra in uno slot solo se il suo <strong>ruolo più difensivo</strong>
+      (Por · Dc/B · Ds/Dd · M · E · C · T/W · A · Pc) coincide col ruolo <strong>più offensivo</strong>
+      dello slot (M/C = C, E/W = W, W/A = A). Se il ruolo è pieno il giocatore va in
+      <strong>riserva</strong>, tra parentesi sotto il titolare; chi non ha nessun ruolo previsto dal
+      modulo finisce tra i <strong>Jolly</strong> sotto il campo.
+      <span class="ib-legend" id="ibLegend"></span>
+    </p>
+    <p class="src" id="srcLine"></p>
+  </section>
+
+  <aside class="squad-pane">
+    <div class="card teamcard">
+      <h2 id="teamName">—</h2>
+      <div class="stats">
+        <div><span class="k">Giocatori</span><span class="v num" id="stN">0</span></div>
+        <div><span class="k">Monte costi</span><span class="v num" id="stCosto">0</span></div>
+        <div><span class="k">Crediti</span><span class="v num" id="stCrediti">0</span></div>
+        <div><span class="k">U21</span><span class="v num" id="stU21">0</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="pane" id="pane-rosa"></div>
+    </div>
+  </aside>
+</main>
+
+<script>
+/* ============================================================
+   DATI — snapshot delle rose, rigenerato da build_lega.py
+   (letto dal Postgres della lega in sola lettura).
+   Se la pagina gira come artifact con la capability db, all'avvio
+   prova a sostituirlo con il mirror aggiornato: vedi caricaLive().
+   ============================================================ */
+/* === LEGA_DATA START (generato da build_lega.py) === */
+const LEGA = {"generato":"2026-09-09 11:38","cfg":{"mercato_chiusura":"2026-09-08","aste_chiusura":"2027-05-18","u21":2006},"squadre":[{"nome":"AC Ciaccati","crediti":88,"rosa":[{"i":83,"n":"Hojlund","c":"Napoli","rm":["Pc"],"q":29,"co":70,"tc":"Indeterminato","sc":"2030-06-30","dn":"2003-02-04","pr":null},{"i":263,"n":"Rabiot","c":"Milan","rm":["C","T"],"q":22,"co":41,"tc":"Indeterminato","sc":"2028-06-30","dn":"1995-04-03","pr":null},{"i":80,"n":"Davis K.","c":"Udinese","rm":["Pc"],"q":19,"co":12,"tc":"Indeterminato","sc":"2031-06-30","dn":"1998-02-13","pr":null},{"i":217,"n":"Da Cunha","c":"Como","rm":["C","T"],"q":18,"co":14,"tc":"Indeterminato","sc":"2031-06-30","dn":"2001-06-09","pr":null},{"i":502,"n":"Martinez Jo.","c":"Inter","rm":["Por"],"q":17,"co":8,"tc":"Indeterminato","sc":"2029-06-30","dn":"1998-05-27","pr":null},{"i":427,"n":"Bremer","c":"Juventus","rm":["Dc"],"q":16,"co":27,"tc":"Indeterminato","sc":"2029-06-30","dn":"1997-03-18","pr":null},{"i":444,"n":"Kalulu","c":"Juventus","rm":["Dd","Dc"],"q":15,"co":1,"tc":"Indeterminato","sc":"2029-06-30","dn":"2000-06-05","pr":null},{"i":731,"n":"Raspadori","c":"Atalanta","rm":["A"],"q":14,"co":19,"tc":"Fanta-Prestito","sc":"2030-06-30","dn":"2000-02-18","pr":"CyberDucks"},{"i":436,"n":"Rrahmani","c":"Napoli","rm":["Dc"],"q":14,"co":25,"tc":"Indeterminato","sc":"2027-06-30","dn":"1994-02-24","pr":null},{"i":251,"n":"Conceicao","c":"Juventus","rm":["W","A"],"q":12,"co":3,"tc":"Indeterminato","sc":"2030-06-30","dn":"2002-12-14","pr":null},{"i":213,"n":"Ekkelenkamp","c":"Udinese","rm":["C","T"],"q":12,"co":2,"tc":"Indeterminato","sc":"2029-06-30","dn":"2000-04-05","pr":null},{"i":248,"n":"Konè M.","c":"Roma","rm":["M","C"],"q":11,"co":18,"tc":"Indeterminato","sc":"2029-06-30","dn":"2001-05-17","pr":null},{"i":214,"n":"Politano","c":"Napoli","rm":["W"],"q":10,"co":25,"tc":"Indeterminato","sc":"2028-06-30","dn":"1993-08-03","pr":null},{"i":221,"n":"Thorstvedt","c":"Sassuolo","rm":["C","T"],"q":10,"co":15,"tc":"Indeterminato","sc":"2027-06-30","dn":"1999-03-13","pr":null},{"i":449,"n":"Celik","c":"Juventus","rm":["B","Dd","E"],"q":9,"co":1,"tc":"Indeterminato","sc":"2029-06-30","dn":"1997-02-17","pr":null},{"i":202,"n":"Karlstrom","c":"Udinese","rm":["M","C"],"q":9,"co":1,"tc":"Indeterminato","sc":"2028-06-30","dn":"1995-06-21","pr":null},{"i":830,"n":"Chukwueze","c":"Milan","rm":["E","W"],"q":8,"co":0,"tc":"Indeterminato","sc":"2028-06-30","dn":"1999-05-22","pr":null},{"i":890,"n":"Boga","c":"Juventus","rm":["W","A"],"q":7,"co":1,"tc":"Indeterminato","sc":"2029-06-30","dn":"1997-01-03","pr":null},{"i":586,"n":"Cacciamani","c":"Torino","rm":["E","W"],"q":7,"co":0,"tc":"Primavera","sc":"2029-06-30","dn":"2007-06-29","pr":null},{"i":210,"n":"Caqueret","c":"Como","rm":["C","T"],"q":7,"co":6,"tc":"Fanta-Prestito","sc":"2029-06-30","dn":"2000-02-15","pr":"Diaolo Porco"},{"i":53,"n":"Bonny","c":"Inter","rm":["Pc"],"q":6,"co":0,"tc":"Indeterminato","sc":"2030-06-30","dn":"2003-10-25","pr":null},{"i":209,"n":"Ellertsson","c":"Genoa","rm":["E","C"],"q":6,"co":1,"tc":"Indeterminato","sc":"2029-06-30","dn":"2002-03-11","pr":null},{"i":976,"n":"Milla","c":"Como","rm":["M","C"],"q":6,"co":11,"tc":"Indeterminato","sc":"2029-06-30","dn":"1994-10-07","pr":null},{"i":682,"n":"Stankovic F.","c":"Venezia","rm":["Por"],"q":6,"co":10,"tc":"Indeterminato","sc":"2030-06-30","dn":"2002-02-25","pr":null},{"i":951,"n":"Viery","c":"Fiorentina","rm":["Ds","Dc"],"q":6,"co":0,"tc":"Primavera","sc":"2031-06-30","dn":"2005-01-02","pr":null},{"i":317,"n":"Joao Mario","c":"Fiorentina","rm":["Dd","E"],"q":3,"co":1,"tc":"Indeterminato","sc":"2027-06-30","dn":"2000-01-03","pr":null},{"i":489,"n":"Di Gennaro","c":"Inter","rm":["Por"],"q":1,"co":1,"tc":"Indeterminato","sc":"2027-06-30","dn":"1993-10-03","pr":null},{"i":523,"n":"Provedel","c":"Inter","rm":["Por"],"q":1,"co":30,"tc":"Indeterminato","sc":"2029-06-30","dn":"1994-03-17","pr":null},{"i":1055,"n":"Robinho Junior","c":"Genoa","rm":["A"],"q":1,"co":0,"tc":"Primavera","sc":"2027-06-30","dn":"2007-12-17","pr":null}]},{"nome":"Al-Colizzati","crediti":34,"rosa":[{"i":266,"n":"Orsolini","c":"Bologna","rm":["W","A"],"q":24,"co":67,"tc":"Indeterminato","sc":"2031-06-30","dn":"1997-01-24","pr":null},{"i":79,"n":"Douvikas","c":"Como","rm":["Pc"],"q":21,"co":10,"tc":"Indeterminato","sc":"2029-06-30","dn":"1999-08-02","pr":null},{"i":1007,"n":"Mora","c":"Roma","rm":["T"],"q":19,"co":0,"tc":"Indeterminato","sc":"2031-06-30","dn":"2007-05-05","pr":null},{"i":259,"n":"Barella","c":"Inter","rm":["C"],"q":17,"co":51,"tc":"Indeterminato","sc":"2029-06-30","dn":"1997-02-07","pr":null},{"i":264,"n":"De Bruyne","c":"Napoli","rm":["T"],"q":16,"co":49,"tc":"Indeterminato","sc":"2027-06-30","dn":"1991-06-28","pr":null},{"i":246,"n":"Atta","c":"Fiorentina","rm":["C","T"],"q":15,"co":12,"tc":"Indeterminato","sc":"2031-06-30","dn":"2003-01-14","pr":null},{"i":458,"n":"Pavlovic","c":"Milan","rm":["Dc"],"q":14,"co":13,"tc":"Indeterminato","sc":"2028-06-30","dn":"2001-05-24","pr":null},{"i":73,"n":"Pellegrino M.","c":"Fiorentina","rm":["Pc"],"q":14,"co":1,"tc":"Fanta-Prestito","sc":"2031-06-30","dn":"2001-10-22","pr":"AC Ciaccati"},{"i":432,"n":"Solet","c":"Udinese","rm":["Dc"],"q":13,"co":3,"tc":"Indeterminato","sc":"2027-06-30","dn":"2000-02-07","pr":null},{"i":486,"n":"Mandas","c":"Lazio","rm":["Por"],"q":11,"co":1,"tc":"Indeterminato","sc":"2029-06-30","dn":"2001-09-17","pr":null},{"i":960,"n":"Ghedjemis","c":"Frosinone","rm":["W","A"],"q":10,"co":1,"tc":"Indeterminato","sc":"2028-06-30","dn":"2002-09-06","pr":null},{"i":230,"n":"Locatelli","c":"Juventus","rm":["M","C"],"q":10,"co":3,"tc":"Indeterminato","sc":"2030-06-30","dn":"1998-01-08","pr":null},{"i":438,"n":"Cambiaso","c":"Juventus","rm":["Dd","Ds","E"],"q":9,"co":17,"tc":"Indeterminato","sc":"2029-06-30","dn":"2000-02-20","pr":null},{"i":229,"n":"Thuram K.","c":"Juventus","rm":["C"],"q":9,"co":20,"tc":"Indeterminato","sc":"2029-06-30","dn":"2001-03-26","pr":null},{"i":415,"n":"Valeri","c":"Parma","rm":["Ds","E"],"q":9,"co":5,"tc":"Indeterminato","sc":"2028-06-30","dn":"1998-12-07","pr":null},{"i":240,"n":"Gaetano","c":"Atalanta","rm":["M","C"],"q":8,"co":2,"tc":"Indeterminato","sc":"2031-06-30","dn":"2000-05-05","pr":null},{"i":964,"n":"Geubbels","c":"Lecce","rm":["Pc"],"q":7,"co":4,"tc":"Indeterminato","sc":"2030-06-30","dn":"2001-08-16","pr":null},{"i":808,"n":"Pessina","c":"Monza","rm":["M","C"],"q":7,"co":3,"tc":"Indeterminato","sc":"2027-06-30","dn":"1997-04-21","pr":null},{"i":408,"n":"Valle","c":"Como","rm":["Ds","E"],"q":7,"co":0,"tc":"Indeterminato","sc":"2029-06-30","dn":"2004-04-25","pr":null},{"i":967,"n":"Varela G.","c":"Monza","rm":["Pc"],"q":7,"co":0,"tc":"Primavera","sc":"2030-06-30","dn":"2005-01-30","pr":null},{"i":950,"n":"Monterisi","c":"Frosinone","rm":["Dc"],"q":6,"co":1,"tc":"Indeterminato","sc":"2027-06-30","dn":"2001-12-19","pr":null},{"i":41,"n":"Noslin","c":"Lazio","rm":["A"],"q":6,"co":1,"tc":"Indeterminato","sc":"2029-06-30","dn":"1999-07-07","pr":null},{"i":242,"n":"Zalewski","c":"Atalanta","rm":["W"],"q":6,"co":23,"tc":"Indeterminato","sc":"2029-06-30","dn":"2002-01-23","pr":null},{"i":409,"n":"Zortea","c":"Bologna","rm":["Dd","E"],"q":6,"co":16,"tc":"Indeterminato","sc":"2029-06-30","dn":"1999-06-19","pr":null},{"i":423,"n":"Kossounou","c":"Atalanta","rm":["Dd","Dc"],"q":4,"co":11,"tc":"Indeterminato","sc":"2029-06-30","dn":"2001-01-04","pr":null},{"i":512,"n":"Corvi","c":"Parma","rm":["Por"],"q":3,"co":1,"tc":"Indeterminato","sc":"2029-06-30","dn":"2001-03-23","pr":null},{"i":350,"n":"Pongracic","c":"Fiorentina","rm":["Dc"],"q":3,"co":10,"tc":"Indeterminato","sc":"2029-06-30","dn":"1997-09-11","pr":null},{"i":113,"n":"Lipani","c":"Sassuolo","rm":["M","C"],"q":2,"co":0,"tc":"Primavera","sc":"2028-06-30","dn":"2005-05-18","pr":null},{"i":450,"n":"Terracciano F.","c":"Milan","rm":["B","Dd","Ds"],"q":2,"co":1,"tc":"Indeterminato","sc":"2028-06-30","dn":"2003-02-08","pr":null},{"i":896,"n":"Lahdo","c":"Como","rm":["C","T"],"q":1,"co":0,"tc":"Primavera","sc":"2031-06-30","dn":"2007-12-26","pr":null},{"i":881,"n":"Motta","c":"Lazio","rm":["Por"],"q":1,"co":1,"tc":"Indeterminato","sc":"2030-06-30","dn":"2005-01-13","pr":null},{"i":273,"n":"Odogu","c":"Milan","rm":["Dc"],"q":1,"co":0,"tc":"Primavera","sc":null,"dn":null,"pr":null}]},{"nome":"CyberDucks","crediti":15,"rosa":[{"i":265,"n":"McTominay","c":"Napoli","rm":["C","T"],"q":26,"co":25,"tc":"Indeterminato","sc":"2028-06-30","dn":"1996-12-08","pr":null},{"i":77,"n":"Scamacca","c":"Atalanta","rm":["Pc"],"q":18,"co":11,"tc":"Indeterminato","sc":"2028-06-30","dn":"1999-01-01","pr":null},{"i":72,"n":"Laurientè","c":"Sassuolo","rm":["A"],"q":16,"co":23,"tc":"Indeterminato","sc":"2029-06-30","dn":"1998-12-04","pr":null},{"i":1005,"n":"Vicario","c":"Juventus","rm":["Por"],"q":16,"co":129,"tc":"Indeterminato","sc":"2027-06-30","dn":"1996-10-07","pr":null},{"i":431,"n":"Akanji","c":"Inter","rm":["Dc"],"q":15,"co":14,"tc":"Indeterminato","sc":"2028-06-30","dn":"1995-07-19","pr":null},{"i":14,"n":"Diao","c":"Como","rm":["W","A"],"q":15,"co":0,"tc":"Indeterminato","sc":"2029-06-30","dn":"2005-09-07","pr":null},{"i":371,"n":"N'Dicka","c":"Roma","rm":["Dc"],"q":12,"co":13,"tc":"Indeterminato","sc":"2028-06-30","dn":"1999-08-20","pr":null},{"i":926,"n":"Alajbegovic","c":"Juventus","rm":["W","T"],"q":11,"co":0,"tc":"Indeterminato","sc":"2031-06-30","dn":"2007-09-21","pr":null},{"i":979,"n":"Calò","c":"Frosinone","rm":["M","C"],"q":9,"co":7,"tc":"Indeterminato","sc":"2029-06-30","dn":"1997-02-05","pr":null},{"i":26,"n":"Cutrone","c":"Monza","rm":["Pc"],"q":8,"co":0,"tc":"Indeterminato","sc":"2029-06-30","dn":"1998-01-03","pr":null},{"i":135,"n":"Fazzini","c":"Cagliari","rm":["C","T"],"q":8,"co":0,"tc":"Indeterminato","sc":"2027-06-30","dn":"2003-03-16","pr":null},{"i":23,"n":"Piccoli","c":"Bologna","rm":["Pc"],"q":8,"co":0,"tc":"Indeterminato","sc":"2027-06-30","dn":"2001-01-27","pr":null},{"i":975,"n":"Romano","c":"Cagliari","rm":["M","C"],"q":8,"co":0,"tc":"Indeterminato","sc":"2027-06-30","dn":"2006-06-17","pr":null},{"i":398,"n":"Hien","c":"Atalanta","rm":["Dc"],"q":7,"co":5,"tc":"Indeterminato","sc":"2028-06-30","dn":"1999-01-13","pr":null},{"i":159,"n":"Koopmeiners","c":"Juventus","rm":["C","T"],"q":7,"co":55,"tc":"Indeterminato","sc":"2029-06-30","dn":"1998-02-28","pr":null},{"i":384,"n":"Kristensen T.","c":"Atalanta","rm":["Dd","Dc"],"q":7,"co":2,"tc":"Indeterminato","sc":"2027-06-30","dn":"2002-01-17","pr":null},{"i":949,"n":"Mangas","c":"Monza","rm":["Ds","E"],"q":7,"co":1,"tc":"Indeterminato","sc":"2027-06-30","dn":"1998-03-19","pr":null},{"i":782,"n":"Pavard","c":"Inter","rm":["Dd","Dc"],"q":7,"co":36,"tc":"Indeterminato","sc":"2028-06-30","dn":"1996-03-28","pr":null},{"i":141,"n":"Gineitis","c":"Torino","rm":["M","C"],"q":6,"co":0,"tc":"Indeterminato","sc":"2029-06-30","dn":"2004-04-15","pr":null},{"i":456,"n":"Holm","c":"Bologna","rm":["Dd","E"],"q":6,"co":4,"tc":"Indeterminato","sc":"2028-06-30","dn":"2000-05-13","pr":null},{"i":426,"n":"Kelly L.","c":"Juventus","rm":["Ds","Dc"],"q":6,"co":1,"tc":"Indeterminato","sc":"2029-06-30","dn":"1998-10-06","pr":null},{"i":152,"n":"Oristanio","c":"Torino","rm":["W","T"],"q":6,"co":0,"tc":"Fanta-Prestito","sc":"2027-06-30","dn":"2002-09-28","pr":"Metodo Monchi FC"},{"i":974,"n":"Amondarain","c":"Bologna","rm":["M","C"],"q":5,"co":0,"tc":"Primavera","sc":"2031-06-30","dn":"2005-01-06","pr":null},{"i":375,"n":"Gatti","c":"Juventus","rm":["Dc"],"q":5,"co":6,"tc":"Fanta-Prestito","sc":"2030-06-30","dn":"1998-06-24","pr":"ZeroDayz FC"},{"i":310,"n":"Ghilardi","c":"Roma","rm":["Dc"],"q":5,"co":6,"tc":"Indeterminato","sc":"2030-06-30","dn":"2003-01-06","pr":null},{"i":145,"n":"Sohm","c":"Venezia","rm":["C"],"q":5,"co":2,"tc":"Indeterminato","sc":"2027-06-30","dn":"2001-04-11","pr":null},{"i":177,"n":"Fabbian","c":"Parma","rm":["C","T"],"q":4,"co":36,"tc":"Indeterminato","sc":"2027-06-30","dn":"2003-01-14","pr":null},{"i":946,"n":"Thiam","c":"Monza","rm":["Por"],"q":4,"co":1,"tc":"Indeterminato","sc":"2028-06-30","dn":"1998-03-05","pr":null},{"i":1023,"n":"Grabara","c":"Juventus","rm":["Por"],"q":1,"co":1,"tc":"Indeterminato","sc":"2027-06-30","dn":"1999-01-08","pr":null},{"i":488,"n":"Pinsoglio","c":"Juventus","rm":["Por"],"q":1,"co":1,"tc":"Indeterminato","sc":"2027-06-30","dn":"1990-03-16","pr":null},{"i":334,"n":"Van Der Brempt","c":"Sassuolo","rm":["Dd","E"],"q":1,"co":0,"tc":"Indeterminato","sc":"2027-06-30","dn":"2002-04-01","pr":null}]},{"nome":"Diablitos FC","crediti":131,"rosa":[{"i":267,"n":"Calhanoglu","c":"Inter","rm":["M","C"],"q":29,"co":65,"tc":"Indeterminato","sc":"2027-06-30","dn":"1994-02-08","pr":null},{"i":795,"n":"Kolo Muani","c":"Juventus","rm":["Pc"],"q":24,"co":133,"tc":"Indeterminato","sc":"2031-06-30","dn":"1998-12-05","pr":null},{"i":86,"n":"Yildiz","c":"Juventus","rm":["A"],"q":22,"co":46,"tc":"Indeterminato","sc":"2030-06-30","dn":"2005-05-04","pr":null},{"i":269,"n":"Pulisic","c":"Milan","rm":["T","A"],"q":21,"co":80,"tc":"Indeterminato","sc":"2027-06-30","dn":"1998-09-18","pr":null},{"i":524,"n":"Carnesecchi","c":"Atalanta","rm":["Por"],"q":17,"co":35,"tc":"Indeterminato","sc":"2028-06-30","dn":"2000-07-01","pr":null},{"i":215,"n":"McKennie","c":"Juventus","rm":["C","T"],"q":16,"co":1,"tc":"Indeterminato","sc":"2030-06-30","dn":"1998-08-28","pr":null},{"i":81,"n":"Castro S.","c":"Roma","rm":["Pc"],"q":13,"co":0,"tc":"Indeterminato","sc":"2031-06-30","dn":"2004-09-18","pr":null},{"i":406,"n":"Gila","c":"Milan","rm":["Dc"],"q":13,"co":12,"tc":"Indeterminato","sc":"2031-06-30","dn":"2000-08-29","pr":null},{"i":434,"n":"Hermoso","c":"Roma","rm":["Dc"],"q":12,"co":1,"tc":"Indeterminato","sc":"2027-06-30","dn":"1995-06-18","pr":null},{"i":176,"n":"Bernardeschi","c":"Bologna","rm":["W","T"],"q":10,"co":1,"tc":"Indeterminato","sc":"2027-06-30","dn":"1994-02-16","pr":null},{"i":36,"n":"Rodriguez Je.","c":"Como","rm":["W","A"],"q":10,"co":0,"tc":"Indeterminato","sc":"2030-06-30","dn":"2005-11-21","pr":null},{"i":182,"n":"Rowe","c":"Atalanta","rm":["W","T"],"q":10,"co":35,"tc":"Indeterminato","sc":"2027-06-30","dn":"2003-04-30","pr":null},{"i":990,"n":"Couto","c":"Como","rm":["Dd","E"],"q":9,"co":31,"tc":"Indeterminato","sc":"2027-06-30","dn":"2002-06-03","pr":null},{"i":440,"n":"Miranda J.","c":"Bologna","rm":["Ds","E"],"q":9,"co":23,"tc":"Indeterminato","sc":"2028-06-30","dn":"2000-01-19","pr":null},{"i":231,"n":"Sucic P.","c":"Inter","rm":["C"],"q":9,"co":21,"tc":"Indeterminato","sc":"2030-06-30","dn":"2003-10-25","pr":null},{"i":161,"n":"Ferguson","c":"Bologna","rm":["M","C"],"q":8,"co":11,"tc":"Indeterminato","sc":"2028-06-30","dn":"1999-08-24","pr":null},{"i":247,"n":"Konè I.","c":"Sassuolo","rm":["C"],"q":8,"co":1,"tc":"Indeterminato","sc":"2030-06-30","dn":"2002-06-16","pr":null},{"i":151,"n":"Maldini","c":"Cagliari","rm":["T","A"],"q":8,"co":13,"tc":"Indeterminato","sc":"2027-06-30","dn":"2001-10-11","pr":null},{"i":404,"n":"Gabbia","c":"Milan","rm":["Dc"],"q":7,"co":3,"tc":"Indeterminato","sc":"2029-06-30","dn":"1999-10-21","pr":null},{"i":973,"n":"Oulai","c":"Fiorentina","rm":["M","C"],"q":7,"co":0,"tc":"Primavera","sc":null,"dn":"2006-04-06","pr":null},{"i":603,"n":"Birindelli","c":"Monza","rm":["Dd","Ds","E"],"q":6,"co":1,"tc":"Indeterminato","sc":"2028-06-30","dn":"1999-07-19","pr":null},{"i":362,"n":"Marcandalli","c":"Genoa","rm":["Dc"],"q":6,"co":1,"tc":"Indeterminato","sc":"2029-06-30","dn":"2002-10-25","pr":null},{"i":338,"n":"Rodriguez Ju.","c":"Cagliari","rm":["Ds","Dc"],"q":6,"co":0,"tc":"Primavera","sc":"2030-06-30","dn":"2005-05-30","pr":null},{"i":390,"n":"Tomori","c":"Milan","rm":["Dc"],"q":6,"co":20,"tc":"Indeterminato","sc":"2027-06-30","dn":"1997-12-19","pr":null},{"i":169,"n":"Bondo","c":"Cremonese","rm":["M","C"],"q":5,"co":0,"tc":"Fanta-Prestito","sc":null,"dn":null,"pr":"FC Sovescio"},{"i":945,"n":"Palmisani","c":"Frosinone","rm":["Por"],"q":5,"co":1,"tc":"Indeterminato","sc":"2029-06-30","dn":"2004-06-12","pr":null},{"i":199,"n":"Zhegrova","c":"Juventus","rm":["W"],"q":5,"co":50,"tc":"Indeterminato","sc":"2030-06-30","dn":"1999-03-31","pr":null},{"i":539,"n":"Camarda","c":"Milan","rm":["Pc"],"q":3,"co":0,"tc":"Primavera","sc":"2031-06-30","dn":"2008-03-10","pr":null},{"i":282,"n":"Palma","c":"Udinese","rm":["Dc"],"q":2,"co":0,"tc":"Primavera","sc":"2031-06-30","dn":"2008-03-13","pr":null},{"i":887,"n":"Przyborek","c":"Lazio","rm":["W","T"],"q":1,"co":0,"tc":"Primavera","sc":"2030-06-30","dn":"2007-01-01","pr":null},{"i":496,"n":"Sportiello","c":"Atalanta","rm":["Por"],"q":1,"co":1,"tc":"Indeterminato","sc":"2028-06-30","dn":"1992-05-10","pr":null}]},{"nome":"Diaolo Porco","crediti":17,"rosa":[{"i":71,"n":"Kean","c":"Como","rm":["Pc"],"q":25,"co":70,"tc":"Indeterminato","sc":"2027-06-30","dn":"2000-02-28","pr":null},{"i":1051,"n":"Woltemade","c":"Juventus","rm":["A"],"q":23,"co":43,"tc":"Indeterminato","sc":"2027-06-30","dn":"2002-02-14","pr":null},{"i":998,"n":"Molina N.","c":"Roma","rm":["E"],"q":18,"co":37,"tc":"Indeterminato","sc":"2030-06-30","dn":"1998-04-06","pr":null},{"i":460,"n":"Bastoni","c":"Inter","rm":["Dc"],"q":14,"co":27,"tc":"Indeterminato","sc":"2028-06-30","dn":"1999-04-13","pr":null},{"i":74,"n":"Simeone","c":"Torino","rm":["Pc"],"q":14,"co":3,"tc":"Indeterminato","sc":"2028-06-30","dn":"1995-07-05","pr":null},{"i":234,"n":"Taylor K.","c":"Lazio","rm":["C","T"],"q":13,"co":36,"tc":"Indeterminato","sc":"2030-06-30","dn":"2002-05-16","pr":null},{"i":1048,"n":"Goncalves P.","c":"Fiorentina","rm":["W","T"],"q":12,"co":69,"tc":"Indeterminato","sc":"2027-06-30","dn":"1998-06-28","pr":null},{"i":517,"n":"Caprile","c":"Cagliari","rm":["Por"],"q":11,"co":8,"tc":"Fanta-Prestito","sc":"2029-06-30","dn":"2001-08-25","pr":"Metodo Monchi FC"},{"i":993,"n":"Chalobah T.","c":"Como","rm":["Dd","Dc"],"q":11,"co":33,"tc":"Indeterminato","sc":"2031-06-30","dn":"1999-07-05","pr":null},{"i":222,"n":"Cristante","c":"Roma","rm":["M","C"],"q":10,"co":1,"tc":"Indeterminato","sc":"2028-06-30","dn":"1995-03-03","pr":null},{"i":446,"n":"Ramon","c":"Como","rm":["Dc"],"q":10,"co":0,"tc":"Indeterminato","sc":"2030-06-30","dn":"2005-01-06","pr":null},{"i":518,"n":"Skorupski","c":"Bologna","rm":["Por"],"q":10,"co":5,"tc":"Indeterminato","sc":"2027-06-30","dn":"1991-05-05","pr":null},{"i":237,"n":"Isaksen","c":"Lazio","rm":["W","A"],"q":8,"co":1,"tc":"Indeterminato","sc":"2028-06-30","dn":"2001-04-19","pr":null},{"i":425,"n":"Tiago Gabriel","c":"Lecce","rm":["Dc"],"q":8,"co":0,"tc":"Indeterminato","sc":"2027-06-30","dn":"2004-12-26","pr":null},{"i":1016,"n":"Leysen F.","c":"Sassuolo","rm":["Ds","Dc"],"q":7,"co":1,"tc":"Indeterminato","sc":"2027-06-30","dn":"2003-07-09","pr":null},{"i":516,"n":"Muric","c":"Sassuolo","rm":["Por"],"q":7,"co":1,"tc":"Indeterminato","sc":null,"dn":"1998-11-07","pr":null},{"i":148,"n":"Rovella","c":"Lazio","rm":["M","C"],"q":7,"co":0,"tc":"Indeterminato","sc":"2028-06-30","dn":"2001-12-04","pr":null},{"i":897,"n":"Bakola","c":"Sassuolo","rm":["C","T"],"q":6,"co":0,"tc":"Primavera","sc":"2030-06-30","dn":"2007-11-30","pr":null},{"i":437,"n":"Buongiorno","c":"Napoli","rm":["Dc"],"q":6,"co":31,"tc":"Indeterminato","sc":"2029-06-30","dn":"1999-06-06","pr":null},{"i":173,"n":"Luis Henrique","c":"Inter","rm":["E","W"],"q":6,"co":2,"tc":"Indeterminato","sc":"2030-06-30","dn":"2001-12-14","pr":null},{"i":403,"n":"Beukema","c":"Napoli","rm":["Dc"],"q":5,"co":10,"tc":"Indeterminato","sc":"2030-06-30","dn":"1998-11-17","pr":null},{"i":452,"n":"Kempf","c":"Como","rm":["Dc"],"q":5,"co":1,"tc":"Indeterminato","sc":"2029-06-30","dn":"1995-01-28","pr":null},{"i":346,"n":"Olivera","c":"Napoli","rm":["B","Ds","E"],"q":5,"co":10,"tc":"Indeterminato","sc":"2030-06-30","dn":"1997-10-31","pr":null},{"i":228,"n":"Cataldi","c":"Lazio","rm":["M","C"],"q":4,"co":1,"tc":"Indeterminato","sc":"2027-06-30","dn":"1994-08-06","pr":null},{"i":198,"n":"De Roon","c":"Roma","rm":["M","C"],"q":4,"co":11,"tc":"Indeterminato","sc":"2028-06-30","dn":"1991-03-29","pr":null},{"i":845,"n":"Douglas Luiz","c":"Juventus","rm":["C"],"q":4,"co":20,"tc":"Fanta-Prestito","sc":"2029-06-30","dn":"1998-05-09","pr":"AC Ciaccati"},{"i":172,"n":"Mkhitaryan","c":"Inter","rm":["C"],"q":4,"co":11,"tc":"Indeterminato","sc":"2027-06-30","dn":"1989-01-21","pr":null},{"i":126,"n":"Lovric","c":"Verona","rm":["C"],"q":3,"co":4,"tc":"Indeterminato","sc":null,"dn":null,"pr":null},{"i":1020,"n":"Lulli","c":"Roma","rm":["E"],"q":3,"co":0,"tc":"Primavera","sc":"2027-06-30","dn":"2007-08-17","pr":null},{"i":301,"n":"Sabelli","c":"Genoa","rm":["Dd","Ds","E"],"q":2,"co":1,"tc":"Indeterminato","sc":"2028-06-30","dn":"1993-01-13","pr":null},{"i":503,"n":"Pessina Mas.","c":"Bologna","rm":["Por"],"q":1,"co":0,"tc":"Primavera","sc":"2029-06-30","dn":"2007-12-25","pr":null},{"i":339,"n":"Ziolkowski","c":"Monza","rm":["Dc"],"q":1,"co":0,"tc":"Primavera","sc":"2027-06-30","dn":"2005-06-05","pr":null}]},{"nome":"FC Pontos","crediti":12,"rosa":[{"i":528,"n":"Maignan","c":"Milan","rm":["Por"],"q":15,"co":35,"tc":"Indeterminato","sc":"2031-06-30","dn":"1995-07-03","pr":null},{"i":893,"n":"Santos A.","c":"Napoli","rm":["W","A"],"q":15,"co":2,"tc":"Indeterminato","sc":"2030-06-30","dn":"2002-09-27","pr":null},{"i":435,"n":"Di Lorenzo","c":"Napoli","rm":["Dd","E"],"q":12,"co":33,"tc":"Indeterminato","sc":"2030-06-30","dn":"1993-08-04","pr":null},{"i":1033,"n":"Kessiè","c":"Atalanta","rm":["C"],"q":12,"co":31,"tc":"Indeterminato","sc":"2029-06-30","dn":"1996-12-19","pr":null},{"i":953,"n":"Stones","c":"Inter","rm":["Dc"],"q":12,"co":30,"tc":"Indeterminato","sc":"2028-06-30","dn":"1994-05-28","pr":null},{"i":252,"n":"Zielinski","c":"Inter","rm":["C"],"q":12,"co":12,"tc":"Indeterminato","sc":"2028-06-30","dn":"1994-05-20","pr":null},{"i":992,"n":"Mastantuono","c":"Fiorentina","rm":["W","T"],"q":11,"co":0,"tc":"Primavera","sc":"2027-06-30","dn":"2007-08-14","pr":null},{"i":1010,"n":"Moreira","c":"Milan","rm":["E","W"],"q":11,"co":91,"tc":"Indeterminato","sc":"2031-06-30","dn":"2004-08-06","pr":null},{"i":57,"n":"Pinamonti","c":"Lazio","rm":["Pc"],"q":11,"co":30,"tc":"Indeterminato","sc":"2031-06-30","dn":"1999-05-19","pr":null},{"i":255,"n":"Mandragora","c":"Torino","rm":["C"],"q":10,"co":6,"tc":"Indeterminato","sc":"2030-06-30","dn":"1997-06-29","pr":null},{"i":1002,"n":"Spence","c":"Inter","rm":["E"],"q":10,"co":63,"tc":"Indeterminato","sc":"2031-06-30","dn":"2000-08-09","pr":null},{"i":260,"n":"Zambo Anguissa","c":"Napoli","rm":["C"],"q":10,"co":27,"tc":"Indeterminato","sc":"2027-06-30","dn":"1995-11-16","pr":null},{"i":442,"n":"Belghali","c":"Torino","rm":["Dd","E"],"q":8,"co":6,"tc":"Indeterminato","sc":"2027-06-30","dn":"2002-06-07","pr":null},{"i":364,"n":"Comuzzo","c":"Torino","rm":["Dc"],"q":8,"co":0,"tc":"Indeterminato","sc":"2027-06-30","dn":"2005-02-20","pr":null},{"i":365,"n":"Obert","c":"Cagliari","rm":["B","Ds","E"],"q":8,"co":1,"tc":"Indeterminato","sc":"2030-06-30","dn":"2002-08-23","pr":null},{"i":411,"n":"Mina","c":"Cagliari","rm":["Dc"],"q":7,"co":9,"tc":"Indeterminato","sc":"2028-06-30","dn":"1994-09-23","pr":null},{"i":356,"n":"Bertola","c":"Udinese","rm":["Dd","Ds","Dc"],"q":6,"co":11,"tc":"Indeterminato","sc":"2030-06-30","dn":"2003-03-23","pr":null},{"i":942,"n":"Daffara","c":"Parma","rm":["Por"],"q":6,"co":1,"tc":"Indeterminato","sc":"2031-06-30","dn":"2004-12-05","pr":null},{"i":405,"n":"Marusic","c":"Lazio","rm":["Dd","Ds","E"],"q":6,"co":1,"tc":"Indeterminato","sc":"2028-06-30","dn":"1992-10-17","pr":null},{"i":254,"n":"Neres","c":"Napoli","rm":["W","A"],"q":6,"co":30,"tc":"Indeterminato","sc":"2028-06-30","dn":"1997-03-03","pr":null},{"i":952,"n":"Valdepenas","c":"Fiorentina","rm":["Ds","Dc"],"q":6,"co":0,"tc":"Primavera","sc":null,"dn":"2006-10-20","pr":null},{"i":367,"n":"Bernasconi","c":"Atalanta","rm":["Ds","E"],"q":5,"co":5,"tc":"Indeterminato","sc":"2030-06-30","dn":"2003-11-16","pr":null},{"i":615,"n":"Liberali","c":"Como","rm":["T"],"q":5,"co":0,"tc":"Indeterminato","sc":"2031-06-30","dn":"2007-04-06","pr":null},{"i":37,"n":"Sulemana K.","c":"Atalanta","rm":["A"],"q":5,"co":9,"tc":"Indeterminato","sc":"2029-06-30","dn":"2002-02-15","pr":null},{"i":330,"n":"Estupinan","c":"Milan","rm":["Ds","E"],"q":3,"co":31,"tc":"Fanta-Prestito","sc":"2030-06-30","dn":"1998-01-21","pr":"Diablitos FC"},{"i":589,"n":"Karlsson","c":"Bologna","rm":["W","A"],"q":3,"co":2,"tc":"Indeterminato","sc":null,"dn":null,"pr":null},{"i":46,"n":"Lang","c":"Napoli","rm":["A"],"q":3,"co":66,"tc":"Indeterminato","sc":"2030-06-30","dn":"1999-06-17","pr":null},{"i":181,"n":"Lorran","c":"Pisa","rm":["T"],"q":3,"co":0,"tc":"Primavera","sc":null,"dn":null,"pr":null},{"i":227,"n":"Ricci S.","c":"Como","rm":["M","C"],"q":3,"co":17,"tc":"Indeterminato","sc":"2027-06-30","dn":"2001-08-21","pr":null},{"i":1013,"n":"Comotto","c":"Milan","rm":["M","C"],"q":1,"co":0,"tc":"Primavera","sc":"2031-06-30","dn":"2008-04-25","pr":null},{"i":331,"n":"Lazzari","c":"Lazio","rm":["Dd","E"],"q":1,"co":10,"tc":"Indeterminato","sc":"2027-06-30","dn":"1993-11-29","pr":null},{"i":482,"n":"Torriani","c":"Milan","rm":["Por"],"q":1,"co":1,"tc":"Indeterminato","sc":"2030-06-30","dn":"2005-01-31","pr":null}]},{"nome":"FC Sovescio","crediti":68,"rosa":[{"i":87,"n":"Martinez L.","c":"Inter","rm":["Pc"],"q":35,"co":127,"tc":"Indeterminato","sc":"2029-06-30","dn":"1997-08-22","pr":null},{"i":268,"n":"Paz N.","c":"Como","rm":["T","A"],"q":28,"co":0,"tc":"Indeterminato","sc":"2028-06-30","dn":"2004-09-08","pr":null},{"i":424,"n":"Mancini","c":"Roma","rm":["Dc"],"q":15,"co":18,"tc":"Indeterminato","sc":"2029-06-30","dn":"1996-04-17","pr":null},{"i":1052,"n":"Beto","c":"Fiorentina","rm":["Pc"],"q":14,"co":32,"tc":"Indeterminato","sc":"2030-06-30","dn":"1998-01-31","pr":null},{"i":205,"n":"Ederson D.S.","c":"Atalanta","rm":["M","C"],"q":14,"co":0,"tc":"Indeterminato","sc":"2031-06-30","dn":"1999-07-07","pr":null},{"i":66,"n":"Adams C.","c":"Torino","rm":["A"],"q":13,"co":30,"tc":"Indeterminato","sc":"2027-06-30","dn":"1996-07-13","pr":null},{"i":261,"n":"Modric","c":"Milan","rm":["M","C"],"q":13,"co":9,"tc":"Indeterminato","sc":"2027-06-30","dn":"1985-09-09","pr":null},{"i":625,"n":"Gonzalez N.","c":"Juventus","rm":["W","A"],"q":12,"co":27,"tc":"Indeterminato","sc":"2029-06-30","dn":"1998-04-06","pr":null},{"i":686,"n":"Tourè E.","c":"Parma","rm":["Pc"],"q":11,"co":0,"tc":"Indeterminato","sc":"2027-06-30","dn":"2001-10-03","pr":null},{"i":165,"n":"Baldanzi","c":"Genoa","rm":["T"],"q":10,"co":0,"tc":"Indeterminato","sc":"2027-06-30","dn":"2003-03-23","pr":null},{"i":43,"n":"Colombo","c":"Genoa","rm":["Pc"],"q":10,"co":30,"tc":"Indeterminato","sc":"2029-06-30","dn":"2002-03-08","pr":null},{"i":509,"n":"Okoye","c":"Udinese","rm":["Por"],"q":9,"co":2,"tc":"Indeterminato","sc":"2028-06-30","dn":"1999-08-28","pr":null},{"i":241,"n":"Pellegrini Lo.","c":"Roma","rm":["C","T"],"q":9,"co":0,"tc":"Indeterminato","sc":"2027-06-30","dn":"1996-06-19","pr":null},{"i":1034,"n":"Perri","c":"Torino","rm":["Por"],"q":9,"co":13,"tc":"Indeterminato","sc":"2027-06-30","dn":"1997-12-10","pr":null},{"i":90,"n":"Vergara","c":"Napoli","rm":["W","T"],"q":9,"co":2,"tc":"Indeterminato","sc":"2031-06-30","dn":"2003-01-16","pr":null},{"i":445,"n":"Vojvoda","c":"Udinese","rm":["Dd","E"],"q":9,"co":4,"tc":"Indeterminato","sc":"2028-06-30","dn":"1995-02-01","pr":null},{"i":235,"n":"Volpato","c":"Sassuolo","rm":["W","T"],"q":9,"co":19,"tc":"Indeterminato","sc":"2028-06-30","dn":"2003-11-15","pr":null},{"i":453,"n":"Bartesaghi","c":"Milan","rm":["Ds","E"],"q":8,"co":0,"tc":"Indeterminato","sc":"2030-06-30","dn":"2005-12-29","pr":null},{"i":396,"n":"Lucumì","c":"Juventus","rm":["Dc"],"q":8,"co":9,"tc":"Indeterminato","sc":"2030-06-30","dn":"1998-06-26","pr":null},{"i":448,"n":"Coco","c":"Torino","rm":["Dc"],"q":7,"co":5,"tc":"Indeterminato","sc":"2029-06-30","dn":"1999-02-09","pr":null},{"i":143,"n":"Pisilli","c":"Roma","rm":["C"],"q":7,"co":0,"tc":"Indeterminato","sc":"2029-06-30","dn":"2004-09-23","pr":null},{"i":876,"n":"Obrador","c":"Sassuolo","rm":["Ds","E"],"q":6,"co":9,"tc":"Indeterminato","sc":"2027-06-30","dn":"2004-02-24","pr":null},{"i":883,"n":"Amorim","c":"Genoa","rm":["M","C"],"q":5,"co":0,"tc":"Primavera","sc":"2030-06-30","dn":"2005-05-18","pr":null},{"i":391,"n":"Gallo","c":"Lecce","rm":["Ds","E"],"q":5,"co":2,"tc":"Indeterminato","sc":"2027-06-30","dn":"2000-01-05","pr":null},{"i":139,"n":"Jashari","c":"Milan","rm":["M","C"],"q":5,"co":32,"tc":"Indeterminato","sc":"2030-06-30","dn":"2002-07-30","pr":null},{"i":358,"n":"Rensch","c":"Roma","rm":["B","Dd","E"],"q":5,"co":1,"tc":"Indeterminato","sc":"2029-06-30","dn":"2003-01-18","pr":null},{"i":131,"n":"Dele-Bashiru","c":"Lazio","rm":["C","T"],"q":4,"co":1,"tc":"Indeterminato","sc":"2028-06-30","dn":"2001-02-06","pr":null},{"i":1008,"n":"Favasuli","c":"Napoli","rm":["Dd","Ds","E"],"q":4,"co":1,"tc":"Fanta-Prestito","sc":"2027-06-30","dn":"2004-04-26","pr":"Diablitos FC"},{"i":543,"n":"Njie","c":"Fiorentina","rm":["W","A"],"q":4,"co":0,"tc":"Primavera","sc":"2027-06-30","dn":"2005-05-14","pr":null},{"i":386,"n":"Walukiewicz","c":"Sassuolo","rm":["Dd","Dc"],"q":3,"co":5,"tc":"Indeterminato","sc":null,"dn":"2000-04-05","pr":null},{"i":418,"n":"Zanoli","c":"Udinese","rm":["Dd","E"],"q":3,"co":7,"tc":"Indeterminato","sc":"2029-06-30","dn":"2000-10-03","pr":null},{"i":752,"n":"Zeroli","c":"Monza","rm":["C","T"],"q":3,"co":0,"tc":"Primavera","sc":null,"dn":null,"pr":null},{"i":941,"n":"Mascardi","c":"Torino","rm":["Por"],"q":1,"co":0,"tc":"Indeterminato","sc":"2031-06-30","dn":"2006-09-26","pr":null},{"i":514,"n":"Paleari","c":"Torino","rm":["Por"],"q":1,"co":1,"tc":"Indeterminato","sc":"2027-06-30","dn":"1992-08-29","pr":null}]},{"nome":"Metodo Monchi FC","crediti":79,"rosa":[{"i":462,"n":"Dimarco","c":"Inter","rm":["E","W"],"q":30,"co":31,"tc":"Indeterminato","sc":"2028-06-30","dn":"1997-11-10","pr":null},{"i":908,"n":"Ramos G.","c":"Milan","rm":["Pc"],"q":27,"co":111,"tc":"Indeterminato","sc":"2031-06-30","dn":"2001-06-20","pr":null},{"i":78,"n":"Berardi","c":"Sassuolo","rm":["A"],"q":20,"co":56,"tc":"Indeterminato","sc":"2029-06-30","dn":"1994-08-01","pr":null},{"i":64,"n":"De Ketelaere","c":"Atalanta","rm":["A"],"q":18,"co":70,"tc":"Indeterminato","sc":"2028-06-30","dn":"2001-03-10","pr":null},{"i":70,"n":"Krstovic","c":"Atalanta","rm":["Pc"],"q":17,"co":3,"tc":"Indeterminato","sc":"2030-06-30","dn":"2000-04-05","pr":null},{"i":457,"n":"Wesley","c":"Roma","rm":["E"],"q":17,"co":40,"tc":"Indeterminato","sc":"2030-06-30","dn":"2003-09-06","pr":null},{"i":82,"n":"Soulè","c":"Roma","rm":["A"],"q":16,"co":67,"tc":"Indeterminato","sc":"2029-06-30","dn":"2003-04-15","pr":null},{"i":262,"n":"Zaniolo","c":"Udinese","rm":["T","A"],"q":16,"co":23,"tc":"Indeterminato","sc":"2029-06-30","dn":"1999-07-02","pr":null},{"i":526,"n":"Butez","c":"Como","rm":["Por"],"q":15,"co":7,"tc":"Indeterminato","sc":"2030-06-30","dn":"1995-06-08","pr":null},{"i":233,"n":"Samardzic","c":"Atalanta","rm":["C","T"],"q":13,"co":15,"tc":"Indeterminato","sc":"2029-06-30","dn":"2002-02-24","pr":null},{"i":1015,"n":"Jones C.","c":"Inter","rm":["C"],"q":12,"co":37,"tc":"Indeterminato","sc":"2031-06-30","dn":"2001-01-30","pr":null},{"i":258,"n":"Saelemaekers","c":"Milan","rm":["E","W"],"q":12,"co":7,"tc":"Indeterminato","sc":"2031-06-30","dn":"1999-06-27","pr":null},{"i":149,"n":"Frattesi","c":"Lazio","rm":["C","T"],"q":11,"co":16,"tc":"Indeterminato","sc":"2027-06-30","dn":"1999-09-22","pr":null},{"i":506,"n":"Meret","c":"Napoli","rm":["Por"],"q":11,"co":29,"tc":"Indeterminato","sc":"2027-06-30","dn":"1997-03-22","pr":null},{"i":441,"n":"Scalvini","c":"Atalanta","rm":["Dc"],"q":11,"co":0,"tc":"Indeterminato","sc":"2028-06-30","dn":"2003-12-11","pr":null},{"i":447,"n":"Ostigard","c":"Genoa","rm":["Dc"],"q":10,"co":2,"tc":"Indeterminato","sc":"2030-06-30","dn":"1999-11-28","pr":null},{"i":455,"n":"Carlos Augusto","c":"Inter","rm":["B","Ds","E"],"q":8,"co":5,"tc":"Indeterminato","sc":"2028-06-30","dn":"1999-01-07","pr":null},{"i":416,"n":"Delprato","c":"Parma","rm":["B","Dd","E"],"q":8,"co":0,"tc":"Indeterminato","sc":"2029-06-30","dn":"1999-11-10","pr":null},{"i":197,"n":"Fagioli","c":"Fiorentina","rm":["M","C"],"q":8,"co":0,"tc":"Indeterminato","sc":"2028-06-30","dn":"2001-02-12","pr":null},{"i":385,"n":"Ismajli","c":"Torino","rm":["Dc"],"q":8,"co":2,"tc":"Indeterminato","sc":"2027-06-30","dn":"1996-09-30","pr":null},{"i":108,"n":"Adzic","c":"Sassuolo","rm":["C","T"],"q":7,"co":0,"tc":"Primavera","sc":"2027-06-30","dn":"2006-05-12","pr":null},{"i":249,"n":"Bernabè","c":"Parma","rm":["C"],"q":7,"co":28,"tc":"Indeterminato","sc":"2027-06-30","dn":"2001-05-26","pr":null},{"i":378,"n":"Fortini","c":"Torino","rm":["E"],"q":6,"co":0,"tc":"Fanta-Prestito","sc":"2027-06-30","dn":"2006-02-13","pr":"ZeroDayz FC"},{"i":400,"n":"Heggem","c":"Bologna","rm":["Ds","Dc"],"q":6,"co":4,"tc":"Indeterminato","sc":"2029-06-30","dn":"1999-01-12","pr":null},{"i":722,"n":"Carboni V.","c":"Genoa","rm":["T","A"],"q":4,"co":0,"tc":"Primavera","sc":null,"dn":null,"pr":null},{"i":903,"n":"Mendy P.","c":"Cagliari","rm":["Pc"],"q":4,"co":0,"tc":"Primavera","sc":"2031-06-30","dn":"2007-01-13","pr":null},{"i":525,"n":"Milinkovic-Savic V.","c":"Napoli","rm":["Por"],"q":4,"co":19,"tc":"Fanta-Prestito","sc":"2030-06-30","dn":"1997-02-20","pr":"Diaolo Porco"},{"i":332,"n":"Provstgaard","c":"Lazio","rm":["Dc"],"q":4,"co":1,"tc":"Indeterminato","sc":"2029-06-30","dn":"2003-06-04","pr":null},{"i":801,"n":"Abankwah","c":"Udinese","rm":["Dd","Dc"],"q":3,"co":10,"tc":"Indeterminato","sc":"2029-06-30","dn":"2004-01-16","pr":null},{"i":65,"n":"Giovane","c":"Napoli","rm":["A"],"q":3,"co":1,"tc":"Indeterminato","sc":"2030-06-30","dn":"2003-11-24","pr":null},{"i":1042,"n":"Jovanovic","c":"Udinese","rm":["W","T"],"q":2,"co":0,"tc":"Primavera","sc":"2031-06-30","dn":"2006-11-30","pr":null},{"i":984,"n":"Stankovic A.","c":"Inter","rm":["M","C"],"q":2,"co":0,"tc":"Primavera","sc":"2031-06-30","dn":"2005-08-03","pr":null}]},{"nome":"Sborada","crediti":33,"rosa":[{"i":872,"n":"Malen","c":"Roma","rm":["Pc"],"q":37,"co":66,"tc":"Indeterminato","sc":"2030-06-30","dn":"1999-01-19","pr":null},{"i":63,"n":"Esposito F.P.","c":"Inter","rm":["Pc"],"q":17,"co":0,"tc":"Indeterminato","sc":"2032-06-30","dn":"2005-06-28","pr":null},{"i":58,"n":"Dovbyk","c":"Bologna","rm":["Pc"],"q":16,"co":175,"tc":"Indeterminato","sc":"2027-06-30","dn":"1997-06-21","pr":null},{"i":439,"n":"Bisseck","c":"Inter","rm":["Dc"],"q":13,"co":8,"tc":"Indeterminato","sc":"2031-06-30","dn":"2000-11-29","pr":null},{"i":244,"n":"Gudmundsson A.","c":"Lazio","rm":["T","A"],"q":12,"co":72,"tc":"Indeterminato","sc":"2027-06-30","dn":"1997-06-15","pr":null},{"i":253,"n":"Perrone","c":"Como","rm":["M","C"],"q":12,"co":20,"tc":"Indeterminato","sc":"2029-06-30","dn":"2003-01-07","pr":null},{"i":515,"n":"De Gea","c":"Fiorentina","rm":["Por"],"q":10,"co":35,"tc":"Indeterminato","sc":"2028-06-30","dn":"1990-11-07","pr":null},{"i":105,"n":"Diouf","c":"Inter","rm":["E","C"],"q":10,"co":5,"tc":"Indeterminato","sc":"2030-06-30","dn":"2003-05-17","pr":null},{"i":369,"n":"Kamara H.","c":"Udinese","rm":["Ds","E"],"q":10,"co":5,"tc":"Indeterminato","sc":"2028-06-30","dn":"1994-03-05","pr":null},{"i":1000,"n":"Romero D.","c":"Parma","rm":["Pc"],"q":10,"co":1,"tc":"Indeterminato","sc":"2031-06-30","dn":"2003-03-25","pr":null},{"i":185,"n":"Lobotka","c":"Napoli","rm":["M","C"],"q":9,"co":0,"tc":"Indeterminato","sc":"2027-06-30","dn":"1994-11-25","pr":null},{"i":754,"n":"Colpani","c":"Monza","rm":["T"],"q":8,"co":1,"tc":"Indeterminato","sc":"2028-06-30","dn":"1999-05-11","pr":null},{"i":948,"n":"Doekhi","c":"Lazio","rm":["Dc"],"q":8,"co":15,"tc":"Indeterminato","sc":"2029-06-30","dn":"1998-06-30","pr":null},{"i":774,"n":"Jimenez A.","c":"Fiorentina","rm":["Dd","Ds","E"],"q":8,"co":0,"tc":"Indeterminato","sc":"2027-06-30","dn":"2005-05-08","pr":null},{"i":1043,"n":"Sarr P.","c":"Juventus","rm":["M","C"],"q":8,"co":6,"tc":"Indeterminato","sc":"2027-06-30","dn":"2002-09-14","pr":null},{"i":461,"n":"Spinazzola","c":"Napoli","rm":["Ds","E"],"q":8,"co":0,"tc":"Indeterminato","sc":"2028-06-30","dn":"1993-03-25","pr":null},{"i":878,"n":"Bijlow","c":"Genoa","rm":["Por"],"q":7,"co":1,"tc":"Indeterminato","sc":"2029-06-30","dn":"1998-01-22","pr":null},{"i":911,"n":"Dragusin","c":"Fiorentina","rm":["Dc"],"q":7,"co":42,"tc":"Indeterminato","sc":"2027-06-30","dn":"2002-02-03","pr":null},{"i":1040,"n":"Hutchinson","c":"Milan","rm":["W","A"],"q":7,"co":13,"tc":"Indeterminato","sc":"2027-06-30","dn":"2003-10-30","pr":null},{"i":174,"n":"Ndour","c":"Fiorentina","rm":["C"],"q":7,"co":0,"tc":"Indeterminato","sc":"2029-06-30","dn":"2004-07-27","pr":null},{"i":256,"n":"Odgaard","c":"Bologna","rm":["T"],"q":7,"co":3,"tc":"Indeterminato","sc":"2029-06-30","dn":"1999-03-31","pr":null},{"i":1036,"n":"Balerdi","c":"Roma","rm":["Dc"],"q":6,"co":1,"tc":"Indeterminato","sc":"2027-06-30","dn":"1999-01-26","pr":null},{"i":349,"n":"De Winter","c":"Milan","rm":["Dd","Dc"],"q":6,"co":11,"tc":"Indeterminato","sc":"2030-06-30","dn":"2002-06-12","pr":null},{"i":986,"n":"Fitz-Jim","c":"Torino","rm":["M","C"],"q":6,"co":1,"tc":"Indeterminato","sc":"2029-06-30","dn":"2003-07-05","pr":null},{"i":383,"n":"Britschgi","c":"Parma","rm":["Dd","Ds","E"],"q":5,"co":0,"tc":"Primavera","sc":"2030-06-30","dn":"2006-08-27","pr":null},{"i":226,"n":"Loftus-Cheek","c":"Milan","rm":["C","T"],"q":4,"co":41,"tc":"Indeterminato","sc":"2027-06-30","dn":"1996-01-23","pr":null},{"i":125,"n":"Miller L.","c":"Udinese","rm":["M","C"],"q":4,"co":0,"tc":"Indeterminato","sc":"2030-06-30","dn":"2006-08-25","pr":null},{"i":307,"n":"Troilo","c":"Parma","rm":["Dc"],"q":4,"co":1,"tc":"Indeterminato","sc":"2030-06-30","dn":"2003-06-28","pr":null},{"i":337,"n":"Vitik","c":"Bologna","rm":["Dc"],"q":4,"co":24,"tc":"Fanta-Prestito","sc":"2029-06-30","dn":"2003-01-21","pr":"ZeroDayz FC"},{"i":888,"n":"Kulenovic","c":"Torino","rm":["Pc"],"q":3,"co":1,"tc":"Indeterminato","sc":"2029-06-30","dn":"1999-12-04","pr":null},{"i":923,"n":"Mitaj","c":"Genoa","rm":["Ds","E"],"q":3,"co":1,"tc":"Indeterminato","sc":"2027-06-30","dn":"2003-08-06","pr":null},{"i":535,"n":"Dominguez B.","c":"Sassuolo","rm":["W","A"],"q":2,"co":31,"tc":"Fanta-Prestito","sc":"2027-06-30","dn":"2003-09-19","pr":"ZeroDayz FC"},{"i":32,"n":"Ekhator","c":"Juventus","rm":["A"],"q":2,"co":0,"tc":"Primavera","sc":"2031-06-30","dn":"2006-11-11","pr":null},{"i":469,"n":"Lezzerini","c":"Fiorentina","rm":["Por"],"q":1,"co":1,"tc":"Indeterminato","sc":"2028-06-30","dn":"1995-03-24","pr":null}]},{"nome":"ZeroDayz FC","crediti":35,"rosa":[{"i":85,"n":"Thuram","c":"Inter","rm":["Pc"],"q":28,"co":111,"tc":"Indeterminato","sc":"2028-06-30","dn":"1997-08-06","pr":null},{"i":189,"n":"Baturina","c":"Como","rm":["T"],"q":20,"co":33,"tc":"Indeterminato","sc":"2030-06-30","dn":"2003-02-16","pr":null},{"i":527,"n":"Svilar","c":"Roma","rm":["Por"],"q":18,"co":21,"tc":"Indeterminato","sc":"2030-06-30","dn":"1999-08-27","pr":null},{"i":45,"n":"Dybala","c":"Roma","rm":["A"],"q":17,"co":110,"tc":"Indeterminato","sc":"2027-06-30","dn":"1993-11-15","pr":null},{"i":250,"n":"Zaccagni","c":"Lazio","rm":["W","A"],"q":15,"co":79,"tc":"Indeterminato","sc":"2029-06-30","dn":"1995-06-16","pr":null},{"i":67,"n":"Esposito Se.","c":"Sassuolo","rm":["A"],"q":13,"co":1,"tc":"Indeterminato","sc":"2027-06-30","dn":"2002-07-02","pr":null},{"i":257,"n":"Vlasic","c":"Torino","rm":["T"],"q":12,"co":1,"tc":"Indeterminato","sc":"2027-06-30","dn":"1997-10-04","pr":null},{"i":194,"n":"Casadei","c":"Torino","rm":["C","T"],"q":9,"co":23,"tc":"Indeterminato","sc":"2029-06-30","dn":"2003-01-10","pr":null},{"i":363,"n":"Dodò","c":"Fiorentina","rm":["Dd","E"],"q":9,"co":16,"tc":"Indeterminato","sc":"2027-06-30","dn":"1998-11-17","pr":null},{"i":1037,"n":"Theate","c":"Bologna","rm":["Ds","Dc"],"q":9,"co":18,"tc":"Indeterminato","sc":"2027-06-30","dn":"2000-05-25","pr":null},{"i":429,"n":"Vasquez","c":"Genoa","rm":["Ds","Dc"],"q":9,"co":9,"tc":"Indeterminato","sc":"2028-06-30","dn":"1998-10-22","pr":null},{"i":520,"n":"Falcone","c":"Lecce","rm":["Por"],"q":8,"co":11,"tc":"Indeterminato","sc":"2028-06-30","dn":"1995-04-12","pr":null},{"i":196,"n":"Frendrup","c":"Genoa","rm":["M","C"],"q":8,"co":17,"tc":"Indeterminato","sc":"2028-06-30","dn":"2001-04-07","pr":null},{"i":954,"n":"Koulierakis","c":"Roma","rm":["Dc"],"q":8,"co":18,"tc":"Indeterminato","sc":"2031-06-30","dn":"2003-11-28","pr":null},{"i":219,"n":"Pasalic","c":"Atalanta","rm":["C","T"],"q":8,"co":25,"tc":"Indeterminato","sc":"2028-06-30","dn":"1995-02-09","pr":null},{"i":412,"n":"Zappacosta","c":"Atalanta","rm":["Dd","E"],"q":8,"co":5,"tc":"Indeterminato","sc":"2028-06-30","dn":"1992-06-11","pr":null},{"i":68,"n":"Cambiaghi","c":"Bologna","rm":["W","A"],"q":7,"co":0,"tc":"Indeterminato","sc":"2029-06-30","dn":"2000-12-28","pr":null},{"i":775,"n":"Cissè A.","c":"Milan","rm":["W","T"],"q":7,"co":0,"tc":"Primavera","sc":"2030-06-30","dn":"2006-10-22","pr":null},{"i":136,"n":"Elmas","c":"Atalanta","rm":["W","T"],"q":7,"co":9,"tc":"Indeterminato","sc":"2027-06-30","dn":"1999-09-24","pr":null},{"i":401,"n":"Idzes","c":"Sassuolo","rm":["Dc"],"q":7,"co":1,"tc":"Indeterminato","sc":"2029-06-30","dn":"2000-06-02","pr":null},{"i":373,"n":"Tavares N.","c":"Lazio","rm":["Ds","E"],"q":7,"co":5,"tc":"Fanta-Prestito","sc":"2029-06-30","dn":"2000-01-26","pr":"Sborada"},{"i":947,"n":"Kaiki","c":"Como","rm":["Ds","E"],"q":6,"co":22,"tc":"Indeterminato","sc":"2027-06-30","dn":"2003-03-08","pr":null},{"i":184,"n":"Keita M.","c":"Parma","rm":["M","C"],"q":6,"co":1,"tc":"Indeterminato","sc":"2029-06-30","dn":"2002-05-10","pr":null},{"i":354,"n":"Bella-Kotchap","c":"Venezia","rm":["Dc"],"q":5,"co":4,"tc":"Indeterminato","sc":"2030-06-30","dn":"2001-12-11","pr":null},{"i":397,"n":"Bellanova","c":"Atalanta","rm":["Dd","E"],"q":5,"co":28,"tc":"Indeterminato","sc":"2029-06-30","dn":"2000-05-17","pr":null},{"i":1004,"n":"Lontani","c":"Parma","rm":["A"],"q":5,"co":0,"tc":"Primavera","sc":"2030-06-30","dn":"2008-01-18","pr":null},{"i":203,"n":"Folorunsho","c":"Monza","rm":["C","T"],"q":4,"co":4,"tc":"Fanta-Prestito","sc":"2027-06-30","dn":"1998-02-07","pr":"Sborada"},{"i":49,"n":"Addai","c":"Como","rm":["W","A"],"q":3,"co":0,"tc":"Primavera","sc":"2030-06-30","dn":"2005-08-26","pr":null},{"i":1053,"n":"Fernandez T.","c":"Venezia","rm":["T","A"],"q":3,"co":0,"tc":"Primavera","sc":"2027-06-30","dn":"2008-07-15","pr":null},{"i":531,"n":"Gueye","c":"Udinese","rm":["Pc"],"q":3,"co":0,"tc":"Primavera","sc":"2030-06-30","dn":"2006-09-16","pr":null},{"i":721,"n":"Marin R.","c":"Napoli","rm":["Dc"],"q":2,"co":6,"tc":"Indeterminato","sc":"2029-06-30","dn":"2002-05-19","pr":null},{"i":476,"n":"Gollini","c":"Roma","rm":["Por"],"q":1,"co":3,"tc":"Indeterminato","sc":"2027-06-30","dn":"1995-03-18","pr":null}]}]};
+/* === LEGA_DATA END === */
+
+let DATA = LEGA;   // sostituito da caricaLive() se c'è un mirror più fresco
+
+/* ============================================================
+   MODULI MANTRA — gli 11 schemi ufficiali di fantacalcio.it
+   Ogni slot: {roles:[ammessi...], x%, y%} (y dal lato offensivo).
+   ============================================================ */
+const FORMATIONS = {
+  "3-4-3":[
+    {roles:["Por"],x:50,y:90},
+    {roles:["Dc"],x:26,y:70},{roles:["Dc"],x:50,y:70},{roles:["Dc","B"],x:74,y:70},
+    {roles:["E"],x:13,y:52},{roles:["M","C"],x:38,y:53},{roles:["C"],x:62,y:53},{roles:["E"],x:87,y:52},
+    {roles:["W","A"],x:18,y:25},{roles:["A","Pc"],x:50,y:13},{roles:["W","A"],x:82,y:25},
+  ],
+  "3-4-1-2":[
+    {roles:["Por"],x:50,y:90},
+    {roles:["Dc"],x:26,y:70},{roles:["Dc"],x:50,y:70},{roles:["Dc","B"],x:74,y:70},
+    {roles:["E"],x:13,y:53},{roles:["M","C"],x:38,y:54},{roles:["C"],x:62,y:54},{roles:["E"],x:87,y:53},
+    {roles:["T"],x:50,y:33},
+    {roles:["A","Pc"],x:34,y:15},{roles:["A","Pc"],x:66,y:15},
+  ],
+  "3-4-2-1":[
+    {roles:["Por"],x:50,y:90},
+    {roles:["Dc"],x:26,y:70},{roles:["Dc"],x:50,y:70},{roles:["Dc","B"],x:74,y:70},
+    {roles:["E","W"],x:13,y:53},{roles:["M"],x:37,y:54},{roles:["M","C"],x:63,y:54},{roles:["E"],x:87,y:53},
+    {roles:["T"],x:34,y:31},{roles:["T","A"],x:66,y:31},
+    {roles:["A","Pc"],x:50,y:13},
+  ],
+  "3-5-2":[
+    {roles:["Por"],x:50,y:90},
+    {roles:["Dc"],x:26,y:70},{roles:["Dc"],x:50,y:70},{roles:["Dc","B"],x:74,y:70},
+    {roles:["E","W"],x:12,y:53},{roles:["M","C"],x:30,y:55},{roles:["M"],x:50,y:55},{roles:["C"],x:70,y:55},{roles:["E"],x:88,y:53},
+    {roles:["A","Pc"],x:34,y:17},{roles:["A","Pc"],x:66,y:17},
+  ],
+  "3-5-1-1":[
+    {roles:["Por"],x:50,y:90},
+    {roles:["Dc"],x:26,y:70},{roles:["Dc"],x:50,y:70},{roles:["Dc","B"],x:74,y:70},
+    {roles:["E","W"],x:12,y:53},{roles:["M"],x:30,y:55},{roles:["C"],x:50,y:55},{roles:["M"],x:70,y:55},{roles:["E","W"],x:88,y:53},
+    {roles:["T","A"],x:50,y:31},
+    {roles:["A","Pc"],x:50,y:14},
+  ],
+  "4-3-3":[
+    {roles:["Por"],x:50,y:90},
+    {roles:["Ds"],x:12,y:70},{roles:["Dc"],x:38,y:70},{roles:["Dc"],x:62,y:70},{roles:["Dd"],x:88,y:70},
+    {roles:["M","C"],x:26,y:53},{roles:["M"],x:50,y:51},{roles:["C"],x:74,y:53},
+    {roles:["W","A"],x:16,y:24},{roles:["A","Pc"],x:50,y:13},{roles:["W","A"],x:84,y:24},
+  ],
+  "4-3-1-2":[
+    {roles:["Por"],x:50,y:90},
+    {roles:["Ds"],x:12,y:70},{roles:["Dc"],x:38,y:70},{roles:["Dc"],x:62,y:70},{roles:["Dd"],x:88,y:70},
+    {roles:["M","C"],x:26,y:54},{roles:["M"],x:50,y:52},{roles:["C"],x:74,y:54},
+    {roles:["T"],x:50,y:32},
+    {roles:["T","A","Pc"],x:34,y:15},{roles:["A","Pc"],x:66,y:15},
+  ],
+  "4-4-2":[
+    {roles:["Por"],x:50,y:90},
+    {roles:["Ds"],x:12,y:70},{roles:["Dc"],x:38,y:70},{roles:["Dc"],x:62,y:70},{roles:["Dd"],x:88,y:70},
+    {roles:["E","W"],x:12,y:52},{roles:["M","C"],x:38,y:53},{roles:["C"],x:62,y:53},{roles:["E"],x:88,y:52},
+    {roles:["A","Pc"],x:34,y:18},{roles:["A","Pc"],x:66,y:18},
+  ],
+  "4-1-4-1":[
+    {roles:["Por"],x:50,y:90},
+    {roles:["Ds"],x:12,y:70},{roles:["Dc"],x:38,y:70},{roles:["Dc"],x:62,y:70},{roles:["Dd"],x:88,y:70},
+    {roles:["M"],x:50,y:58},
+    {roles:["E","W"],x:12,y:38},{roles:["C","T"],x:38,y:39},{roles:["T"],x:62,y:39},{roles:["W"],x:88,y:38},
+    {roles:["A","Pc"],x:50,y:15},
+  ],
+  "4-4-1-1":[
+    {roles:["Por"],x:50,y:90},
+    {roles:["Ds"],x:12,y:70},{roles:["Dc"],x:38,y:70},{roles:["Dc"],x:62,y:70},{roles:["Dd"],x:88,y:70},
+    {roles:["E","W"],x:12,y:52},{roles:["M"],x:38,y:53},{roles:["C"],x:62,y:53},{roles:["E","W"],x:88,y:52},
+    {roles:["T","A"],x:50,y:31},
+    {roles:["A","Pc"],x:50,y:14},
+  ],
+  "4-2-3-1":[
+    {roles:["Por"],x:50,y:90},
+    {roles:["Ds"],x:12,y:70},{roles:["Dc"],x:38,y:70},{roles:["Dc"],x:62,y:70},{roles:["Dd"],x:88,y:70},
+    {roles:["M"],x:35,y:57},{roles:["M","C"],x:65,y:57},
+    {roles:["W","T"],x:14,y:35},{roles:["T"],x:50,y:35},{roles:["W","A"],x:86,y:35},
+    {roles:["A","Pc"],x:50,y:15},
+  ],
+};
+const FORMATION_LIST = Object.keys(FORMATIONS);
+const DEFAULT_BOARDS = ["3-4-3","3-5-2","4-3-3","4-4-2"];
+
+/* ============================================================
+   STATO — uno schieramento per squadra, 4 campi ciascuna
+   ============================================================ */
+const KEY = "campetto-lega-v1";
+function freshTeam(){
+  return { boards:DEFAULT_BOARDS.slice(), lineups:[{},{},{},{}], reserves:[{},{},{},{}], excluded:[[],[],[],[]] };
+}
+function fresh(){ return { team:null, byTeam:{} }; }
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY)); }catch(e){ return null; } }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+function migrate(s){
+  if(!s || typeof s!=="object") return null;
+  if(!s.byTeam || typeof s.byTeam!=="object") s.byTeam={};
+  for(const k in s.byTeam){
+    const t=s.byTeam[k];
+    if(!Array.isArray(t.boards)  || t.boards.length!==4)  t.boards  = DEFAULT_BOARDS.slice();
+    if(!Array.isArray(t.lineups) || t.lineups.length!==4) t.lineups = [{},{},{},{}];
+    if(!Array.isArray(t.reserves)|| t.reserves.length!==4)t.reserves= [{},{},{},{}];
+    if(!Array.isArray(t.excluded)|| t.excluded.length!==4)t.excluded= [[],[],[],[]];
+  }
+  return s;
+}
+let state = migrate(load()) || fresh();
+
+/* squadra corrente e sua rosa */
+function teams(){ return DATA.squadre || []; }
+function teamData(){ return teams().find(t=>t.nome===state.team) || null; }
+function roster(){ const t=teamData(); return t? t.rosa : []; }
+function playerById(id){ return roster().find(p=>p.i===id); }
+function cur(){
+  if(!state.byTeam[state.team]) state.byTeam[state.team]=freshTeam();
+  return state.byTeam[state.team];
+}
+
+/* theme */
+(function initTheme(){
+  let t=null; try{ t=localStorage.getItem(KEY+"-theme"); }catch(e){}
+  if(t) document.documentElement.dataset.theme=t;
+})();
+document.getElementById("themeBtn").addEventListener("click",()=>{
+  const c=document.documentElement.dataset.theme
+    || (matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light");
+  const n=c==="dark"?"light":"dark";
+  document.documentElement.dataset.theme=n;
+  try{ localStorage.setItem(KEY+"-theme",n); }catch(e){}
+});
+
+/* ============================================================
+   MOTORE RUOLI — identico al Campetto Mantra
+   ============================================================ */
+// quanto è "difensivo" un ruolo: Por < Dc=B < Ds=Dd < M < E < C < T=W < A < Pc
+const DEF_RANK = { Por:0, Dc:1, B:1, Ds:2, Dd:2, M:3, E:4, C:5, T:6, W:6, A:7, Pc:8 };
+function defRank(r){ return (r in DEF_RANK) ? DEF_RANK[r] : 4; }
+// uno slot conta solo per il suo ruolo più OFFENSIVO (M/C=C, E/W=W, W/A=A…)
+function slotEffRoles(slotRoles){
+  const maxR=Math.max.apply(null, slotRoles.map(defRank));
+  return slotRoles.filter(r=> defRank(r)===maxR);
+}
+// il giocatore conta solo per il suo ruolo più DIFENSIVO (Dd/Dc=Dc, M/C=M, E/W=E…)
+function playerKeyRoles(rm){
+  const minR=Math.min.apply(null, rm.map(defRank));
+  return rm.filter(r=> defRank(r)===minR);
+}
+function fits(slotRoles, playerRm){
+  if(!playerRm || !playerRm.length) return false;
+  const se=slotEffRoles(slotRoles);
+  return playerKeyRoles(playerRm).some(r=> se.includes(r));
+}
+const ROLE_GROUP = {
+  Por:"por", Dd:"dif", Ds:"dif", Dc:"dif", B:"dif",
+  E:"cen", M:"cen", C:"cen", W:"tre", T:"tre", A:"att", Pc:"att",
+};
+function roleGroup(r){ return ROLE_GROUP[r] || "cen"; }
+// gruppo del giocatore = quello del suo ruolo più difensivo (lo stesso che ne decide gli slot)
+function playerGroup(p){ return roleGroup(playerKeyRoles(p.rm)[0]); }
+
+function fitsBoard(bi, p){
+  return FORMATIONS[cur().boards[bi]].some(s=> fits(s.roles, p.rm));
+}
+function isExcluded(bi, id){ return cur().excluded[bi].includes(id); }
+function unExclude(bi, id){
+  const a=cur().excluded[bi], i=a.indexOf(id);
+  if(i>=0){ a.splice(i,1); return true; }
+  return false;
+}
+function excludeFromBoard(bi, id){
+  const a=cur().excluded[bi];
+  if(!a.includes(id)){ a.push(id); return true; }
+  return false;
+}
+function jollyList(bi){
+  return roster().filter(p=> !fitsBoard(bi,p) && !isExcluded(bi,p.i))
+    .sort((a,b)=> b.q-a.q);
+}
+function slotOfPlayer(bi, id){
+  const lu=cur().lineups[bi];
+  for(const k in lu) if(lu[k]===id) return +k;
+  return -1;
+}
+function placedSomewhere(id){
+  for(let bi=0;bi<4;bi++) if(slotOfPlayer(bi,id)>=0) return true;
+  return false;
+}
+function reservesOf(bi, slotIdx){ return cur().reserves[bi][slotIdx] || []; }
+function isReserve(bi, id){
+  const rv=cur().reserves[bi];
+  for(const k in rv) if(rv[k].includes(id)) return true;
+  return false;
+}
+function usedAnywhere(id){
+  for(let bi=0;bi<4;bi++) if(slotOfPlayer(bi,id)>=0 || isReserve(bi,id)) return true;
+  return false;
+}
+function dropReserve(bi, id){
+  const rv=cur().reserves[bi]; let changed=false;
+  for(const k in rv){ const f=rv[k].filter(x=>x!==id); if(f.length!==rv[k].length) changed=true; if(f.length) rv[k]=f; else delete rv[k]; }
+  return changed;
+}
+
+const el = (t,c,txt)=>{ const e=document.createElement(t); if(c)e.className=c; if(txt!=null)e.textContent=txt; return e; };
+
+/* iconcine (stile Lucide, stroke = currentColor) */
+const ICONS = {
+  zap:'<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',
+  eraser:'<path d="m7 21-4.3-4.3a2.4 2.4 0 0 1 0-3.4l9.6-9.6a2.4 2.4 0 0 1 3.4 0l5.6 5.6a2.4 2.4 0 0 1 0 3.4L13 21"/><path d="M22 21H8"/><path d="m5 11 9 9"/>',
+  circlePlus:'<circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/>',
+  circleX:'<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>',
+  x:'<path d="M18 6 6 18"/><path d="M6 6l12 12"/>',
+};
+function ic(name){
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '
+    + 'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(ICONS[name]||'')+'</svg>';
+}
+function iconBtn(cls, name, title){
+  const b=el("button",cls); b.type="button"; b.innerHTML=ic(name); if(title) b.title=title; return b;
+}
+
+const PITCH_SVG = '<svg viewBox="0 0 680 1000" preserveAspectRatio="none" aria-hidden="true">'
+  + '<g fill="none" stroke="rgba(255,255,255,.7)" stroke-width="3">'
+  + '<rect x="12" y="12" width="656" height="976"/>'
+  + '<line x1="12" y1="500" x2="668" y2="500"/>'
+  + '<circle cx="340" cy="500" r="92"/><circle cx="340" cy="500" r="4" fill="rgba(255,255,255,.7)"/>'
+  + '<rect x="160" y="12" width="360" height="128"/><rect x="262" y="12" width="156" height="46"/>'
+  + '<path d="M262 140 A 82 82 0 0 0 418 140"/>'
+  + '<rect x="160" y="860" width="360" height="128"/><rect x="262" y="942" width="156" height="46"/>'
+  + '<path d="M262 860 A 82 82 0 0 1 418 860"/>'
+  + '<rect x="298" y="4" width="84" height="8"/><rect x="298" y="988" width="84" height="8"/>'
+  + '</g></svg>';
+
+/* ============================================================
+   PULIZIA — nessun giocatore può restare in uno slot non suo
+   (es. dopo un cambio modulo o un cambio rosa dal DB)
+   ============================================================ */
+function pruneBoard(bi){
+  const t=cur(), slots=FORMATIONS[t.boards[bi]], lu=t.lineups[bi], rv=t.reserves[bi];
+  let changed=false;
+  for(const k in lu){
+    const p=playerById(lu[k]);
+    if(!p || !slots[k] || !fits(slots[k].roles, p.rm)){ delete lu[k]; changed=true; }
+  }
+  for(const k in rv){
+    if(!slots[k]){ delete rv[k]; changed=true; continue; }
+    const kept=rv[k].filter(id=>{ const p=playerById(id); return p && fits(slots[k].roles, p.rm); });
+    if(kept.length!==rv[k].length) changed=true;
+    if(kept.length) rv[k]=kept; else delete rv[k];
+  }
+  for(const k in rv){
+    if(lu[k]==null && rv[k].length){ lu[k]=rv[k].shift(); if(!rv[k].length) delete rv[k]; changed=true; }
+  }
+  const cleaned=t.excluded[bi].filter(id=> playerById(id));
+  if(cleaned.length!==t.excluded[bi].length){ t.excluded[bi]=cleaned; changed=true; }
+  return changed;
+}
+function pruneAll(){ let c=false; for(let bi=0;bi<4;bi++) if(pruneBoard(bi)) c=true; if(c) save(); }
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function renderBoards(){
+  pruneAll();
+  const host=document.getElementById("boards");
+  host.innerHTML="";
+  cur().boards.forEach((mod,bi)=>{
+    const board=el("div","board");
+
+    const head=el("div","board-head");
+    const sel=el("select","mod-select");
+    sel.setAttribute("aria-label","Modulo campo "+(bi+1));
+    FORMATION_LIST.forEach(m=>{
+      const o=el("option",null,m); o.value=m; if(m===mod) o.selected=true; sel.appendChild(o);
+    });
+    sel.addEventListener("change",()=>{ cur().boards[bi]=sel.value; pruneBoard(bi); save(); renderBoards(); renderRosa(); });
+    head.appendChild(sel);
+
+    const auto=iconBtn("ib ib-auto","zap","Schiera automaticamente");
+    auto.addEventListener("click",()=>autofillBoard(bi));
+    head.appendChild(auto);
+    const clr=iconBtn("ib ib-clear","eraser","Svuota campo");
+    clr.addEventListener("click",()=>clearBoard(bi));
+    head.appendChild(clr);
+    board.appendChild(head);
+
+    const pitch=el("div","pitch");
+    pitch.innerHTML=PITCH_SVG;
+    const slots=FORMATIONS[mod], lu=cur().lineups[bi];
+    slots.forEach((s,i)=>{
+      const wrap=el("div","slot");
+      wrap.style.left=s.x+"%"; wrap.style.top=s.y+"%";
+      const pid=lu[i];
+      const player=pid!=null?playerById(pid):null;
+      const disc=el("button","disc"); disc.type="button";
+      const roleStr=s.roles.join("/");
+      disc.textContent=roleStr;
+      if(roleStr.length>=6) disc.classList.add("disc-xs");
+      else if(roleStr.length>=4) disc.classList.add("disc-sm");
+      disc.setAttribute("aria-label",(player?player.n+" — ":"")+"slot "+roleStr);
+      disc.addEventListener("click",()=>openPicker(bi,i));
+      if(player){
+        wrap.classList.add("filled");
+        disc.classList.add("rg-"+roleGroup(player.rm[0]));
+        wrap.appendChild(disc);
+        wrap.appendChild(el("div","cap",player.n));
+        reservesOf(bi,i).forEach(rid=>{
+          const rp=playerById(rid);
+          if(rp) wrap.appendChild(el("div","res","("+rp.n+")"));
+        });
+      } else {
+        wrap.appendChild(disc);
+      }
+      pitch.appendChild(wrap);
+    });
+    board.appendChild(pitch);
+
+    const jolly=jollyList(bi);
+    if(jolly.length){
+      const jb=el("div","jolly");
+      jb.appendChild(el("span","jolly-h","Jolly"));
+      jolly.forEach(p=>{
+        const c=el("span","jchip");
+        c.title=p.n+" non ha nessun ruolo previsto da questo modulo";
+        c.appendChild(el("b",null,p.n));
+        c.appendChild(el("i",null,p.rm.join("/")));
+        jb.appendChild(c);
+      });
+      board.appendChild(jb);
+    }
+    host.appendChild(board);
+  });
+}
+
+const GROUPS = [
+  ["por","Portieri"], ["dif","Difensori"], ["cen","Centrocampo"],
+  ["tre","Trequarti / Ali"], ["att","Attacco"],
+];
+function annoScad(p){ return p.sc ? p.sc.slice(0,4) : null; }
+function isU21(p){
+  const soglia = (DATA.cfg && DATA.cfg.u21) || 0;
+  return !!(p.dn && soglia && +p.dn.slice(0,4) >= soglia);
+}
+// il contratto più vicino a scadere della lega: evidenziato in rosso
+function scadeSubito(p){
+  const a=annoScad(p); return a && +a <= (new Date().getFullYear()+1);
+}
+
+function renderRosa(){
+  const pane=document.getElementById("pane-rosa");
+  pane.innerHTML="";
+  const list=roster();
+  if(!list.length){
+    pane.appendChild(el("div","empty","Nessun giocatore per questa squadra."));
+    return;
+  }
+  GROUPS.forEach(([g,label])=>{
+    const sub=list.filter(p=>playerGroup(p)===g).sort((a,b)=> b.q-a.q || a.n.localeCompare(b.n));
+    if(!sub.length) return;
+    const head=el("div","grp");
+    const h=el("h3");
+    h.appendChild(el("span","mrole rg-"+g));
+    h.appendChild(document.createTextNode(label));
+    head.appendChild(h);
+    head.appendChild(el("span","count", String(sub.length)));
+    pane.appendChild(head);
+
+    sub.forEach(p=>{
+      const row=el("div","row");
+      const who=el("div","who");
+      const nl=el("div","nmline");
+      nl.appendChild(el("span","nm",p.n));
+      nl.appendChild(el("span","tm",p.c));
+      if(placedSomewhere(p.i)) nl.appendChild(el("span","onfield","in campo"));
+      else if(usedAnywhere(p.i)) nl.appendChild(el("span","onfield ris","riserva"));
+      who.appendChild(nl);
+
+      const badges=el("div","rolebadges");
+      p.rm.forEach(r=> badges.appendChild(el("span","rb rg-"+roleGroup(r), r)));
+      const a=annoScad(p);
+      if(a) badges.appendChild(el("span","tag"+(scadeSubito(p)?" scad":""), "→"+a));
+      if(isU21(p)) badges.appendChild(el("span","tag u21","U21"));
+      if(p.pr) badges.appendChild(el("span","tag pres","da "+p.pr));
+      who.appendChild(badges);
+      row.appendChild(who);
+
+      const all=iconBtn("allfields","circlePlus","Schiera in ogni campo");
+      all.setAttribute("aria-label","Schiera "+p.n+" in ogni campo");
+      all.disabled = !canPlaceAnywhere(p.i);
+      all.addEventListener("click",()=>placeInAllBoards(p.i));
+      row.appendChild(all);
+
+      const none=iconBtn("removeall","circleX","Togli da ogni campo");
+      none.setAttribute("aria-label","Togli "+p.n+" da ogni campo");
+      none.disabled = !canRemoveEverywhere(p.i);
+      none.addEventListener("click",()=>removeFromAllBoards(p.i));
+      row.appendChild(none);
+
+      const q=el("span","qtref", String(p.q)); q.title="Quotazione Mantra attuale";
+      row.appendChild(q);
+      const co=el("span","costo", String(p.co)); co.title="Costo del contratto";
+      row.appendChild(co);
+      pane.appendChild(row);
+    });
+  });
+}
+
+function renderTeam(){
+  const t=teamData();
+  document.getElementById("teamName").textContent = t? t.nome : "—";
+  const list=roster();
+  document.getElementById("stN").textContent = list.length;
+  document.getElementById("stCosto").textContent = list.reduce((a,p)=>a+(p.co||0),0);
+  const cr=document.getElementById("stCrediti");
+  cr.textContent = t? t.crediti : 0;
+  cr.className = "v num" + (t && t.crediti>0 ? " ok" : "");
+  const u=list.filter(isU21).length;
+  const uEl=document.getElementById("stU21");
+  uEl.textContent=u; uEl.className="v num"+(u?" warn":"");
+}
+
+/* ============================================================
+   AZIONI
+   ============================================================ */
+function firstFreeSlot(bi, p){
+  const slots=FORMATIONS[cur().boards[bi]], lu=cur().lineups[bi];
+  for(let i=0;i<slots.length;i++) if(lu[i]==null && fits(slots[i].roles, p.rm)) return i;
+  return -1;
+}
+function bestReserveSlot(bi, p){
+  const slots=FORMATIONS[cur().boards[bi]], lu=cur().lineups[bi];
+  let best=-1,bestN=Infinity;
+  for(let i=0;i<slots.length;i++){
+    if(lu[i]!=null && fits(slots[i].roles, p.rm)){
+      const n=reservesOf(bi,i).length;
+      if(n<bestN){ bestN=n; best=i; }
+    }
+  }
+  return best;
+}
+// piazza p nel campo bi: primo slot libero compatibile, altrimenti riserva
+function placeByDefPriority(bi, p){
+  if(isExcluded(bi, p.i)) return false;
+  const t=cur(), slots=FORMATIONS[t.boards[bi]], lu=t.lineups[bi], rv=t.reserves[bi];
+  const ok = i => fits(slots[i].roles, p.rm);
+  const free=[];
+  for(let i=0;i<slots.length;i++) if(lu[i]==null && ok(i)) free.push(i);
+  if(free.length){
+    free.sort((a,b)=> slots[a].roles.length - slots[b].roles.length);
+    lu[free[0]]=p.i; return true;
+  }
+  let best=-1,bestN=Infinity;
+  for(let i=0;i<slots.length;i++)
+    if(lu[i]!=null && ok(i)){ const n=(rv[i]||[]).length; if(n<bestN){ bestN=n; best=i; } }
+  if(best>=0){ (rv[best]=rv[best]||[]).push(p.i); return true; }
+  return false;
+}
+function canPlaceAnywhere(id){
+  const p=playerById(id); if(!p) return false;
+  for(let bi=0;bi<4;bi++){
+    if(isExcluded(bi,id)) return true;
+    if(slotOfPlayer(bi,id)>=0 || isReserve(bi,id)) continue;
+    if(firstFreeSlot(bi,p)>=0 || bestReserveSlot(bi,p)>=0) return true;
+  }
+  return false;
+}
+function canRemoveEverywhere(id){
+  if(usedAnywhere(id)) return true;
+  for(let bi=0;bi<4;bi++) if(!isExcluded(bi,id)) return true;
+  return false;
+}
+function placeInAllBoards(id){
+  const p=playerById(id); if(!p) return;
+  let changed=false;
+  for(let bi=0;bi<4;bi++){
+    if(unExclude(bi,id)) changed=true;
+    if(slotOfPlayer(bi,id)>=0 || isReserve(bi,id)) continue;
+    if(placeByDefPriority(bi,p)) changed=true;
+  }
+  if(changed){ save(); renderBoards(); renderRosa(); }
+}
+function removeFromAllBoards(id){
+  let changed=false;
+  for(let bi=0;bi<4;bi++){
+    const lu=cur().lineups[bi]; for(const k in lu) if(lu[k]===id){ delete lu[k]; changed=true; }
+    if(dropReserve(bi,id)) changed=true;
+    if(excludeFromBoard(bi,id)) changed=true;
+  }
+  if(changed){ save(); renderBoards(); renderRosa(); }
+}
+function autofillBoard(bi){
+  const t=cur();
+  t.excluded[bi]=[];                        // ripristino completo delle esclusioni manuali
+  const lu=t.lineups[bi], rv=t.reserves[bi];
+  const used=new Set([...Object.values(lu).map(Number), ...Object.values(rv).flat()]);
+  roster()
+    .filter(p=>!used.has(p.i))
+    .sort((a,b)=> b.q-a.q)                  // i più quotati per primi
+    .forEach(p=>{ if(placeByDefPriority(bi,p)) used.add(p.i); });
+  save(); renderBoards(); renderRosa();
+}
+function clearBoard(bi){
+  const t=cur();
+  jollyList(bi).forEach(p=> excludeFromBoard(bi, p.i));
+  [...Object.values(t.lineups[bi]).map(Number),
+   ...Object.values(t.reserves[bi]).flat()].forEach(id=> excludeFromBoard(bi, id));
+  t.lineups[bi]={}; t.reserves[bi]={};
+  save(); renderBoards(); renderRosa();
+}
+function assign(bi, slotIdx, pid){
+  const prev=slotOfPlayer(bi,pid);
+  if(prev>=0) delete cur().lineups[bi][prev];
+  dropReserve(bi,pid);
+  cur().lineups[bi][slotIdx]=pid;
+  save(); closePicker(); renderBoards(); renderRosa();
+}
+function unassign(bi, slotIdx){
+  delete cur().lineups[bi][slotIdx];
+  save(); closePicker(); renderBoards(); renderRosa();
+}
+function removeReserve(bi, slotIdx, id){
+  const rv=cur().reserves[bi]; if(!rv[slotIdx]) return;
+  rv[slotIdx]=rv[slotIdx].filter(x=>x!==id);
+  if(!rv[slotIdx].length) delete rv[slotIdx];
+  save(); closePicker(); renderBoards(); renderRosa();
+}
+
+/* ============================================================
+   POPUP SLOT
+   ============================================================ */
+let pickerOpen=false;
+function closePicker(){
+  const b=document.getElementById("pickerBack");
+  if(b) b.remove();
+  pickerOpen=false;
+}
+addEventListener("keydown",e=>{ if(e.key==="Escape" && pickerOpen) closePicker(); });
+
+function openPicker(bi, slotIdx){
+  const t=cur(), mod=t.boards[bi];
+  const s=FORMATIONS[mod][slotIdx];
+  const current=t.lineups[bi][slotIdx];
+  const back=el("div","backdrop"); back.id="pickerBack";
+  back.addEventListener("click",e=>{ if(e.target===back) closePicker(); });
+  const box=el("div","picker"); box.setAttribute("role","dialog"); box.setAttribute("aria-modal","true");
+
+  const head=el("header");
+  const ht=el("div");
+  ht.appendChild(el("h3", null, s.roles.join(" / ")));
+  ht.appendChild(el("div","slotrole", mod+" · campo "+(bi+1)+" · "+(slotIdx===0?"portiere":"solo ruolo esatto")));
+  head.appendChild(ht);
+  const close=iconBtn("x","x","Chiudi"); close.setAttribute("aria-label","Chiudi");
+  close.addEventListener("click",closePicker);
+  head.appendChild(close);
+  box.appendChild(head);
+
+  const listWrap=el("div","list");
+  const rated=roster().map(p=>({p, ok:fits(s.roles,p.rm), placed:slotOfPlayer(bi,p.i)}));
+  const elig=rated.filter(o=>o.ok).sort((a,b)=> b.p.q-a.p.q);
+  const noFit=rated.filter(o=>!o.ok).sort((a,b)=> b.p.q-a.p.q);
+
+  if(!elig.length){
+    listWrap.appendChild(el("div","empty","Nessun giocatore in rosa con ruolo "+s.roles.join("/")+"."));
+  }
+  elig.forEach(({p,placed})=>{
+    const opt=el("button","opt"); opt.type="button";
+    const note = placed>=0&&placed!==slotIdx ? " · già in questo campo"
+               : isReserve(bi,p.i) ? " · riserva" : "";
+    const who=el("div","who");
+    who.appendChild(el("div","nm", p.n + note));
+    who.appendChild(el("span","tm", p.c+" · "+p.rm.join("/")+" · costo "+p.co));
+    opt.appendChild(who);
+    opt.appendChild(el("span","tag ok","esatto"));
+    opt.addEventListener("click",()=>assign(bi,slotIdx,p.i));
+    listWrap.appendChild(opt);
+  });
+  if(noFit.length){
+    listWrap.appendChild(el("div","divider","Fuori ruolo — non schierabili qui"));
+    noFit.forEach(({p})=>{
+      const opt=el("button","opt placed"); opt.type="button"; opt.disabled=true;
+      const who=el("div","who");
+      who.appendChild(el("div","nm",p.n));
+      who.appendChild(el("span","tm", p.c+" · "+p.rm.join("/")));
+      opt.appendChild(who);
+      opt.appendChild(el("span","tag bad","no"));
+      listWrap.appendChild(opt);
+    });
+  }
+  box.appendChild(listWrap);
+
+  const res=reservesOf(bi,slotIdx);
+  if(current!=null || res.length){
+    const foot=el("footer");
+    if(current!=null){
+      const rmv=el("button",null,"Libera lo slot"); rmv.type="button";
+      rmv.addEventListener("click",()=>unassign(bi,slotIdx));
+      foot.appendChild(rmv);
+    }
+    res.forEach(rid=>{
+      const rp=playerById(rid); if(!rp) return;
+      const line=el("div","resline");
+      line.appendChild(el("span",null,"Riserva · "+rp.n));
+      const rx=iconBtn("x","x","Togli riserva"); rx.setAttribute("aria-label","Togli riserva "+rp.n);
+      rx.addEventListener("click",()=>removeReserve(bi,slotIdx,rid));
+      line.appendChild(rx);
+      foot.appendChild(line);
+    });
+    box.appendChild(foot);
+  }
+
+  back.appendChild(box);
+  document.body.appendChild(back);
+  pickerOpen=true;
+}
+
+/* dialog di conferma in-pagina: window.confirm() è bloccato nell'artifact */
+function openConfirmDialog(msg, onYes){
+  const back=el("div","backdrop"); back.id="pickerBack";
+  back.addEventListener("click",e=>{ if(e.target===back) closePicker(); });
+  const box=el("div","picker"); box.setAttribute("role","dialog"); box.setAttribute("aria-modal","true");
+  const head=el("header");
+  head.appendChild(el("h3",null,"Conferma"));
+  const close=iconBtn("x","x","Annulla"); close.setAttribute("aria-label","Annulla");
+  close.addEventListener("click",closePicker);
+  head.appendChild(close);
+  box.appendChild(head);
+  const body=el("div","list");
+  const t=el("div","empty",msg); t.style.color="var(--ink)";
+  body.appendChild(t);
+  box.appendChild(body);
+  const foot=el("footer");
+  const cancel=el("button",null,"Annulla"); cancel.type="button";
+  cancel.addEventListener("click",closePicker);
+  foot.appendChild(cancel);
+  const ok=el("button",null,"Conferma"); ok.type="button";
+  ok.addEventListener("click",()=>{ closePicker(); onYes(); });
+  foot.appendChild(ok);
+  box.appendChild(foot);
+  back.appendChild(box);
+  document.body.appendChild(back);
+  pickerOpen=true;
+}
+
+/* ============================================================
+   AVVIO
+   ============================================================ */
+function renderTeamSelect(){
+  const sel=document.getElementById("teamSelect");
+  sel.innerHTML="";
+  teams().forEach(t=>{
+    const o=el("option",null,t.nome); o.value=t.nome;
+    if(t.nome===state.team) o.selected=true;
+    sel.appendChild(o);
+  });
+}
+document.getElementById("teamSelect").addEventListener("change",e=>{
+  state.team=e.target.value; save(); renderAll();
+});
+document.getElementById("resetBtn").addEventListener("click",()=>{
+  openConfirmDialog("Svuotare i 4 campi di "+state.team+"?", ()=>{
+    state.byTeam[state.team]=freshTeam(); save(); renderAll();
+  });
+});
+
+function renderSource(){
+  const s=document.getElementById("srcLine");
+  const g=DATA.generato ? "dati al "+DATA.generato : "dati non disponibili";
+  s.innerHTML = "Rose dal database della lega — <b>"+g+"</b>"
+    + (DATA.live ? " · aggiornate dal vivo" : "");
+}
+function renderAll(){
+  if(!state.team || !teams().some(t=>t.nome===state.team)){
+    state.team = teams().length ? teams()[0].nome : null;
+  }
+  renderTeamSelect();
+  renderTeam();
+  if(state.team){ renderBoards(); renderRosa(); }
+  renderSource();
+}
+
+(function fillLegend(){
+  const L=(col,name,label)=>
+    '<span class="lgi"><span class="lgc" style="color:'+col+'">'+ic(name)+'</span>'+label+'</span>';
+  document.getElementById("ibLegend").innerHTML =
+    L('var(--warn)','zap','schiera automatico') +
+    L('var(--c)','eraser','svuota campo') +
+    L('var(--ok)','circlePlus','in ogni campo') +
+    L('var(--accent)','circleX','via da ogni campo');
+})();
+
+renderAll();
+
+/* Se la pagina gira come artifact con la capability db, il mirror delle rose
+   è più fresco dello snapshot incorporato: lo si adotta appena arriva.
+   In locale window.claude non esiste e resta lo snapshot. */
+(async function caricaLive(){
+  try{
+    if(!window.claude || typeof claude.use!=="function") return;
+    const db = await claude.use("db");
+    if(!db) return;
+    const snap = await db.doc("lega/rose").get();
+    if(!snap || !snap.exists) return;
+    const d = snap.data();
+    if(!d || !Array.isArray(d.squadre) || !d.squadre.length) return;
+    DATA = Object.assign({}, d, {live:true});
+    renderAll();
+  }catch(e){ /* nessun mirror raggiungibile: resta lo snapshot incorporato */ }
+})();
+</script>

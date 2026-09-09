@@ -1,5 +1,14 @@
 # Campetto Mantra
 
+Due tool separati, stesso motore di ruoli Mantra:
+
+| Tool | File | A cosa serve | Dati |
+|---|---|---|---|
+| **Campetto Mantra** | `index.html` | L'asta: compri dal listone e vedi la rosa prendere forma | listone `.xlsx` di fantacalcio.it |
+| **[Campetto Lega](#campetto-lega)** | `campetto_lega.html` | La lega a contratti: le rose delle 10 squadre sul campo | Postgres della lega |
+
+---
+
 Tool per l'asta del Fantacalcio **Mantra**: un campetto interattivo per vedere come si sta
 costruendo la rosa mentre l'asta va avanti.
 
@@ -93,6 +102,42 @@ L'export di fantacalcio.it a volte scrive i caratteri accentati come `�` (es. 
 Lo script li corregge con la mappa `FIX` in cima a `build_players.py`. Se dopo l'esecuzione
 compare l'avviso `ATTENZIONE, nomi ancora corrotti`, aggiungi le coppie
 `"Nome� corrotto": "Nome corretto"` alla mappa `FIX` e rilancia lo script.
+
+## Campetto Lega
+
+Secondo tool, indipendente dal primo: **`campetto_lega.html`**. Niente asta e niente listone —
+qui le rose arrivano dal **database Postgres della lega a contratti** (10 squadre, contratti
+pluriennali, prestiti).
+
+**▶ [Apri il tool online](https://claude.ai/code/artifact/e2a6a127-b479-4a36-8fd8-9233436d6576)**
+
+- **Selettore squadra**: scegli una delle 10 e ne vedi la rosa sui 4 campetti, così puoi
+  studiare anche gli avversari. Gli schieramenti sono salvati per squadra.
+- Stessa logica di **match ruolo esatto**, riserve e Jolly del Campetto Mantra: l'enum
+  `ruolo_mantra` del database (`Por, Dd, Dc, Ds, B, E, M, C, W, T, A, Pc`) coincide con i ruoli
+  che il campetto già gestisce.
+- Per ogni giocatore: quotazione, **costo del contratto**, anno di **scadenza** (in rosso se
+  scade entro l'anno prossimo), badge **U21** e, per chi è arrivato in prestito, da chi.
+- In alto: numero di giocatori, **monte costi**, **crediti** disponibili e U21 in rosa.
+
+### Aggiornare le rose
+
+I dati sono uno snapshot incorporato nella pagina, rigenerato da **`build_lega.py`**:
+
+1. Metti la stringa di connessione in un file `.db_url` nella cartella del progetto, oppure
+   nella variabile d'ambiente `LEGA_DB_URL`.
+2. `pip install psycopg2-binary`
+3. `python build_lega.py` → riscrive il blocco `LEGA_DATA` dentro `campetto_lega.html`.
+
+Lo script apre la sessione in **sola lettura** e legge solo `giocatore`, `squadra` (nome e
+crediti) e `general_config`; le colonne credenziali di `squadra` non vengono mai toccate.
+
+> `.db_url` è in `.gitignore`: la stringa di connessione **non va committata**.
+
+Perché uno snapshot e non una lettura dal vivo: una pagina pubblicata come artifact non può
+aprire connessioni Postgres né chiamare host esterni (la CSP consente solo pochi CDN). La
+pagina è già predisposta per leggere un mirror aggiornabile senza ripubblicarla — va abilitata
+la capability `db`, al prezzo di non poter più condividere l'artifact pubblicamente.
 
 ## Note
 
