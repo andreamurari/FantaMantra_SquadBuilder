@@ -121,7 +121,7 @@ Secondo tool, indipendente dal primo: **`campetto_lega.html`**. Niente asta e ni
 qui le rose arrivano dal **database Postgres della lega a contratti** (10 squadre, contratti
 pluriennali, prestiti).
 
-**▶ [Apri il tool](https://andreamurari.github.io/FantaMantra_SquadBuilder/campetto_lega.html)** —
+**▶ [Apri il tool](https://andreamurari.github.io/fantamantra-campetti/campetto_lega.html)** —
 rose aggiornate ogni ora, apribile da telefono e condivisibile con la lega.
 
 - **Selettore squadra**: scegli una delle 10 e ne vedi la rosa sui 4 campetti, così puoi
