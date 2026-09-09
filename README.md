@@ -5,7 +5,7 @@ Due tool separati, stesso motore di ruoli Mantra:
 | Tool | File | A cosa serve | Dati |
 |---|---|---|---|
 | **Campetto Mantra** | `index.html` | L'asta: compri dal listone e vedi la rosa prendere forma | listone `.xlsx` di fantacalcio.it |
-| **[Campetto Lega](#campetto-lega)** | `campetto_lega.html` | La lega a contratti: le rose delle 10 squadre sul campo | Postgres della lega |
+| **[Campetto Lega](#campetto-lega)** | `campetto_lega.html` | La lega a contratti: le rose delle 10 squadre sul campo | Postgres della lega, riletto ogni ora |
 
 ---
 
@@ -109,7 +109,10 @@ Secondo tool, indipendente dal primo: **`campetto_lega.html`**. Niente asta e ni
 qui le rose arrivano dal **database Postgres della lega a contratti** (10 squadre, contratti
 pluriennali, prestiti).
 
-**▶ [Apri il tool online](https://claude.ai/code/artifact/e2a6a127-b479-4a36-8fd8-9233436d6576)**
+**▶ [Apri il tool](https://andreamurari.github.io/FantaMantra_SquadBuilder/campetto_lega.html)** —
+rose aggiornate ogni ora, apribile da telefono e condivisibile.
+([copia artifact](https://claude.ai/code/artifact/e2a6a127-b479-4a36-8fd8-9233436d6576), ferma
+allo snapshot: vedi *Perché non legge il DB in diretta* più sotto.)
 
 - **Selettore squadra**: scegli una delle 10 e ne vedi la rosa sui 4 campetti, così puoi
   studiare anche gli avversari. Gli schieramenti sono salvati per squadra.
@@ -120,24 +123,49 @@ pluriennali, prestiti).
   scade entro l'anno prossimo), badge **U21** e, per chi è arrivato in prestito, da chi.
 - In alto: numero di giocatori, **monte costi**, **crediti** disponibili e U21 in rosa.
 
-### Aggiornare le rose
+### Come si aggiorna
 
-I dati sono uno snapshot incorporato nella pagina, rigenerato da **`build_lega.py`**:
+Ogni ora la GitHub Action **`.github/workflows/rose.yml`** rilegge il database e riscrive
+`lega.json`, che il sito rilegge a ogni apertura. Nessun intervento manuale.
 
-1. Metti la stringa di connessione in un file `.db_url` nella cartella del progetto, oppure
-   nella variabile d'ambiente `LEGA_DB_URL`.
+- La connessione arriva dal secret **`LEGA_DB_URL`**, mai dal repo.
+- L'action committa **solo se le rose sono davvero cambiate**: a parità di dati riusa il
+  timestamp precedente, così i file restano identici al byte (altrimenti `generato` cambierebbe
+  a ogni giro e il repo si riempirebbe di commit inutili).
+- La data in fondo alla pagina è quindi quella dell'**ultimo cambiamento reale**, non
+  dell'ultima esecuzione.
+
+Due limiti di GitHub da tenere a mente: il cron delle Actions **slitta di 5-15 minuti**, e i
+workflow schedulati vengono **disattivati dopo 60 giorni** di inattività del repo (basta un
+commit per riattivarli).
+
+Per rigenerare a mano, in locale:
+
+1. Stringa di connessione in `.db_url` nella cartella del progetto, o in `LEGA_DB_URL`.
 2. `pip install psycopg2-binary`
-3. `python build_lega.py` → riscrive il blocco `LEGA_DATA` dentro `campetto_lega.html`.
+3. `python build_lega.py` → riscrive `lega.json` e il blocco `LEGA_DATA` in `campetto_lega.html`.
 
 Lo script apre la sessione in **sola lettura** e legge solo `giocatore`, `squadra` (nome e
 crediti) e `general_config`; le colonne credenziali di `squadra` non vengono mai toccate.
 
-> `.db_url` è in `.gitignore`: la stringa di connessione **non va committata**.
+> `.db_url` è in `.gitignore`: la stringa di connessione **non va committata**. Il repo è
+> pubblico, quindi qualunque credenziale finita qui sarebbe esposta.
 
-Perché uno snapshot e non una lettura dal vivo: una pagina pubblicata come artifact non può
-aprire connessioni Postgres né chiamare host esterni (la CSP consente solo pochi CDN). La
-pagina è già predisposta per leggere un mirror aggiornabile senza ripubblicarla — va abilitata
-la capability `db`, al prezzo di non poter più condividere l'artifact pubblicamente.
+### Perché non legge il DB in diretta
+
+La pagina prova tre sorgenti in ordine: `lega.json` dalla stessa origine, poi un eventuale
+mirror nella capability `db`, infine lo snapshot incorporato. Aprendo il file col doppio click
+le prime due falliscono e resta lo snapshot: è previsto.
+
+Una lettura diretta del database dal browser non è possibile, per quattro motivi indipendenti:
+
+1. il repo non viene eseguito quando apri la pagina — è un file servito, non un processo;
+2. un browser non parla il protocollo Postgres (TCP binario), solo HTTP e WebSocket;
+3. come artifact, la CSP consente richieste di rete solo verso pochi CDN — Supabase escluso;
+4. sul database **RLS è attiva ma non esiste nessuna policy**, quindi l'API REST di Supabase
+   restituirebbe comunque zero righe al ruolo anonimo.
+
+Da qui la scelta di far parlare col database la GitHub Action, che invece può farlo.
 
 ## Note
 
