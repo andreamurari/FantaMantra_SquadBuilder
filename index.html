@@ -132,9 +132,9 @@ input{font-family:inherit}
 /* ---------- layout ---------- */
 .layout{
   max-width:var(--maxw);margin:0 auto;padding:6px 20px 40px;
-  display:grid;grid-template-columns:minmax(0,1fr) minmax(360px,486px);gap:20px;align-items:start;
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(350px,460px);gap:20px;align-items:start;
 }
-@media (max-width:1180px){ .layout{grid-template-columns:minmax(0,1fr) minmax(330px,420px)} }
+@media (max-width:1180px){ .layout{grid-template-columns:minmax(0,1fr) minmax(330px,400px)} }
 @media (max-width:980px){ .layout{grid-template-columns:1fr} }
 
 /* ---------- boards (4 campetti affiancati) ---------- */
@@ -928,6 +928,11 @@ function distribuisciRighe(pitch, mod){
   // di piu' spazio di quanto ne dia la forma "campo da calcio": si
   // allunga il campo invece di tagliare i nomi, che non e' mai accettabile
   if(naturale > disponibile){
+    // aspect-ratio e altezza esplicita insieme fanno derivare al browser una
+    // larghezza "preferita" piu' grande per la colonna della grid (il campo
+    // sinistro cresce, il destro si restringe): disattivarlo quando si forza
+    // l'altezza scollega le due dimensioni, la larghezza resta 100% fisso
+    pitch.style.aspectRatio = "auto";
     pitch.style.height = Math.ceil(naturale + MARGINE*2) + "px";
     const pr2 = pitch.getBoundingClientRect();
     disponibile = pr2.height - MARGINE*2;
