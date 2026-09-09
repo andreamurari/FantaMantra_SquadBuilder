@@ -151,7 +151,8 @@ def main():
     with open(JSON_OUT, "w", encoding="utf-8", newline="\n") as f:
         f.write(payload + "\n")
 
-    # 2) lo snapshot incorporato, riserva per l'uso offline e per l'artifact
+    # 2) la copia incorporata nell'HTML, usata quando la pagina è aperta
+    #    come file locale e la fetch di lega.json non può funzionare
 
     if not os.path.exists(TARGET):
         sys.exit("Manca campetto_lega.html: crealo prima (deve contenere i marcatori LEGA_DATA).")

@@ -110,9 +110,7 @@ qui le rose arrivano dal **database Postgres della lega a contratti** (10 squadr
 pluriennali, prestiti).
 
 **▶ [Apri il tool](https://andreamurari.github.io/FantaMantra_SquadBuilder/campetto_lega.html)** —
-rose aggiornate ogni ora, apribile da telefono e condivisibile.
-([copia artifact](https://claude.ai/code/artifact/e2a6a127-b479-4a36-8fd8-9233436d6576), ferma
-allo snapshot: vedi *Perché non legge il DB in diretta* più sotto.)
+rose aggiornate ogni ora, apribile da telefono e condivisibile con la lega.
 
 - **Selettore squadra**: scegli una delle 10 e ne vedi la rosa sui 4 campetti, così puoi
   studiare anche gli avversari. Gli schieramenti sono salvati per squadra.
@@ -151,21 +149,20 @@ crediti) e `general_config`; le colonne credenziali di `squadra` non vengono mai
 > `.db_url` è in `.gitignore`: la stringa di connessione **non va committata**. Il repo è
 > pubblico, quindi qualunque credenziale finita qui sarebbe esposta.
 
-### Perché non legge il DB in diretta
+### Perché un'action e non una lettura diretta
 
-La pagina prova tre sorgenti in ordine: `lega.json` dalla stessa origine, poi un eventuale
-mirror nella capability `db`, infine lo snapshot incorporato. Aprendo il file col doppio click
-le prime due falliscono e resta lo snapshot: è previsto.
+La pagina legge `lega.json` dalla stessa origine; se la fetch fallisce — tipicamente aprendo il
+file col doppio click, dove l'origine è `file://` — usa la copia incorporata nell'HTML e lo
+dichiara in fondo alla pagina. Nessuna delle due strade parla col database, per due motivi:
 
-Una lettura diretta del database dal browser non è possibile, per quattro motivi indipendenti:
+1. **un browser non parla il protocollo Postgres**, che è TCP binario: può fare solo HTTP e
+   WebSocket, quindi nessuna libreria lato pagina può aprire quella connessione;
+2. la via HTTP esisterebbe (l'API REST di Supabase), ma sul database **RLS è attiva senza
+   nessuna policy**: al ruolo anonimo restituirebbe zero righe. Servirebbe scrivere policy di
+   lettura sul database di produzione.
 
-1. il repo non viene eseguito quando apri la pagina — è un file servito, non un processo;
-2. un browser non parla il protocollo Postgres (TCP binario), solo HTTP e WebSocket;
-3. come artifact, la CSP consente richieste di rete solo verso pochi CDN — Supabase escluso;
-4. sul database **RLS è attiva ma non esiste nessuna policy**, quindi l'API REST di Supabase
-   restituirebbe comunque zero righe al ruolo anonimo.
-
-Da qui la scelta di far parlare col database la GitHub Action, che invece può farlo.
+A parlare col database è quindi la GitHub Action, che gira su un runner e può farlo — e la
+credenziale resta in un secret, fuori dal repo pubblico.
 
 ## Note
 
