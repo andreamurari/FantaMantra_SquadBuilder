@@ -1,0 +1,9 @@
+# Normalizza i fine riga nel repository: sempre LF, indipendentemente da come
+# li scrive l'editor o il sistema operativo di chi committa. Evita i continui
+# avvisi "LF will be replaced by CRLF" su Windows e le diff enormi che una
+# conversione di fine riga produrrebbe altrimenti.
+* text=auto eol=lf
+
+*.xlsx binary
+*.png binary
+*.jpg binary

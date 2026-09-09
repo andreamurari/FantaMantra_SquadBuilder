@@ -177,10 +177,30 @@ dichiara in fondo alla pagina. Nessuna delle due strade parla col database, per 
 A parlare col database è quindi la GitHub Action, che gira su un runner e può farlo — e la
 credenziale resta in un secret, fuori dal repo pubblico.
 
+## Struttura del progetto
+
+```
+index.html               Campetto Mantra — il tool, autosufficiente
+campetto_lega.html        Campetto Lega — il tool, autosufficiente
+lega.json                 snapshot delle rose, riscritto ogni ora dalla action
+build_players.py          xlsx listone -> array RAW dentro index.html
+build_lega.py             Postgres -> lega.json + blocco dati in campetto_lega.html
+Quotazioni_Fantacalcio_Stagione_2026_27.xlsx   listone sorgente per build_players.py
+.github/workflows/rose.yml   la GitHub Action oraria (vedi "Come si aggiorna")
+.nojekyll                 dice a GitHub Pages di servire i file cosi' come sono
+.gitattributes            fine riga LF uniformi nel repo
+.gitignore                .db_url, __pycache__, i lock file di Excel
+```
+
+Nessuna cartella `src/`: sono due pagine HTML autosufficienti (CSS e JS inline, nessuna
+build), quindi stanno bene nella root. `.db_url` (credenziali del database) non compare
+sopra perche' non e' mai nel repo — vive solo in locale e nel secret `LEGA_DB_URL` di GitHub.
+
 ## Note
 
-- Nessun build step, nessun account: `index.html` è autosufficiente. Unica dipendenza runtime
-  i Google Fonts (Barlow / Barlow Condensed).
-- Lo stato (rose, moduli, prezzi, depennati) è salvato nel `localStorage` del browser.
-- `build_players.py` richiede solo `openpyxl` e non serve per usare il tool, solo per
-  aggiornare il listone.
+- Nessun build step, nessun account: `index.html` e `campetto_lega.html` sono autosufficienti.
+  Unica dipendenza runtime i Google Fonts (Barlow / Barlow Condensed).
+- Lo stato (rose, moduli, prezzi, depennati, schieramenti) è salvato nel `localStorage` del
+  browser: per squadra in Campetto Lega, globale in Campetto Mantra.
+- `build_players.py` e `build_lega.py` richiedono rispettivamente `openpyxl` e
+  `psycopg2-binary`; non servono per *usare* i tool, solo per aggiornarne i dati.
