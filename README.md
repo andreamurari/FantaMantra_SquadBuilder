@@ -190,6 +190,7 @@ Quotazioni_Fantacalcio_Stagione_2026_27.xlsx   listone sorgente per build_player
 .nojekyll                 dice a GitHub Pages di servire i file cosi' come sono
 .gitattributes            fine riga LF uniformi nel repo
 .gitignore                .db_url, __pycache__, i lock file di Excel
+LICENSE                    MIT
 ```
 
 Nessuna cartella `src/`: sono due pagine HTML autosufficienti (CSS e JS inline, nessuna
@@ -204,3 +205,7 @@ sopra perche' non e' mai nel repo — vive solo in locale e nel secret `LEGA_DB_
   browser: per squadra in Campetto Lega, globale in Campetto Mantra.
 - `build_players.py` e `build_lega.py` richiedono rispettivamente `openpyxl` e
   `psycopg2-binary`; non servono per *usare* i tool, solo per aggiornarne i dati.
+
+## Licenza
+
+[MIT](LICENSE).
