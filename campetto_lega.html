@@ -776,57 +776,81 @@ function iconBtn(cls, name, title){
    ============================================================ */
 // 78 e' il punto piu' basso che regge il caso peggiore: portiere con la
 // panchina piena, dove l'ultima riserva resta dentro il campo per un soffio
-const BANDA_ALTA = 7, BANDA_BASSA = 78;
-const _righe = {};
-function righeModulo(mod){
-  if(_righe[mod]) return _righe[mod];
-  const ys = [...new Set(FORMATIONS[mod].map(s=>s.y))].sort((a,b)=>a-b);
+// ============================================================
+// DISTRIBUZIONE VERTICALE DELLE RIGHE
+// Ogni riga del modulo ottiene lo spazio verticale che le serve
+// DAVVERO, misurato sul contenuto reale di questo render (nome + fino a
+// 4 riserve): una riga con panchine piene si allarga, una senza riserve
+// resta stretta. Una fascia fissa uguale per tutte le righe non basta:
+// la stessa riga puo' aver bisogno di spazio molto diverso a seconda di
+// quante riserve ha in quel momento, e su un campo piccolo (telefono)
+// non c'e' comunque il margine per "spostare un po' il disco" -- bisogna
+// dare a ogni riga lo spazio giusto fin dall'inizio, non correggerlo dopo.
+//
+// Il posizionamento avviene in due passate: prima gli slot vengono
+// montati con una posizione provvisoria (il browser calcola cosi' le
+// altezze reali del contenuto), poi si assegna a ogni riga lo spazio che
+// le serve e si riposizionano di conseguenza. L'ordine dei reparti e le
+// x restano quelli del modulo: cambia solo quanto spazio verticale
+// prende ciascuna riga.
+function rigaDiSlot(mod){
+  const F = FORMATIONS[mod];
+  const chiavi = [...new Set(F.map(s=>s.y))].sort((a,b)=>a-b);
   const gruppi = [];
-  ys.forEach(y=>{
+  chiavi.forEach(y=>{
     const g = gruppi.find(g=> Math.abs(g[0]-y) <= 4);
     if(g) g.push(y); else gruppi.push([y]);
   });
-  const map = {};
-  gruppi.forEach((g,i)=>{
-    const y = gruppi.length===1
-      ? (BANDA_ALTA+BANDA_BASSA)/2
-      : BANDA_ALTA + (BANDA_BASSA-BANDA_ALTA)*i/(gruppi.length-1);
-    g.forEach(orig=> map[orig]=y);
-  });
-  return _righe[mod]=map;
+  return F.map(s => gruppi.findIndex(g=>g.includes(s.y)));
 }
-
-// Le righe hanno una spaziatura fissa, ma il contenuto di uno slot (nome +
-// fino a 4 riserve) puo' essere piu' alto della spaziatura quando la
-// panchina e' piena — soprattutto se lo slot sta esattamente sopra un
-// altro (stessa x), come un centrocampista centrale sopra un difensore
-// centrale. Dopo il primo posizionamento si misura ogni slot e, se il suo
-// contenuto invade il disco della riga sotto, lo slot viene spostato un
-// po' piu' in alto: solo quel tanto che serve, solo dove serve davvero.
-function correggiSovrapposizioni(pitch){
+function distribuisciRighe(pitch, mod){
   const pr = pitch.getBoundingClientRect();
   if(!pr.height) return;                  // pitch non ancora visibile (es. tab nascosta)
-  const info = [...pitch.querySelectorAll(".slot")].map(w=>{
-    const discR = w.querySelector(".disc").getBoundingClientRect();
+  const slots = [...pitch.querySelectorAll(".slot")];
+  const riga = rigaDiSlot(mod);
+  const nRighe = Math.max(...riga)+1;
+  const discRadius = slots[0].querySelector(".disc").getBoundingClientRect().height/2;
+
+  // altezza richiesta da ogni riga: la piu' alta fra i suoi slot, dal
+  // top del disco al fondo del nome/panchina. Una riga senza titolari
+  // ottiene comunque lo spazio di un disco, per restare leggibile anche
+  // a rosa vuota.
+  const bisogno = new Array(nRighe).fill(discRadius*2);
+  slots.forEach((w,i)=>{
+    const disc = w.querySelector(".disc").getBoundingClientRect();
     const corpo = w.querySelector(".bench") || w.querySelector(".cap");
-    return { wrap:w, discTop:discR.top, corpoRect: corpo?corpo.getBoundingClientRect():null };
+    const h = corpo ? corpo.getBoundingClientRect().bottom - disc.top : disc.height;
+    const r = riga[i];
+    if(h > bisogno[r]) bisogno[r] = h;
   });
-  const SAFETY = 6;   // px minimi fra un nome e il disco della riga sotto
-  info.forEach(a=>{
-    if(!a.corpoRect) return;
-    let invasione = 0;
-    info.forEach(b=>{
-      if(a===b || b.discTop<=a.discTop) return;         // b non e' sotto ad a
-      const br = b.wrap.querySelector(".disc").getBoundingClientRect();
-      // solo le coppie che si contendono davvero lo spazio in orizzontale
-      if(a.corpoRect.right<br.left || a.corpoRect.left>br.right) return;
-      invasione = Math.max(invasione, a.corpoRect.bottom+SAFETY-br.top);
-    });
-    if(invasione>0){
-      const attuale = parseFloat(a.wrap.style.top);
-      a.wrap.style.top = Math.max(BANDA_ALTA-4, attuale - invasione/pr.height*100) + "%";
-    }
-  });
+
+  const GAP_MIN = 10;                // px minimi di respiro fra una riga e l'altra
+  const MARGINE = discRadius + 4;    // cosi' il disco della prima riga non tocca il bordo
+  const naturale = bisogno.reduce((a,h)=>a+h, 0) + GAP_MIN*(nRighe-1);
+  let disponibile = pr.height - MARGINE*2;
+
+  // su schermi stretti con molte riserve il contenuto puo' aver bisogno
+  // di piu' spazio di quanto ne dia la forma "campo da calcio": si
+  // allunga il campo invece di tagliare i nomi, che non e' mai accettabile
+  if(naturale > disponibile){
+    pitch.style.height = Math.ceil(naturale + MARGINE*2) + "px";
+    const pr2 = pitch.getBoundingClientRect();
+    disponibile = pr2.height - MARGINE*2;
+    return posiziona(pr2.height, disponibile);
+  }
+  return posiziona(pr.height, disponibile);
+
+  // se c'e' spazio in piu' oltre al minimo, lo si spalma fra le righe
+  // invece di lasciarlo vuoto in fondo al campo
+  function posiziona(altezzaPitch, disponibile){
+    const extra = Math.max(0, disponibile - naturale) / Math.max(1, nRighe-1);
+    const gap = GAP_MIN + extra;
+
+    const centroRiga = []; let y = MARGINE;
+    for(let r=0;r<nRighe;r++){ centroRiga[r] = y + discRadius; y += bisogno[r] + gap; }
+
+    slots.forEach((w,i)=> w.style.top = (centroRiga[riga[i]]/altezzaPitch*100) + "%");
+  }
 }
 
 const PITCH_SVG = '<svg viewBox="0 0 680 1000" preserveAspectRatio="none" aria-hidden="true">'
@@ -912,10 +936,12 @@ function renderBoards(){
 
     const pitch=el("div","pitch");
     pitch.innerHTML=PITCH_SVG;
-    const slots=FORMATIONS[mod], righe=righeModulo(mod), lu=cur().lineups[bi];
+    const slots=FORMATIONS[mod], lu=cur().lineups[bi];
     slots.forEach((s,i)=>{
       const wrap=el("div","slot");
-      wrap.style.left=s.x+"%"; wrap.style.top=righe[s.y]+"%";
+      // top provvisorio: il valore vero lo assegna distribuisciRighe dopo
+      // aver misurato le altezze reali del contenuto (vedi sotto)
+      wrap.style.left=s.x+"%"; wrap.style.top="0%";
       const pid=lu[i];
       const player=pid!=null?playerById(pid):null;
       const disc=el("button","disc"); disc.type="button";
@@ -961,7 +987,7 @@ function renderBoards(){
     });
     board.appendChild(pitch);
     host.appendChild(board);         // agganciato subito: serve per misurare
-    correggiSovrapposizioni(pitch);
+    distribuisciRighe(pitch, mod);
 
     // Fuori campo: chi non è schierato. È anche l'area dove rilasciare un
     // giocatore per toglierlo dal campo.
