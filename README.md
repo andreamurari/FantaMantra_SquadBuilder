@@ -1,12 +1,12 @@
-# Campetto Mantra
+# Campetto Asta
 
-**▶ [Campetto Mantra](https://andreamurari.github.io/fantamantra-campetti/)** ·
+**▶ [Campetto Asta](https://andreamurari.github.io/fantamantra-campetti/)** ·
 **▶ [Campetto Lega](https://andreamurari.github.io/fantamantra-campetti/campetto_lega.html)**
 — usabili anche da telefono, nessun account.
 
 Due tool, stesso motore di ruoli Mantra, dati diversi:
 
-| | Campetto Mantra (`index.html`) | Campetto Lega (`campetto_lega.html`) |
+| | Campetto Asta (`index.html`) | Campetto Lega (`campetto_lega.html`) |
 |---|---|---|
 | Serve per | l'asta: compri dal listone, la rosa prende forma | la lega a contratti: le rose delle 10 squadre |
 | Dati da | listone `.xlsx` di fantacalcio.it | Postgres della lega, riletto ogni ora |
@@ -41,7 +41,7 @@ doppio click, offline, senza installare nulla.
   e `⊗` (togli da ogni campo, torna fra i Fuori campo). In alto, `🌙` cambia tema chiaro/scuro;
   lo stato si salva nel `localStorage` del browser, niente account.
 
-## Campetto Mantra
+## Campetto Asta
 
 - **Listone 2026/27** integrato: cerca e filtra per ruolo; aggiungendo un acquisto chiede il
   **prezzo pagato** (pre-compilato con la quotazione, poi modificabile dalla rosa). `🚫`
@@ -91,7 +91,7 @@ Per rigenerare a mano: stringa di connessione in `.db_url` (gitignorato) o `LEGA
 ## Struttura del progetto
 
 ```
-index.html                                     Campetto Mantra
+index.html                                     Campetto Asta
 campetto_lega.html                             Campetto Lega
 lega.json                                      snapshot rose, riscritto ogni ora dalla Action
 build_players.py / build_lega.py               xlsx / Postgres -> dati dentro i due tool
