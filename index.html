@@ -36,7 +36,7 @@
 
   --shadow:0 1px 2px rgba(20,40,28,.06), 0 8px 24px rgba(20,40,28,.08);
   --radius:14px;
-  --maxw:1520px;
+  --maxw:1640px;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
@@ -88,14 +88,14 @@
 }
 
 *{box-sizing:border-box}
-button svg{display:block;width:16px;height:16px;flex:0 0 auto}
-.ghost svg{width:14px;height:14px}
-.board-head .ib svg{width:15px;height:15px}
+button svg{display:block;width:19px;height:19px;flex:0 0 auto}
+.ghost svg{width:17px;height:17px}
+.board-head .ib svg{width:18px;height:18px}
 html,body{height:100%}
 body{
   margin:0;background:var(--bg);color:var(--ink);
   font-family:"Barlow",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-  font-size:14.5px;line-height:1.45;
+  font-size:17.5px;line-height:1.45;
   -webkit-font-smoothing:antialiased;
 }
 h1,h2,h3{font-family:"Barlow Condensed","Arial Narrow",sans-serif;margin:0;line-height:1.05;text-wrap:balance}
@@ -113,14 +113,14 @@ input{font-family:inherit}
 .brand{display:flex;flex-direction:column;gap:1px}
 .brand b{
   font-family:"Barlow Condensed",sans-serif;font-weight:700;
-  font-size:25px;letter-spacing:.4px;text-transform:uppercase;
+  font-size:30px;letter-spacing:.4px;text-transform:uppercase;
 }
 .brand b i{color:var(--accent);font-style:normal}
-.brand span{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);font-weight:600}
+.brand span{font-size:14px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);font-weight:600}
 .top-actions{display:flex;gap:8px}
 .ghost{
   background:var(--panel);border:1px solid var(--line);color:var(--ink-soft);
-  border-radius:9px;padding:7px 12px;font-size:12.5px;font-weight:600;
+  border-radius:9px;padding:7px 12px;font-size:15px;font-weight:600;
   display:inline-flex;align-items:center;gap:6px;transition:border-color .15s,color .15s;
 }
 .ghost:hover{border-color:var(--line-strong);color:var(--ink)}
@@ -132,9 +132,9 @@ input{font-family:inherit}
 /* ---------- layout ---------- */
 .layout{
   max-width:var(--maxw);margin:0 auto;padding:6px 20px 40px;
-  display:grid;grid-template-columns:minmax(0,1fr) minmax(330px,424px);gap:20px;align-items:start;
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(360px,486px);gap:20px;align-items:start;
 }
-@media (max-width:1120px){ .layout{grid-template-columns:minmax(0,1fr) minmax(310px,380px)} }
+@media (max-width:1180px){ .layout{grid-template-columns:minmax(0,1fr) minmax(330px,420px)} }
 @media (max-width:980px){ .layout{grid-template-columns:1fr} }
 
 /* ---------- boards (4 campetti affiancati) ---------- */
@@ -150,18 +150,18 @@ input{font-family:inherit}
   padding-top:7px;border-top:1px dashed var(--line-strong);
 }
 .jolly-h{
-  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:12px;
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:14.5px;
   letter-spacing:.1em;text-transform:uppercase;color:var(--warn);
 }
 .jchip{
   display:inline-flex;align-items:center;gap:5px;
   background:var(--warn-weak);border:1px solid var(--warn);border-radius:6px;
-  padding:2px 6px;font-size:13px;font-weight:600;color:var(--ink);
+  padding:2px 6px;font-size:15.5px;font-weight:600;color:var(--ink);
   transition:background .12s,border-color .12s;
 }
 button.jchip:hover{background:var(--ok-weak);border-color:var(--ok)}
 .jchip i{
-  font-style:normal;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:11.5px;
+  font-style:normal;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:14px;
   letter-spacing:.02em;color:var(--warn);
 }
 button.jchip:hover i{color:var(--ok)}
@@ -171,17 +171,17 @@ button.jchip:hover i{color:var(--ok)}
 .mod-select{
   flex:1;min-width:0;background:var(--panel-2);border:1px solid var(--line);color:var(--ink);
   border-radius:8px;padding:6px 8px;
-  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:16.5px;letter-spacing:.05em;
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:20px;letter-spacing:.05em;
 }
 .mini-status{
-  font-size:11px;font-weight:700;letter-spacing:.02em;color:var(--ink-faint);
+  font-size:13px;font-weight:700;letter-spacing:.02em;color:var(--ink-faint);
   white-space:nowrap;font-variant-numeric:tabular-nums;
 }
 .mini-status.ok{color:var(--ok)}
 .mini-status .warn{color:var(--warn)}
 .board-head .ib{
-  flex:0 0 auto;width:28px;height:28px;border-radius:7px;border:1px solid var(--line);
-  background:var(--panel-2);font-size:14px;line-height:1;
+  flex:0 0 auto;width:33px;height:33px;border-radius:7px;border:1px solid var(--line);
+  background:var(--panel-2);font-size:17px;line-height:1;
   display:flex;align-items:center;justify-content:center;
   transition:background .12s,border-color .12s;
 }
@@ -198,19 +198,19 @@ button.jchip:hover i{color:var(--ok)}
 
 .slot{
   position:absolute;transform:translate(-50%,-50%);
-  width:24%;min-width:48px;
+  width:26%;min-width:56px;
   display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;
 }
 .slot.low{flex-direction:column-reverse}
 .slot .disc{
-  width:40px;height:40px;border-radius:50%;flex:0 0 auto;
+  width:47px;height:47px;border-radius:50%;flex:0 0 auto;
   display:flex;align-items:center;justify-content:center;
-  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:15px;line-height:1;
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:18px;line-height:1;
   color:#fff;border:2px dashed rgba(255,255,255,.5);background:rgba(0,0,0,.26);
   transition:transform .12s ease;white-space:nowrap;
 }
-.slot .disc.disc-sm{font-size:11.5px;letter-spacing:-.2px}
-.slot .disc.disc-xs{font-size:9px;letter-spacing:-.4px}
+.slot .disc.disc-sm{font-size:14px;letter-spacing:-.2px}
+.slot .disc.disc-xs{font-size:11px;letter-spacing:-.4px}
 .slot button.disc{cursor:pointer}
 .slot button.disc:hover{transform:scale(1.09)}
 /* colori ruolo come su fantacalcio.it: Por giallo · Dif verde · Cen azzurro · Tre/Ala viola · Att rosso */
@@ -225,7 +225,7 @@ button.jchip:hover i{color:var(--ok)}
 .slot.filled .disc.rg-att{background:#e5344e}
 .slot.fit-bad .disc{background:#8a938e}
 .slot .cap,.slot .res{
-  font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:16.5px;line-height:1.05;
+  font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:20px;line-height:1.05;
   color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.95), 0 0 3px rgba(0,0,0,.6);max-width:100%;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
@@ -239,17 +239,17 @@ button.jchip:hover i{color:var(--ok)}
 
 .budget{padding:14px 16px}
 .budget-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
-.budget-top label{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);font-weight:700}
+.budget-top label{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);font-weight:700}
 .budget-top input{
-  width:88px;text-align:right;background:var(--panel-2);border:1px solid var(--line);
-  border-radius:8px;padding:6px 9px;color:var(--ink);font-weight:700;font-size:15px;
+  width:104px;text-align:right;background:var(--panel-2);border:1px solid var(--line);
+  border-radius:8px;padding:6px 9px;color:var(--ink);font-weight:700;font-size:18px;
   font-variant-numeric:tabular-nums;
 }
 .budget-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
 .budget-stats > div{background:var(--panel-2);border-radius:10px;padding:9px 4px}
-.budget-stats .k{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);font-weight:700}
+.budget-stats .k{display:block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);font-weight:700}
 .budget-stats .v{
-  display:block;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:23px;
+  display:block;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:27.5px;
   font-variant-numeric:tabular-nums;margin-top:2px;
 }
 .budget-stats .v.warn{color:var(--accent)}
@@ -261,7 +261,7 @@ button.jchip:hover i{color:var(--ok)}
 .tabs{display:flex;gap:4px;background:var(--panel-2);border:1px solid var(--line);border-radius:11px;padding:4px}
 .tabs button{
   flex:1;background:transparent;border:0;border-radius:8px;padding:8px;
-  font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:15px;letter-spacing:.05em;
+  font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:18px;letter-spacing:.05em;
   color:var(--ink-soft);text-transform:uppercase;
 }
 .tabs button[aria-selected="true"]{background:var(--panel);color:var(--ink);box-shadow:var(--shadow)}
@@ -275,8 +275,8 @@ button.jchip:hover i{color:var(--ok)}
   display:flex;align-items:center;justify-content:space-between;
   padding:9px 14px 7px;border-bottom:1px solid var(--line);
 }
-.grp h3{font-size:16.5px;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:7px}
-.grp .count{font-size:13px;font-weight:700;color:var(--ink-faint);font-variant-numeric:tabular-nums}
+.grp h3{font-size:20px;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:7px}
+.grp .count{font-size:15.5px;font-weight:700;color:var(--ink-faint);font-variant-numeric:tabular-nums}
 .grp .count.full{color:var(--ok)}
 .grp .count.over{color:var(--accent)}
 
@@ -287,15 +287,15 @@ button.jchip:hover i{color:var(--ok)}
 .row:last-child{border-bottom:0}
 .row .who{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
 .row .nmline{display:flex;align-items:baseline;gap:6px;min-width:0}
-.row .nm{font-size:15.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
-.row .tm{font-size:12px;color:var(--ink-faint);font-weight:500;white-space:nowrap;flex:0 0 auto}
+.row .nm{font-size:18.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.row .tm{font-size:14.5px;color:var(--ink-faint);font-weight:500;white-space:nowrap;flex:0 0 auto}
 .row .qtref{
-  flex:0 0 auto;font-size:14px;font-weight:700;color:var(--ink-faint);
+  flex:0 0 auto;font-size:17px;font-weight:700;color:var(--ink-faint);
   font-variant-numeric:tabular-nums;white-space:nowrap;
 }
 .rolebadges{display:flex;gap:3px;flex-wrap:wrap}
 .rb{
-  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:13.5px;line-height:1;
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:16px;line-height:1;
   padding:2px 5px;border-radius:4px;background:var(--panel-3);color:var(--ink-soft);letter-spacing:.02em;
 }
 .rb.rg-por{background:#e7b93b;color:#33260a}
@@ -307,17 +307,17 @@ button.jchip:hover i{color:var(--ok)}
 .mrole.P{background:var(--p)} .mrole.D{background:var(--d)} .mrole.C{background:var(--c)} .mrole.A{background:var(--a)}
 
 .row .price{
-  width:58px;flex:0 0 auto;text-align:right;background:var(--panel-2);border:1px solid var(--line);
-  border-radius:7px;padding:6px 7px;color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums;font-size:16px;
+  width:70px;flex:0 0 auto;text-align:right;background:var(--panel-2);border:1px solid var(--line);
+  border-radius:7px;padding:6px 7px;color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums;font-size:19px;
 }
 .row .nmline .onfield{
-  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:10px;letter-spacing:.04em;
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:12px;letter-spacing:.04em;
   text-transform:uppercase;color:var(--ok);border:1px solid var(--ok);border-radius:4px;
   padding:0 4px;flex:0 0 auto;align-self:center;line-height:1.5;
 }
 .row .nmline .onfield.ris{color:var(--ink-faint);border-color:var(--line-strong)}
 .row .x,.row .allfields,.row .removeall,.row .strike,.row .add{
-  flex:0 0 auto;width:30px;height:30px;border-radius:8px;border:1px solid var(--line);
+  flex:0 0 auto;width:35px;height:35px;border-radius:8px;border:1px solid var(--line);
   background:var(--panel-2);line-height:1;transition:background .12s,border-color .12s;
   display:flex;align-items:center;justify-content:center;padding:0;
 }
@@ -342,24 +342,24 @@ button.jchip:hover i{color:var(--ok)}
 .row.struck{opacity:.55}
 .row.struck .nm{text-decoration:line-through;text-decoration-thickness:1.5px}
 .row.struck .rb{filter:grayscale(.7);opacity:.8}
-.row .qt{font-size:13px;color:var(--ink-faint);font-weight:700;font-variant-numeric:tabular-nums;flex:0 0 auto;width:34px;text-align:right}
+.row .qt{font-size:15.5px;color:var(--ink-faint);font-weight:700;font-variant-numeric:tabular-nums;flex:0 0 auto;width:34px;text-align:right}
 
-.empty{padding:26px 16px;text-align:center;color:var(--ink-faint);font-size:13px}
+.empty{padding:26px 16px;text-align:center;color:var(--ink-faint);font-size:15.5px}
 
 /* search */
 .searchbar{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:9px}
 .searchbar input[type=text]{
   width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;
-  padding:10px 12px;color:var(--ink);font-size:15px;
+  padding:10px 12px;color:var(--ink);font-size:18px;
 }
 .chips{display:flex;gap:5px;flex-wrap:wrap}
 .chips button{
   border:1px solid var(--line);background:var(--panel-2);color:var(--ink-soft);
-  border-radius:999px;padding:5px 11px;font-size:13.5px;font-weight:700;
+  border-radius:999px;padding:5px 11px;font-size:16px;font-weight:700;
 }
 .chips button[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
 .hidestruck{
-  display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--ink-soft);
+  display:flex;align-items:center;gap:7px;font-size:15px;font-weight:600;color:var(--ink-soft);
   cursor:pointer;user-select:none;
 }
 .hidestruck input{width:15px;height:15px;accent-color:var(--accent);cursor:pointer}
@@ -376,10 +376,10 @@ button.jchip:hover i{color:var(--ok)}
 .picker header{
   padding:13px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px;
 }
-.picker header h3{font-size:17px;letter-spacing:.04em;text-transform:uppercase}
-.picker header .slotrole{font-size:12px;color:var(--ink-faint);font-weight:600}
+.picker header h3{font-size:20.5px;letter-spacing:.04em;text-transform:uppercase}
+.picker header .slotrole{font-size:14.5px;color:var(--ink-faint);font-weight:600}
 .picker header .x{
-  flex:0 0 auto;width:28px;height:28px;border-radius:7px;border:1px solid var(--line);
+  flex:0 0 auto;width:33px;height:33px;border-radius:7px;border:1px solid var(--line);
   background:var(--panel-2);color:var(--accent);
   display:flex;align-items:center;justify-content:center;
 }
@@ -392,7 +392,7 @@ button.jchip:hover i{color:var(--ok)}
 .picker .opt:hover{background:var(--panel-2)}
 .picker .opt .who{flex:1;min-width:0}
 .picker .opt .tag{
-  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:10.5px;letter-spacing:.03em;
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:12.5px;letter-spacing:.03em;
   padding:2px 6px;border-radius:5px;flex:0 0 auto;text-transform:uppercase;
 }
 .picker .opt .tag.ok{background:var(--ok-weak);color:var(--ok)}
@@ -401,22 +401,22 @@ button.jchip:hover i{color:var(--ok)}
 .picker .opt:disabled{cursor:default}
 .picker .opt:disabled:hover{background:transparent}
 .picker .divider{
-  padding:7px 16px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;
+  padding:7px 16px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;
   color:var(--ink-faint);background:var(--panel-2);border-bottom:1px solid var(--line);
 }
 .picker footer{padding:11px 16px;border-top:1px solid var(--line)}
 .picker footer button{
   width:100%;background:var(--panel-2);border:1px solid var(--line);color:var(--ink);
-  border-radius:9px;padding:9px;font-weight:700;font-size:13px;
+  border-radius:9px;padding:9px;font-weight:700;font-size:15.5px;
 }
 .picker footer button{color:var(--accent)}
 .picker footer button:hover{background:var(--accent-weak);border-color:var(--accent)}
 .picker .resline{
   display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px;
-  font-size:13px;font-weight:600;color:var(--ink-soft);
+  font-size:15.5px;font-weight:600;color:var(--ink-soft);
 }
 .picker .resline .x{
-  width:28px;height:28px;padding:0;flex:0 0 auto;color:var(--accent);
+  width:33px;height:33px;padding:0;flex:0 0 auto;color:var(--accent);
   display:flex;align-items:center;justify-content:center;
 }
 .picker .resline .x:hover{background:var(--accent-weak);border-color:var(--accent)}
@@ -424,20 +424,20 @@ button.jchip:hover i{color:var(--ok)}
 .picker.pricebox{width:min(380px,100%)}
 .pricebody{padding:16px}
 .pricebody label{
-  display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  display:block;font-size:13px;letter-spacing:.12em;text-transform:uppercase;
   color:var(--ink-faint);font-weight:700;margin-bottom:7px;
 }
 .priceinput{
   width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;
-  padding:12px 14px;color:var(--ink);font-weight:700;font-size:26px;
+  padding:12px 14px;color:var(--ink);font-weight:700;font-size:31px;
   font-variant-numeric:tabular-nums;text-align:center;
 }
 .priceinput:focus-visible{outline:2.5px solid var(--accent);outline-offset:1px}
-.pricehint{margin-top:9px;font-size:12px;color:var(--ink-faint);font-weight:600;text-align:center}
+.pricehint{margin-top:9px;font-size:14.5px;color:var(--ink-faint);font-weight:600;text-align:center}
 
 .rolelegend{
   display:flex;flex-wrap:wrap;gap:6px 14px;padding:10px 2px 2px;
-  font-size:11px;font-weight:600;color:var(--ink-soft);
+  font-size:13px;font-weight:600;color:var(--ink-soft);
 }
 .rolelegend span{display:inline-flex;align-items:center;gap:5px}
 .rolelegend i{width:11px;height:11px;border-radius:50%;flex:0 0 auto;border:1px solid rgba(255,255,255,.35)}
@@ -447,7 +447,7 @@ button.jchip:hover i{color:var(--ok)}
 .rolelegend i.rg-tre{background:#8a5cd0}
 .rolelegend i.rg-att{background:#e5344e}
 
-.hint{font-size:11.5px;color:var(--ink-faint);padding:10px 2px 0;line-height:1.55}
+.hint{font-size:14px;color:var(--ink-faint);padding:10px 2px 0;line-height:1.55}
 .hint a{color:var(--ink-soft)}
 .hint strong{color:var(--ink-soft)}
 .hint .ib-legend{display:flex;flex-wrap:wrap;gap:5px 14px;margin-top:7px;opacity:.95;font-weight:600}
