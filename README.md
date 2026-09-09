@@ -1,6 +1,6 @@
 # Campetto Mantra
 
-**▶ [Campetto Mantra](https://claude.ai/code/artifact/727c5d4a-a933-4586-bc1c-c6f8bc5d209c)** ·
+**▶ [Campetto Mantra](https://andreamurari.github.io/fantamantra-campetti/)** ·
 **▶ [Campetto Lega](https://andreamurari.github.io/fantamantra-campetti/campetto_lega.html)**
 — usabili anche da telefono.
 
@@ -16,12 +16,12 @@ Due tool separati, stesso motore di ruoli Mantra:
 Tool per l'asta del Fantacalcio **Mantra**: un campetto interattivo per vedere come si sta
 costruendo la rosa mentre l'asta va avanti.
 
-**▶ [Apri il tool online](https://claude.ai/code/artifact/727c5d4a-a933-4586-bc1c-c6f8bc5d209c)** (usabile anche da telefono)
+**▶ [Apri il tool online](https://andreamurari.github.io/fantamantra-campetti/)** (usabile anche da telefono)
 
 ## Uso
 
 Apri **`index.html`** con un doppio click (funziona offline, senza installare nulla), oppure
-usa la [versione online](https://claude.ai/code/artifact/727c5d4a-a933-4586-bc1c-c6f8bc5d209c).
+usa la [versione online](https://andreamurari.github.io/fantamantra-campetti/).
 
 ## Cosa fa
 
@@ -92,7 +92,7 @@ riga ~531). Si rigenerano dal file Excel con lo script **`build_players.py`**.
    Puoi tenere anche il vecchio: lo script usa **il `.xlsx` più recente** della cartella.
 3. Installa la dipendenza una volta sola: `pip install openpyxl`
 4. Esegui: `python build_players.py`
-5. Ricarica `index.html` nel browser (o ripubblica l'artifact). `git commit` per salvare.
+5. Ricarica `index.html` nel browser. `git commit` e `git push`: GitHub Pages si aggiorna da solo.
 
 Lo script legge il foglio **`Tutti`** e le colonne `Nome`, `Squadra`, `R`, `RM`, `Qt.A M`,
 `FVM M`. I ruoli Mantra multipli (`Ds;E`) vengono convertiti in `Ds/E`.
