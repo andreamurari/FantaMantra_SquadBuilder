@@ -36,7 +36,7 @@
 
   --shadow:0 1px 2px rgba(20,40,28,.06), 0 8px 24px rgba(20,40,28,.08);
   --radius:14px;
-  --maxw:1400px;
+  --maxw:1520px;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
@@ -132,8 +132,9 @@ input{font-family:inherit}
 /* ---------- layout ---------- */
 .layout{
   max-width:var(--maxw);margin:0 auto;padding:6px 20px 40px;
-  display:grid;grid-template-columns:minmax(0,1.45fr) minmax(340px,1fr);gap:20px;align-items:start;
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(312px,398px);gap:20px;align-items:start;
 }
+@media (max-width:1120px){ .layout{grid-template-columns:minmax(0,1fr) minmax(300px,360px)} }
 @media (max-width:980px){ .layout{grid-template-columns:1fr} }
 
 /* ---------- boards (4 campetti affiancati) ---------- */
@@ -281,13 +282,18 @@ button.jchip:hover i{color:var(--ok)}
 
 /* player row */
 .row{
-  display:flex;align-items:center;gap:9px;padding:8px 14px;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:7px;padding:7px 12px;border-bottom:1px solid var(--line);
 }
 .row:last-child{border-bottom:0}
-.row .who{min-width:0;flex:1}
-.row .nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.row .tm{font-size:11.5px;color:var(--ink-faint);font-weight:500}
-.rolebadges{display:flex;gap:3px;flex-wrap:wrap;margin-top:2px}
+.row .who{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
+.row .nmline{display:flex;align-items:baseline;gap:6px;min-width:0}
+.row .nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.row .tm{font-size:11px;color:var(--ink-faint);font-weight:500;white-space:nowrap;flex:0 0 auto}
+.row .qtref{
+  flex:0 0 auto;font-size:11px;font-weight:700;color:var(--ink-faint);
+  font-variant-numeric:tabular-nums;white-space:nowrap;
+}
+.rolebadges{display:flex;gap:3px;flex-wrap:wrap}
 .rb{
   font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:12.5px;line-height:1;
   padding:2px 5px;border-radius:4px;background:var(--panel-3);color:var(--ink-soft);letter-spacing:.02em;
@@ -301,12 +307,17 @@ button.jchip:hover i{color:var(--ok)}
 .mrole.P{background:var(--p)} .mrole.D{background:var(--d)} .mrole.C{background:var(--c)} .mrole.A{background:var(--a)}
 
 .row .price{
-  width:62px;flex:0 0 auto;text-align:right;background:var(--panel-2);border:1px solid var(--line);
-  border-radius:7px;padding:6px 8px;color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums;font-size:15px;
+  width:56px;flex:0 0 auto;text-align:right;background:var(--panel-2);border:1px solid var(--line);
+  border-radius:7px;padding:6px 7px;color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums;font-size:15px;
 }
+.row .nums{
+  flex:0 0 auto;text-align:right;line-height:1.3;font-variant-numeric:tabular-nums;
+}
+.row .nums span{display:block;font-size:12px;font-weight:700;color:var(--ink-soft)}
+.row .nums .f{font-size:10.5px;font-weight:600;color:var(--ink-faint)}
 .row .onfield{
-  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:12px;letter-spacing:.04em;
-  color:var(--ok);border:1px solid var(--ok);border-radius:5px;padding:2px 5px;flex:0 0 auto;
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:11px;letter-spacing:.03em;
+  color:var(--ok);border:1px solid var(--ok);border-radius:5px;padding:2px 4px;flex:0 0 auto;
 }
 .row .onfield.ris{color:var(--ink-faint);border-color:var(--line-strong)}
 .row .x,.row .allfields,.row .removeall,.row .strike,.row .add{
@@ -920,6 +931,15 @@ function roleBadges(rm){
   rm.forEach(r=>w.appendChild(el("span","rb rg-"+roleGroup(r), r)));
   return w;
 }
+function playerWho(p){
+  const w=el("div","who");
+  const nl=el("div","nmline");
+  nl.appendChild(el("span","nm",p.n));
+  nl.appendChild(el("span","tm",p.team));
+  w.appendChild(nl);
+  w.appendChild(roleBadges(p.rm));
+  return w;
+}
 
 function renderRosa(){
   const pane=document.getElementById("pane-rosa");
@@ -942,11 +962,7 @@ function renderRosa(){
     list.sort((a,b)=>b.fvm-a.fvm);
     list.forEach(p=>{
       const row=el("div","row");
-      const who=el("div","who");
-      who.appendChild(el("div","nm",p.n));
-      who.appendChild(el("span","tm",p.team));
-      who.appendChild(roleBadges(p.rm));
-      row.appendChild(who);
+      row.appendChild(playerWho(p));
       if(placedSomewhere(p.id)) row.appendChild(el("span","onfield","IN CAMPO"));
       else if(usedAnywhere(p.id)) row.appendChild(el("span","onfield ris","RISERVA"));
       const all=iconBtn("allfields","circlePlus","Rimetti disponibile e schiera in ogni campo");
@@ -959,6 +975,8 @@ function renderRosa(){
       none.disabled = !canRemoveEverywhere(p.id);
       none.addEventListener("click",()=>removeFromAllBoards(p.id));
       row.appendChild(none);
+      const qtref=el("span","qtref", String(p.qt)); qtref.title="Quotazione Mantra di riferimento";
+      row.appendChild(qtref);
       const price=el("input","price num"); price.type="number"; price.min="0"; price.value=p.price;
       price.setAttribute("aria-label","Prezzo pagato per "+p.n);
       price.addEventListener("change",()=>{ p.price=Math.max(0,Math.round(+price.value||0)); save(); renderBudget(); });
@@ -1007,13 +1025,12 @@ function renderResults(){
   shown.forEach(p=>{
     const own=owned.has(p.idx), struck=isStruck(p.idx) && !own;
     const row=el("div","row"+(own?" owned":"")+(struck?" struck":""));
-    const who=el("div","who");
-    who.appendChild(el("div","nm",p.n));
-    who.appendChild(el("span","tm",p.team));
-    who.appendChild(roleBadges(p.rm));
-    row.appendChild(who);
-    const qt=el("span","qt num", String(p.qt)); qt.title="Quotazione Mantra fantacalcio.it";
-    row.appendChild(qt);
+    row.appendChild(playerWho(p));
+    const nums=el("div","nums");
+    const q=el("span",null,String(p.qt)); q.title="Quotazione Mantra";
+    const f=el("span","f", String(p.fvm)); f.title="FVM Mantra";
+    nums.appendChild(q); nums.appendChild(f);
+    row.appendChild(nums);
     if(!own){
       const strk=iconBtn("strike"+(struck?" strike-undo":""), struck?"undo":"ban",
         struck?"Rimetti tra i disponibili":"Depenna: preso da un'altra squadra");
