@@ -26,6 +26,9 @@ except ImportError:
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 TARGET = os.path.join(HERE, "campetto_lega.html")
+# le stesse rose come file a sé: è ciò che la pagina su GitHub Pages
+# rilegge a ogni apertura, aggiornato ogni ora dalla GitHub Action
+JSON_OUT = os.path.join(HERE, "lega.json")
 START = "/* === LEGA_DATA START (generato da build_lega.py) === */"
 END = "/* === LEGA_DATA END === */"
 
@@ -120,6 +123,12 @@ def main():
     payload = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
     blob = START + "\nconst LEGA = " + payload + ";\n" + END
 
+    # 1) il file letto dal sito (GitHub Pages)
+    with open(JSON_OUT, "w", encoding="utf-8", newline="\n") as f:
+        f.write(payload + "\n")
+
+    # 2) lo snapshot incorporato, riserva per l'uso offline e per l'artifact
+
     if not os.path.exists(TARGET):
         sys.exit("Manca campetto_lega.html: crealo prima (deve contenere i marcatori LEGA_DATA).")
 
@@ -138,7 +147,7 @@ def main():
         f.write(html)
 
     tot = sum(len(s["rosa"]) for s in data["squadre"])
-    print(f"OK: {len(squadre)} squadre, {tot} giocatori -> campetto_lega.html")
+    print(f"OK: {len(squadre)} squadre, {tot} giocatori -> lega.json + campetto_lega.html")
     for s in data["squadre"]:
         prestiti = sum(1 for p in s["rosa"] if p["pr"])
         costo = sum(p["co"] for p in s["rosa"])

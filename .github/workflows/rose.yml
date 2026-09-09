@@ -1,0 +1,51 @@
+# Rilegge le rose dal database della lega e aggiorna lega.json (letto dal sito
+# su GitHub Pages) e lo snapshot incorporato in campetto_lega.html.
+# La stringa di connessione arriva SOLO dal secret LEGA_DB_URL.
+name: Aggiorna rose
+
+on:
+  schedule:
+    # ogni ora al minuto 17: il cron di Actions slitta comunque di 5-15 minuti
+    - cron: "17 * * * *"
+  workflow_dispatch: # per lanciarlo a mano dalla tab Actions
+
+permissions:
+  contents: write
+
+concurrency:
+  group: aggiorna-rose
+  cancel-in-progress: false
+
+jobs:
+  aggiorna:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install psycopg2-binary
+
+      - name: Estrai le rose dal database
+        env:
+          LEGA_DB_URL: ${{ secrets.LEGA_DB_URL }}
+        run: |
+          if [ -z "$LEGA_DB_URL" ]; then
+            echo "::error::manca il secret LEGA_DB_URL"
+            exit 1
+          fi
+          python build_lega.py
+
+      - name: Committa solo se qualcosa è cambiato
+        run: |
+          if git diff --quiet -- lega.json campetto_lega.html; then
+            echo "rose invariate, nessun commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add lega.json campetto_lega.html
+          git commit -m "Aggiorna rose dal database [skip ci]"
+          git push
