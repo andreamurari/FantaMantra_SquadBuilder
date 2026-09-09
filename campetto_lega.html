@@ -416,10 +416,24 @@ body.dragging .jolly-drop{opacity:1}
 .picker .opt:hover{background:var(--panel-2)}
 .picker .opt .who{flex:1;min-width:0}
 .picker .opt .tag.ok{background:var(--ok-weak);color:var(--ok);border-color:var(--ok)}
+.picker .opt .tag.alt{background:var(--warn-weak);color:var(--warn);border-color:var(--warn)}
 .picker .opt .tag.bad{background:var(--bad-weak);color:var(--bad);border-color:var(--bad)}
 .picker .opt.placed{opacity:.45}
 .picker .opt:disabled{cursor:default}
 .picker .opt:disabled:hover{background:transparent}
+/* riga del picker: nome (schiera titolare) + pulsante panchina */
+.picker .optrow{display:flex;align-items:stretch;border-bottom:1px solid var(--line)}
+.picker .optrow .opt{flex:1;border-bottom:0}
+.picker .opt-ris{
+  flex:0 0 auto;border:0;border-left:1px solid var(--line);background:var(--panel-2);
+  color:var(--ok);padding:0 13px;
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:12.5px;
+  letter-spacing:.05em;text-transform:uppercase;
+  display:flex;align-items:center;gap:5px;transition:background .12s;
+}
+.picker .opt-ris svg{width:15px;height:15px}
+.picker .opt-ris:hover:not(:disabled){background:var(--ok-weak)}
+.picker .opt-ris:disabled{opacity:.32;cursor:default;color:var(--ink-faint)}
 .picker .divider{
   padding:7px 16px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;
   color:var(--ink-faint);background:var(--panel-2);border-bottom:1px solid var(--line);
@@ -491,17 +505,19 @@ body.dragging .jolly-drop{opacity:1}
     </div>
     <p class="hint">
       Scegli una squadra della lega e confronta come la sua rosa si dispone in 4 moduli Mantra.
-      Tocca uno slot per assegnare un giocatore: solo <strong>ruolo Mantra esatto</strong>, niente
-      adattamento. Un giocatore entra in uno slot solo se il suo <strong>ruolo più difensivo</strong>
+      Tocca uno slot per assegnare un giocatore: il picker elenca tutti quelli che hanno
+      <strong>uno di quei ruoli</strong> (es. su uno slot W/A sia le W che le A), col tasto
+      <span style="color:var(--ok);font-weight:700">＋ris</span> per metterli in <strong>panchina</strong>
+      invece che titolari. Chi non è <em>esatto</em> per lo slot entra segnato <strong>grigio</strong> (forzato):
+      è <strong>esatto</strong> se il suo <strong>ruolo più difensivo</strong>
       (Por · Dc/B · Ds/Dd · M · E · C · T/W · A · Pc) coincide col ruolo <strong>più offensivo</strong>
-      dello slot (M/C = C, E/W = W, W/A = A). Se il ruolo è pieno il giocatore va in
-      <strong>riserva</strong>, tra parentesi sotto il titolare; chi non ha nessun ruolo previsto dal
-      modulo finisce tra i <strong>Jolly</strong> sotto il campo.
+      dello slot (M/C = C, E/W = W, W/A = A) — il criterio che usano le automazioni. Chi non ha
+      nessun ruolo previsto dal modulo finisce tra i <strong>Jolly</strong> sotto il campo.
       <br>
       <strong>Trascinando</strong> riordini a mano: una riserva sul disco scambia col titolare, un
       titolare su un altro disco scambia i due, e sotto ogni titolare c'è la panchina
       (max <strong>4 riserve</strong> per ruolo). Trascinando fuori dal campo il giocatore torna
-      disponibile. Il trascinamento è l'unica cosa che può <strong>forzare il ruolo</strong>: anche
+      disponibile. Trascinando (come dal picker) puoi <strong>forzare il ruolo</strong>: anche
       un Jolly entra in campo, ma resta segnato in <strong>grigio</strong>. Le automazioni qui sopra
       continuano a rispettare il ruolo esatto.
       <span class="ib-legend" id="ibLegend"></span>
@@ -1217,7 +1233,15 @@ function assign(bi, slotIdx, pid){
   if(prev>=0) delete cur().lineups[bi][prev];
   dropReserve(bi,pid);
   cur().lineups[bi][slotIdx]=pid;
+  aggiornaForzatura(bi,slotIdx,pid);   // dal picker si può scegliere un ruolo affine: se non è esatto, è forzato (disco grigio)
   save(); closePicker(); renderBoards(); renderRosa();
+}
+// dal picker: aggiunge il giocatore in panchina sotto questo slot, poi riapre il picker aggiornato
+function addReserveHere(bi, slotIdx, pid){
+  const esito=dropRiserva(bi, slotIdx, pid);
+  if(typeof esito==="string"){ avvisa(esito); return; }
+  save(); closePicker(); renderBoards(); renderRosa();
+  openPicker(bi, slotIdx);
 }
 function unassign(bi, slotIdx){
   delete cur().lineups[bi][slotIdx];
@@ -1418,7 +1442,7 @@ function openPicker(bi, slotIdx){
   const head=el("header");
   const ht=el("div");
   ht.appendChild(el("h3", null, s.roles.join(" / ")));
-  ht.appendChild(el("div","slotrole", mod+" · campo "+(bi+1)+" · "+(slotIdx===0?"portiere":"solo ruolo esatto")));
+  ht.appendChild(el("div","slotrole", mod+" · campo "+(bi+1)+" · "+(slotIdx===0?"portiere":"titolare o riserva")));
   head.appendChild(ht);
   const close=iconBtn("x","x","Chiudi"); close.setAttribute("aria-label","Chiudi");
   close.addEventListener("click",closePicker);
@@ -1426,14 +1450,18 @@ function openPicker(bi, slotIdx){
   box.appendChild(head);
 
   const listWrap=el("div","list");
-  const rated=roster().map(p=>({p, ok:fits(s.roles,p.rm), placed:slotOfPlayer(bi,p.i)}));
-  const elig=rated.filter(o=>o.ok).sort((a,b)=> b.p.q-a.p.q);
+  // "esatto" = combacia con l'ottimizzazione del modulo · "affine" = ha comunque quel ruolo
+  // (es. un W o una A per uno slot W/A), schierabile ma segnato forzato (disco grigio).
+  const affine=(roles,rm)=> roles.some(r=> rm.includes(r));
+  const rated=roster().map(p=>({p, exact:fits(s.roles,p.rm), ok:affine(s.roles,p.rm), placed:slotOfPlayer(bi,p.i)}));
+  const elig=rated.filter(o=>o.ok).sort((a,b)=> (b.exact-a.exact) || (b.p.q-a.p.q));
   const noFit=rated.filter(o=>!o.ok).sort((a,b)=> b.p.q-a.p.q);
 
   if(!elig.length){
     listWrap.appendChild(el("div","empty","Nessun giocatore in rosa con ruolo "+s.roles.join("/")+"."));
   }
-  elig.forEach(({p,placed})=>{
+  elig.forEach(({p,exact,placed})=>{
+    const row=el("div","optrow");
     const opt=el("button","opt"); opt.type="button";
     const note = placed>=0&&placed!==slotIdx ? " · già in questo campo"
                : isReserve(bi,p.i) ? " · riserva" : "";
@@ -1441,12 +1469,23 @@ function openPicker(bi, slotIdx){
     who.appendChild(el("div","nm", p.n + note));
     who.appendChild(el("span","tm", p.c+" · "+p.rm.join("/")+" · costo "+p.co));
     opt.appendChild(who);
-    opt.appendChild(el("span","tag ok","esatto"));
+    opt.appendChild(el("span","tag "+(exact?"ok":"alt"), exact?"esatto":"affine"));
+    opt.title="Schiera "+p.n+" come titolare";
     opt.addEventListener("click",()=>assign(bi,slotIdx,p.i));
-    listWrap.appendChild(opt);
+    row.appendChild(opt);
+    const ris=el("button","opt-ris"); ris.type="button";
+    ris.innerHTML=ic("circlePlus")+"<span>ris</span>";
+    ris.title="Aggiungi "+p.n+" in panchina";
+    const benchFull=reservesOf(bi,slotIdx).length>=MAX_RISERVE;
+    if(cur().lineups[bi][slotIdx]===p.i || reservesOf(bi,slotIdx).includes(p.i) || benchFull){
+      ris.disabled=true;
+    }
+    ris.addEventListener("click",()=>addReserveHere(bi,slotIdx,p.i));
+    row.appendChild(ris);
+    listWrap.appendChild(row);
   });
   if(noFit.length){
-    listWrap.appendChild(el("div","divider","Fuori ruolo — non schierabili qui"));
+    listWrap.appendChild(el("div","divider","Altro ruolo — solo trascinando"));
     noFit.forEach(({p})=>{
       const opt=el("button","opt placed"); opt.type="button"; opt.disabled=true;
       const who=el("div","who");

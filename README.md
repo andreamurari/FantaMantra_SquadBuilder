@@ -22,17 +22,21 @@ doppio click, offline, senza installare nulla.
   per confrontare come si dispone la stessa rosa. Sopra ogni campo: `⚡` schiera
   automaticamente chi è libero (i migliori per valore, priorità al ruolo più difensivo) e
   `🧹` svuota titolari, riserve e Jolly di quel campo.
-- **Solo ruolo esatto**, niente adattamento: un giocatore entra in uno slot solo se il suo
-  ruolo **più difensivo** coincide col ruolo **più offensivo** dello slot (ordine
+- **Cliccando un dischetto** il picker elenca tutti i giocatori che hanno **uno dei ruoli
+  dello slot** (es. su uno slot `W/A` sia le `W` che le `A`), con il tasto `＋ris` per
+  aggiungerli in **panchina** invece che da titolari. Chi non è **esatto** per lo slot entra
+  segnato **grigio** (forzato), come col trascinamento.
+- **Ruolo esatto**: un giocatore è esatto per uno slot se il suo ruolo **più difensivo**
+  coincide col ruolo **più offensivo** dello slot (ordine
   `Por < Dc=B < Ds=Dd < M < E < C < T=W < A < Pc`). Uno slot doppio conta per il ruolo più
   offensivo (`M/C`→C, `E/W`→W, `W/A`→A, `A/Pc`→Pc); un giocatore doppio per il più difensivo
-  (`E/W`→E, `Dd/Dc`→Dc). Quindi un `E/W` non entra in uno slot `E/W` (vale W): finisce fra i
-  **Fuori campo**, sotto il campo — ambra se nessuno slot del modulo lo prevede, verde se
-  sarebbe schierabile ma non è in campo.
+  (`E/W`→E, `Dd/Dc`→Dc). È il criterio che usano le **automazioni** (`⚡`, `⊕`): un `E/W` non
+  viene schierato automaticamente in uno slot `E/W` (vale W) e finisce fra i **Fuori campo**,
+  sotto il campo — ambra se nessuno slot del modulo lo prevede, verde se sarebbe schierabile.
 - **Trascinamento** (anche da telefono): una riserva sul disco scambia col titolare; un
   titolare su un altro disco scambia i due; ogni titolare ha una panchina fino a **4 riserve**;
-  fuori dal campo il giocatore torna disponibile. È l'unico modo per forzare un ruolo non
-  esatto (il disco resta comunque segnato **grigio tratteggiato**); le automazioni (`⚡`, e
+  fuori dal campo il giocatore torna disponibile. Come dal picker, forzare un ruolo non
+  esatto lascia il disco segnato **grigio tratteggiato**; le automazioni (`⚡`, e
   l'equivalente `⊕` in Rosa) rispettano sempre il ruolo esatto.
 - Il pallino prende il **colore del ruolo** di fantacalcio.it (Por giallo, difensori verde,
   centrocampo azzurro, trequarti/ali viola, attacco rosso) e mostra il ruolo completo dello
