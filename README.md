@@ -45,6 +45,15 @@ usa la [versione online](https://claude.ai/code/artifact/727c5d4a-a933-4586-bc1c
   - Sotto ogni campo la sezione **Jolly** mostra chi non ha nessun ruolo previsto dal modulo
     (es. una `E` in un 4-3-3), oppure chi è stato nascosto a mano da **Rosa** (vedi sotto) —
     in quel caso non ci compare nemmeno.
+- **Trascinamento**: riordini il campo a mano trascinando (funziona anche da telefono). Una
+  riserva sul disco del suo slot **scambia col titolare**; un titolare su un altro disco scambia
+  i due; sotto ogni titolare c'è la **panchina**, che tiene al massimo **4 riserve per ruolo**;
+  trascinando fuori dal campo il giocatore torna disponibile. Mentre trascini il bersaglio si
+  illumina di **verde** se il ruolo combacia, di **ambra** se stai forzando.
+  - Il trascinamento è **l'unica cosa che può violare il ruolo esatto**: puoi portare in campo
+    anche un Jolly, ma resta segnato con il **pallino grigio tratteggiato**. Le automazioni
+    (`⚡` e `⊕`) continuano a rispettare il ruolo esatto, e cambiando modulo le forzature
+    decadono.
 - Il pallino in campo prende il **colore del ruolo** come su fantacalcio.it: Por giallo,
   difensori verde, centrocampo azzurro, trequarti/ali viola, attacco rosso.
 - **Listone 2026/27** integrato (dal file `Quotazioni_Fantacalcio_*.xlsx`): cerca e filtra per
@@ -114,9 +123,9 @@ rose aggiornate ogni ora, apribile da telefono e condivisibile con la lega.
 
 - **Selettore squadra**: scegli una delle 10 e ne vedi la rosa sui 4 campetti, così puoi
   studiare anche gli avversari. Gli schieramenti sono salvati per squadra.
-- Stessa logica di **match ruolo esatto**, riserve e Jolly del Campetto Mantra: l'enum
-  `ruolo_mantra` del database (`Por, Dd, Dc, Ds, B, E, M, C, W, T, A, Pc`) coincide con i ruoli
-  che il campetto già gestisce.
+- Stessa logica di **match ruolo esatto**, riserve, Jolly e **trascinamento** del Campetto
+  Mantra: l'enum `ruolo_mantra` del database (`Por, Dd, Dc, Ds, B, E, M, C, W, T, A, Pc`)
+  coincide con i ruoli che il campetto già gestisce.
 - Per ogni giocatore: quotazione, **costo del contratto**, anno di **scadenza** (in rosso se
   scade entro l'anno prossimo), badge **U21** e, per chi è arrivato in prestito, da chi.
 - In alto: numero di giocatori, **monte costi**, **crediti** disponibili e U21 in rosa.

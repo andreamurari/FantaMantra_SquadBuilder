@@ -220,7 +220,62 @@ input,select{font-family:inherit}
   color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.95), 0 0 3px rgba(0,0,0,.6);max-width:100%;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-.slot .res{color:rgba(255,255,255,.82)}
+/* le riserve sono fino a 4 per slot: se avessero il corpo del titolare
+   le panchine si accavallerebbero fra loro sul campo */
+.slot .res{color:rgba(255,255,255,.82);font-size:15px;line-height:1}
+
+/* ---------- trascinamento ---------- */
+/* touch-action:none serve a non far scrollare la pagina mentre si trascina */
+.drag-src{touch-action:none;cursor:grab;-webkit-user-select:none;user-select:none}
+body.dragging{cursor:grabbing}
+body.dragging *{cursor:grabbing!important}
+.ghost{
+  position:fixed;z-index:200;pointer-events:none;transform:translate(-50%,-140%);
+  background:var(--panel);border:1px solid var(--accent);border-radius:8px;
+  padding:4px 9px;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:18px;
+  color:var(--ink);box-shadow:var(--shadow);white-space:nowrap;
+}
+/* verde = il ruolo combacia · ambra = stai forzando */
+.drop-ok{outline:3px solid #37e07a;outline-offset:2px}
+.drop-forza{outline:3px dashed var(--warn);outline-offset:2px}
+/* Gli slot sono riquadri larghi e alti che si sovrappongono fra loro sul
+   campo: lasciandoli cliccabili, il contenitore di uno intercetta i click
+   destinati al disco di quello accanto. Solo le parti vere restano
+   sensibili al puntatore; la panchina si accende solo mentre si trascina,
+   altrimenti ruberebbe i click ai dischi vicini. */
+.slot{pointer-events:none}
+.slot .disc,.slot .cap,.slot .res{pointer-events:auto}
+.slot .bench{pointer-events:none}
+body.dragging .slot .bench{pointer-events:auto}
+.slot .disc{position:relative;z-index:3}
+.slot .cap{position:relative;z-index:2}
+.slot .bench{
+  display:flex;flex-direction:column;align-items:center;gap:1px;
+  min-height:16px;width:100%;border-radius:6px;position:relative;z-index:1;
+}
+/* il suggerimento occuperebbe una riga per slot: si mostra solo quando serve */
+.slot .bench-hint{
+  font-family:"Barlow Condensed",sans-serif;font-size:12px;letter-spacing:.06em;
+  text-transform:uppercase;color:rgba(255,255,255,.7);display:none;
+}
+body.dragging .slot .bench{background:rgba(0,0,0,.22)}
+body.dragging .slot .bench-hint{display:block}
+/* schierato fuori ruolo: grigio, per distinguerlo a colpo d'occhio */
+.slot.filled .disc.forzato{background:#8a938e;border-style:dashed}
+.slot .res.forzato{color:#d9c48a}
+.jolly-drop{
+  font-size:12.5px;color:var(--ink-faint);font-style:italic;margin-left:auto;opacity:0;
+  transition:opacity .15s;
+}
+body.dragging .jolly-drop{opacity:1}
+#dragNote{
+  position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(8px);
+  background:var(--panel);border:1px solid var(--warn);color:var(--ink);
+  border-radius:9px;padding:8px 14px;font-weight:600;font-size:15px;
+  box-shadow:var(--shadow);z-index:210;opacity:0;pointer-events:none;
+  transition:opacity .15s,transform .15s;
+}
+#dragNote.on{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* ---------- pannello squadra ---------- */
 .squad-pane{display:flex;flex-direction:column;gap:14px;position:sticky;top:12px}
@@ -399,6 +454,8 @@ input,select{font-family:inherit}
   </div>
 </header>
 
+<div id="dragNote" role="status" aria-live="polite"></div>
+
 <main class="layout">
   <section class="field-pane">
     <div class="boards" id="boards"></div>
@@ -417,6 +474,13 @@ input,select{font-family:inherit}
       dello slot (M/C = C, E/W = W, W/A = A). Se il ruolo è pieno il giocatore va in
       <strong>riserva</strong>, tra parentesi sotto il titolare; chi non ha nessun ruolo previsto dal
       modulo finisce tra i <strong>Jolly</strong> sotto il campo.
+      <br>
+      <strong>Trascinando</strong> riordini a mano: una riserva sul disco scambia col titolare, un
+      titolare su un altro disco scambia i due, e sotto ogni titolare c'è la panchina
+      (max <strong>4 riserve</strong> per ruolo). Trascinando fuori dal campo il giocatore torna
+      disponibile. Il trascinamento è l'unica cosa che può <strong>forzare il ruolo</strong>: anche
+      un Jolly entra in campo, ma resta segnato in <strong>grigio</strong>. Le automazioni qui sopra
+      continuano a rispettare il ruolo esatto.
       <span class="ib-legend" id="ibLegend"></span>
     </p>
     <p class="src" id="srcLine"></p>
@@ -537,8 +601,11 @@ const DEFAULT_BOARDS = ["3-4-3","3-5-2","4-3-3","4-4-2"];
    STATO — uno schieramento per squadra, 4 campi ciascuna
    ============================================================ */
 const KEY = "campetto-lega-v1";
+// riserve per slot: oltre questo tetto la panchina di un ruolo è piena
+const MAX_RISERVE = 4;
 function freshTeam(){
-  return { boards:DEFAULT_BOARDS.slice(), lineups:[{},{},{},{}], reserves:[{},{},{},{}], excluded:[[],[],[],[]] };
+  return { boards:DEFAULT_BOARDS.slice(), lineups:[{},{},{},{}], reserves:[{},{},{},{}],
+           excluded:[[],[],[],[]], forced:[[],[],[],[]] };
 }
 function fresh(){ return { team:null, byTeam:{} }; }
 function load(){ try{ return JSON.parse(localStorage.getItem(KEY)); }catch(e){ return null; } }
@@ -552,6 +619,8 @@ function migrate(s){
     if(!Array.isArray(t.lineups) || t.lineups.length!==4) t.lineups = [{},{},{},{}];
     if(!Array.isArray(t.reserves)|| t.reserves.length!==4)t.reserves= [{},{},{},{}];
     if(!Array.isArray(t.excluded)|| t.excluded.length!==4)t.excluded= [[],[],[],[]];
+    // aggiunto col trascinamento: gli schieramenti forzati fuori ruolo
+    if(!Array.isArray(t.forced)  || t.forced.length!==4)  t.forced  = [[],[],[],[]];
   }
   return s;
 }
@@ -686,16 +755,24 @@ const PITCH_SVG = '<svg viewBox="0 0 680 1000" preserveAspectRatio="none" aria-h
    PULIZIA — nessun giocatore può restare in uno slot non suo
    (es. dopo un cambio modulo o un cambio rosa dal DB)
    ============================================================ */
+// un giocatore trascinato a mano può stare in uno slot non suo: la pulizia
+// deve lasciarlo dov'è, altrimenti verrebbe sfrattato al primo render
+function isForced(bi, id){ return cur().forced[bi].includes(id); }
+function setForced(bi, id, on){
+  const a=cur().forced[bi], i=a.indexOf(id);
+  if(on && i<0) a.push(id);
+  else if(!on && i>=0) a.splice(i,1);
+}
 function pruneBoard(bi){
   const t=cur(), slots=FORMATIONS[t.boards[bi]], lu=t.lineups[bi], rv=t.reserves[bi];
   let changed=false;
+  const ammesso = (k,p)=> p && slots[k] && (fits(slots[k].roles, p.rm) || isForced(bi,p.i));
   for(const k in lu){
-    const p=playerById(lu[k]);
-    if(!p || !slots[k] || !fits(slots[k].roles, p.rm)){ delete lu[k]; changed=true; }
+    if(!ammesso(k, playerById(lu[k]))){ delete lu[k]; changed=true; }
   }
   for(const k in rv){
     if(!slots[k]){ delete rv[k]; changed=true; continue; }
-    const kept=rv[k].filter(id=>{ const p=playerById(id); return p && fits(slots[k].roles, p.rm); });
+    const kept=rv[k].filter(id=> ammesso(k, playerById(id))).slice(0, MAX_RISERVE);
     if(kept.length!==rv[k].length) changed=true;
     if(kept.length) rv[k]=kept; else delete rv[k];
   }
@@ -704,6 +781,9 @@ function pruneBoard(bi){
   }
   const cleaned=t.excluded[bi].filter(id=> playerById(id));
   if(cleaned.length!==t.excluded[bi].length){ t.excluded[bi]=cleaned; changed=true; }
+  // niente forzature per chi non è più in campo o non è più in rosa
+  const f=t.forced[bi].filter(id=> playerById(id) && (slotOfPlayer(bi,id)>=0 || isReserve(bi,id)));
+  if(f.length!==t.forced[bi].length){ t.forced[bi]=f; changed=true; }
   return changed;
 }
 function pruneAll(){ let c=false; for(let bi=0;bi<4;bi++) if(pruneBoard(bi)) c=true; if(c) save(); }
@@ -724,7 +804,12 @@ function renderBoards(){
     FORMATION_LIST.forEach(m=>{
       const o=el("option",null,m); o.value=m; if(m===mod) o.selected=true; sel.appendChild(o);
     });
-    sel.addEventListener("change",()=>{ cur().boards[bi]=sel.value; pruneBoard(bi); save(); renderBoards(); renderRosa(); });
+    sel.addEventListener("change",()=>{
+      cur().boards[bi]=sel.value;
+      // gli slot cambiano significato: le forzature del vecchio modulo decadono
+      cur().forced[bi]=[];
+      pruneBoard(bi); save(); renderBoards(); renderRosa();
+    });
     head.appendChild(sel);
 
     const auto=iconBtn("ib ib-auto","zap","Schiera automaticamente");
@@ -749,36 +834,58 @@ function renderBoards(){
       if(roleStr.length>=6) disc.classList.add("disc-xs");
       else if(roleStr.length>=4) disc.classList.add("disc-sm");
       disc.setAttribute("aria-label",(player?player.n+" — ":"")+"slot "+roleStr);
-      disc.addEventListener("click",()=>openPicker(bi,i));
+      // il disco è sempre bersaglio: ci si rilascia per diventare titolare
+      disc.dataset.drop="titolare"; disc.dataset.bi=bi; disc.dataset.slot=i;
       if(player){
+        const forzato=isForced(bi,player.i);
         wrap.classList.add("filled");
         disc.classList.add("rg-"+roleGroup(player.rm[0]));
+        if(forzato){
+          disc.classList.add("forzato");
+          disc.title=player.n+" ("+player.rm.join("/")+") forzato in uno slot "+roleStr;
+        }
         wrap.appendChild(disc);
-        wrap.appendChild(el("div","cap",player.n));
+        const cap=el("div","cap",player.n);
+        wrap.appendChild(cap);
+        // titolare trascinabile dal nome; il disco resta il tasto del popup
+        rendiTrascinabile(cap, {bi, id:player.i}, player.n, null);
+        rendiTrascinabile(disc, {bi, id:player.i}, player.n, ()=>openPicker(bi,i));
+
+        const panca=el("div","bench");
+        panca.dataset.drop="riserva"; panca.dataset.bi=bi; panca.dataset.slot=i;
         reservesOf(bi,i).forEach(rid=>{
           const rp=playerById(rid);
-          if(rp) wrap.appendChild(el("div","res","("+rp.n+")"));
+          if(!rp) return;
+          const r=el("div","res"+(isForced(bi,rid)?" forzato":""),"("+rp.n+")");
+          rendiTrascinabile(r, {bi, id:rid}, rp.n, null);
+          panca.appendChild(r);
         });
+        if(reservesOf(bi,i).length<MAX_RISERVE) panca.appendChild(el("div","bench-hint","riserva"));
+        wrap.appendChild(panca);
       } else {
+        // slot vuoto: niente da trascinare, resta solo bersaglio e tasto
+        disc.addEventListener("click",()=>openPicker(bi,i));
         wrap.appendChild(disc);
       }
       pitch.appendChild(wrap);
     });
     board.appendChild(pitch);
 
+    // fuori dal campo: i Jolly, e l'area dove rilasciare per togliere dal campo
     const jolly=jollyList(bi);
-    if(jolly.length){
-      const jb=el("div","jolly");
-      jb.appendChild(el("span","jolly-h","Jolly"));
-      jolly.forEach(p=>{
-        const c=el("span","jchip");
-        c.title=p.n+" non ha nessun ruolo previsto da questo modulo";
-        c.appendChild(el("b",null,p.n));
-        c.appendChild(el("i",null,p.rm.join("/")));
-        jb.appendChild(c);
-      });
-      board.appendChild(jb);
-    }
+    const jb=el("div","jolly");
+    jb.dataset.drop="fuori"; jb.dataset.bi=bi;
+    jb.appendChild(el("span","jolly-h", jolly.length?"Jolly":"Fuori campo"));
+    jolly.forEach(p=>{
+      const c=el("span","jchip");
+      c.title=p.n+" ("+p.rm.join("/")+") non ha nessun ruolo previsto da questo modulo — trascinalo in campo per forzarlo";
+      c.appendChild(el("b",null,p.n));
+      c.appendChild(el("i",null,p.rm.join("/")));
+      rendiTrascinabile(c, {bi, id:p.i}, p.n, null);
+      jb.appendChild(c);
+    });
+    jb.appendChild(el("span","jolly-drop","trascina qui per togliere dal campo"));
+    board.appendChild(jb);
     host.appendChild(board);
   });
 }
@@ -884,7 +991,7 @@ function bestReserveSlot(bi, p){
   for(let i=0;i<slots.length;i++){
     if(lu[i]!=null && fits(slots[i].roles, p.rm)){
       const n=reservesOf(bi,i).length;
-      if(n<bestN){ bestN=n; best=i; }
+      if(n<MAX_RISERVE && n<bestN){ bestN=n; best=i; }   // panchina piena: si salta
     }
   }
   return best;
@@ -902,7 +1009,10 @@ function placeByDefPriority(bi, p){
   }
   let best=-1,bestN=Infinity;
   for(let i=0;i<slots.length;i++)
-    if(lu[i]!=null && ok(i)){ const n=(rv[i]||[]).length; if(n<bestN){ bestN=n; best=i; } }
+    if(lu[i]!=null && ok(i)){
+      const n=(rv[i]||[]).length;
+      if(n<MAX_RISERVE && n<bestN){ bestN=n; best=i; }
+    }
   if(best>=0){ (rv[best]=rv[best]||[]).push(p.i); return true; }
   return false;
 }
@@ -955,7 +1065,7 @@ function clearBoard(bi){
   jollyList(bi).forEach(p=> excludeFromBoard(bi, p.i));
   [...Object.values(t.lineups[bi]).map(Number),
    ...Object.values(t.reserves[bi]).flat()].forEach(id=> excludeFromBoard(bi, id));
-  t.lineups[bi]={}; t.reserves[bi]={};
+  t.lineups[bi]={}; t.reserves[bi]={}; t.forced[bi]=[];
   save(); renderBoards(); renderRosa();
 }
 function assign(bi, slotIdx, pid){
@@ -974,6 +1084,172 @@ function removeReserve(bi, slotIdx, id){
   rv[slotIdx]=rv[slotIdx].filter(x=>x!==id);
   if(!rv[slotIdx].length) delete rv[slotIdx];
   save(); closePicker(); renderBoards(); renderRosa();
+}
+
+/* ============================================================
+   TRASCINAMENTO
+   Il drag è un override manuale: puoi forzare un giocatore in uno slot
+   non suo (viene marcato in grigio). Le automazioni — schiera automatico
+   e "in ogni campo" — restano invece a ruolo esatto.
+   Usa i Pointer Events e non l'HTML5 drag&drop, che sui browser mobile
+   non funziona: così il trascinamento va anche da telefono.
+   ============================================================ */
+// dov'è ora questo giocatore in questo campo
+function posizione(bi, id){
+  const k=slotOfPlayer(bi,id);
+  if(k>=0) return {tipo:"titolare", slot:k};
+  const rv=cur().reserves[bi];
+  for(const s in rv) if(rv[s].includes(id)) return {tipo:"riserva", slot:+s};
+  return null;
+}
+function stacca(bi, id){
+  const pos=posizione(bi,id);
+  if(!pos) return null;
+  if(pos.tipo==="titolare") delete cur().lineups[bi][pos.slot];
+  else dropReserve(bi,id);
+  return pos;
+}
+function aggiornaForzatura(bi, slotIdx, id){
+  const p=playerById(id);
+  const s=FORMATIONS[cur().boards[bi]][slotIdx];
+  setForced(bi, id, !!(p && s && !fits(s.roles, p.rm)));
+}
+// mette id come titolare dello slot k; chi c'era scende in panchina,
+// o si scambia di posto se il trascinato veniva a sua volta da uno slot
+function dropTitolare(bi, k, id){
+  const t=cur(), lu=t.lineups[bi];
+  if(lu[k]===id) return true;
+  const uscente=lu[k];
+  const pos=posizione(bi,id);
+  if(uscente!=null && !(pos && pos.tipo==="titolare") && reservesOf(bi,k).length>=MAX_RISERVE)
+    return "La panchina di questo ruolo è piena ("+MAX_RISERVE+").";
+  stacca(bi,id);
+  lu[k]=id;
+  aggiornaForzatura(bi,k,id);
+  if(uscente!=null && uscente!==id){
+    if(pos && pos.tipo==="titolare"){          // scambio secco fra due titolari
+      lu[pos.slot]=uscente;
+      aggiornaForzatura(bi,pos.slot,uscente);
+    } else {                                   // il titolare scende in panchina
+      (t.reserves[bi][k]=t.reserves[bi][k]||[]).push(uscente);
+      aggiornaForzatura(bi,k,uscente);
+    }
+  }
+  return true;
+}
+// mette id in panchina sotto lo slot k
+function dropRiserva(bi, k, id){
+  const t=cur(), lu=t.lineups[bi];
+  if(lu[k]==null) return dropTitolare(bi,k,id);      // slot vuoto: diventa titolare
+  if(lu[k]===id){                                    // il titolare scende: promuove la prima riserva
+    const panca=reservesOf(bi,k);
+    if(!panca.length) return true;
+    const promosso=panca[0];
+    t.reserves[bi][k]=panca.slice(1).concat([id]);
+    lu[k]=promosso;
+    aggiornaForzatura(bi,k,promosso);
+    aggiornaForzatura(bi,k,id);
+    return true;
+  }
+  const gia=reservesOf(bi,k).includes(id);
+  if(!gia && reservesOf(bi,k).length>=MAX_RISERVE)
+    return "La panchina di questo ruolo è piena ("+MAX_RISERVE+").";
+  stacca(bi,id);
+  (t.reserves[bi][k]=t.reserves[bi][k]||[]).push(id);
+  aggiornaForzatura(bi,k,id);
+  return true;
+}
+// fuori dal campo: torna disponibile (Jolly se il modulo non lo prevede)
+function dropFuori(bi, id){
+  if(!posizione(bi,id)) return true;
+  stacca(bi,id);
+  setForced(bi,id,false);
+  unExclude(bi,id);
+  return true;
+}
+
+let drag=null;
+function avvisa(msg){
+  const n=document.getElementById("dragNote");
+  n.textContent=msg; n.classList.add("on");
+  clearTimeout(avvisa.t);
+  avvisa.t=setTimeout(()=>n.classList.remove("on"), 2200);
+}
+// rende trascinabile un elemento; onClick scatta solo se non si è trascinato
+function rendiTrascinabile(node, src, etichetta, onClick){
+  node.classList.add("drag-src");
+  node.addEventListener("pointerdown", e=>{
+    if(e.button!=null && e.button>0) return;
+    document.querySelectorAll(".ghost").forEach(g=>g.remove());   // niente fantasmi orfani
+    drag={src, etichetta, x0:e.clientX, y0:e.clientY, mosso:false, ghost:null, target:null, node};
+    try{ node.setPointerCapture(e.pointerId); }catch(_){}
+  });
+  node.addEventListener("pointermove", e=>{
+    if(!drag || drag.node!==node) return;
+    if(!drag.mosso){
+      // soglia: sotto i 6px è un tocco, non un trascinamento
+      if(Math.hypot(e.clientX-drag.x0, e.clientY-drag.y0) < 6) return;
+      drag.mosso=true;
+      document.body.classList.add("dragging");
+      const g=el("div","ghost", drag.etichetta);
+      document.body.appendChild(g);
+      drag.ghost=g;
+    }
+    drag.ghost.style.left=e.clientX+"px";
+    drag.ghost.style.top=e.clientY+"px";
+    if(drag.target) drag.target.el.classList.remove("drop-ok","drop-forza");
+    drag.target=bersaglio(e.clientX, e.clientY);
+    if(drag.target){
+      const p=playerById(drag.src.id);
+      const s=drag.target.slot!=null ? FORMATIONS[cur().boards[drag.target.bi]][drag.target.slot] : null;
+      const inRuolo = !s || (p && fits(s.roles, p.rm));
+      drag.target.el.classList.add(inRuolo ? "drop-ok" : "drop-forza");
+    }
+  });
+  const fine = e=>{
+    if(!drag || drag.node!==node) return;
+    const d=drag; drag=null;
+    document.body.classList.remove("dragging");
+    if(d.ghost) d.ghost.remove();
+    if(d.target) d.target.el.classList.remove("drop-ok","drop-forza");
+    if(!d.mosso){ if(onClick) onClick(); return; }
+    if(!d.target) return;
+    const t=d.target;
+    if(t.bi!==d.src.bi){ avvisa("I campi sono indipendenti: si trascina dentro lo stesso campo."); return; }
+    let esito=true;
+    if(t.tipo==="titolare")      esito=dropTitolare(t.bi, t.slot, d.src.id);
+    else if(t.tipo==="riserva")  esito=dropRiserva(t.bi, t.slot, d.src.id);
+    else                         esito=dropFuori(t.bi, d.src.id);
+    if(typeof esito==="string"){ avvisa(esito); return; }
+    save(); renderBoards(); renderRosa();
+  };
+  node.addEventListener("pointerup", fine);
+  node.addEventListener("pointercancel", ()=>{
+    if(!drag || drag.node!==node) return;
+    if(drag.ghost) drag.ghost.remove();
+    if(drag.target) drag.target.el.classList.remove("drop-ok","drop-forza");
+    document.body.classList.remove("dragging");
+    drag=null;
+  });
+}
+// Ogni .slot ha una transform, che crea un contesto di impilamento: fra slot
+// diversi l'ordine di disegno lo decide il DOM, così la panchina di uno slot
+// può coprire il disco di un altro. Per questo non ci si fida del solo
+// elemento in cima (elementFromPoint) ma si guardano tutti quelli sotto al
+// punto, scegliendo il bersaglio più specifico: disco, poi panchina, poi
+// fuori campo. Il fantasma non interferisce: ha pointer-events:none.
+const PRIORITA={titolare:0, riserva:1, fuori:2};
+function bersaglio(x,y){
+  const zone=[];
+  for(const e of document.elementsFromPoint(x,y)){
+    const z=e.closest && e.closest("[data-drop]");
+    if(z && !zone.includes(z)) zone.push(z);
+  }
+  if(!zone.length) return null;
+  zone.sort((a,b)=> PRIORITA[a.dataset.drop]-PRIORITA[b.dataset.drop]);
+  const z=zone[0];
+  return { el:z, tipo:z.dataset.drop, bi:+z.dataset.bi,
+           slot: z.dataset.slot!=null && z.dataset.slot!=="" ? +z.dataset.slot : null };
 }
 
 /* ============================================================
