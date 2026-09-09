@@ -173,12 +173,6 @@ button.jchip:hover i{color:var(--ok)}
   border-radius:8px;padding:6px 8px;
   font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:20px;letter-spacing:.05em;
 }
-.mini-status{
-  font-size:13px;font-weight:700;letter-spacing:.02em;color:var(--ink-faint);
-  white-space:nowrap;font-variant-numeric:tabular-nums;
-}
-.mini-status.ok{color:var(--ok)}
-.mini-status .warn{color:var(--warn)}
 .board-head .ib{
   flex:0 0 auto;width:33px;height:33px;border-radius:7px;border:1px solid var(--line);
   background:var(--panel-2);font-size:17px;line-height:1;
@@ -819,13 +813,6 @@ function pruneBoard(bi){
 }
 function pruneAll(){ let c=false; for(let bi=0;bi<4;bi++) if(pruneBoard(bi)) c=true; if(c) save(); }
 
-function boardStats(bi){
-  const slots=FORMATIONS[state.boards[bi]], lu=state.lineups[bi];
-  let filled=0;
-  slots.forEach((s,i)=>{ if(lu[i]!=null && rosaById(lu[i])) filled++; });
-  return {filled, total:slots.length};
-}
-
 function renderBoards(){
   pruneAll();
   const host=document.getElementById("boards");
@@ -841,12 +828,6 @@ function renderBoards(){
     });
     sel.addEventListener("change",()=>{ state.boards[bi]=sel.value; pruneBoard(bi); save(); renderBoards(); renderRosa(); });
     head.appendChild(sel);
-
-    const st=boardStats(bi);
-    const ms=el("span","mini-status");
-    ms.textContent=st.filled+"/"+st.total;
-    if(st.filled===st.total) ms.classList.add("ok");
-    head.appendChild(ms);
 
     const auto=iconBtn("ib ib-auto","zap","Schiera automaticamente");
     auto.addEventListener("click",()=>autofillBoard(bi));
