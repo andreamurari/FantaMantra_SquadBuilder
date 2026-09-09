@@ -193,11 +193,21 @@ input,select{font-family:inherit}
 }
 .pitch > svg{position:absolute;inset:0;width:100%;height:100%;display:block}
 
+/* Niente transform per centrare: creerebbe un contesto di impilamento per
+   ogni slot, e allora l'ordine di disegno fra slot diversi lo deciderebbe il
+   DOM (i nomi di un reparto finirebbero sopra i dischi di quello sotto).
+   Coi margini gli z-index qui sotto valgono fra tutti gli slot: i dischi
+   stanno sopra ogni nome, i nomi sopra le panchine.
+   Il margine verticale e' meta' disco, cosi' il centro del disco cade
+   esattamente sulla coordinata del modulo, indipendentemente da quante
+   riserve ha lo slot (prima il blocco era centrato tutto insieme e il disco
+   si spostava in alto fino a 25px). */
 .slot{
-  position:absolute;transform:translate(-50%,-50%);
-  width:26%;min-width:56px;
-  display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;
+  position:absolute;
+  width:26%;min-width:56px;margin-left:-13%;margin-top:-23.5px;
+  display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;
 }
+.slot.low{flex-direction:column-reverse}
 .slot .disc{
   width:47px;height:47px;border-radius:50%;flex:0 0 auto;
   display:flex;align-items:center;justify-content:center;
@@ -223,6 +233,9 @@ input,select{font-family:inherit}
   font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:20px;line-height:1.05;
   color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.95), 0 0 3px rgba(0,0,0,.6);max-width:100%;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  /* fondino: su un campo affollato due nomi possono comunque incrociarsi, e
+     senza uno sfondo quello davanti diventa illeggibile sull'erba */
+  background:rgba(8,20,13,.55);border-radius:5px;padding:0 4px;
 }
 /* Corpi ridotti sul campo: l'ingombro verticale lo fanno le riserve, che
    possono essere quattro per slot, quindi stanno piu' piccole del titolare. */
@@ -840,7 +853,17 @@ function renderBoards(){
     const slots=FORMATIONS[mod], lu=cur().lineups[bi];
     slots.forEach((s,i)=>{
       const wrap=el("div","slot");
-      wrap.style.left=s.x+"%"; wrap.style.top=s.y+"%";
+      wrap.style.left=s.x+"%";
+      if(s.y>=80){
+        // slot in fondo (il portiere): il nome e la panchina vanno SOPRA il
+        // disco, altrimenti finiscono sotto il bordo del campo, che ritaglia.
+        // Ancorato dal basso, cosi' il centro del disco resta sulla coordinata
+        // qualunque sia l'altezza del blocco.
+        wrap.classList.add("low");
+        wrap.style.bottom="calc("+(100-s.y)+"% - 23.5px)";
+      } else {
+        wrap.style.top=s.y+"%";
+      }
       const pid=lu[i];
       const player=pid!=null?playerById(pid):null;
       const disc=el("button","disc"); disc.type="button";
