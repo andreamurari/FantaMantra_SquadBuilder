@@ -106,6 +106,26 @@ def fetch():
         conn.close()
 
 
+def timestamp_precedente(data):
+    """Se le rose non sono cambiate, riusa il timestamp del file esistente.
+
+    Senza questo `generato` cambierebbe a ogni esecuzione e i file
+    risulterebbero sempre diversi: la GitHub Action committerebbe ogni ora
+    anche a rose immutate. Riusando il vecchio valore i byte restano
+    identici, e la data mostrata diventa quella dell'ultimo cambiamento
+    vero (che è anche l'informazione più utile).
+    """
+    try:
+        with open(JSON_OUT, encoding="utf-8") as f:
+            vecchio = json.load(f)
+    except (OSError, ValueError):
+        return None
+    a, b = dict(vecchio), dict(data)
+    a.pop("generato", None)
+    b.pop("generato", None)
+    return vecchio.get("generato") if a == b else None
+
+
 def main():
     cfg, crediti, rose = fetch()
     if not rose:
@@ -119,6 +139,10 @@ def main():
             {"nome": s, "crediti": crediti.get(s, 0), "rosa": rose[s]} for s in squadre
         ],
     }
+
+    invariate = timestamp_precedente(data)
+    if invariate:
+        data["generato"] = invariate
 
     payload = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
     blob = START + "\nconst LEGA = " + payload + ";\n" + END
@@ -147,7 +171,8 @@ def main():
         f.write(html)
 
     tot = sum(len(s["rosa"]) for s in data["squadre"])
-    print(f"OK: {len(squadre)} squadre, {tot} giocatori -> lega.json + campetto_lega.html")
+    stato = "invariate dal " + invariate if invariate else "aggiornate"
+    print(f"OK: {len(squadre)} squadre, {tot} giocatori ({stato}) -> lega.json + campetto_lega.html")
     for s in data["squadre"]:
         prestiti = sum(1 for p in s["rosa"] if p["pr"])
         costo = sum(p["co"] for p in s["rosa"])
