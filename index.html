@@ -205,19 +205,19 @@ button.jchip:hover i{color:var(--ok)}
    si spostava in alto fino a 25px). */
 .slot{
   position:absolute;
-  width:26%;min-width:56px;margin-left:-13%;margin-top:-23.5px;
+  width:26%;min-width:56px;margin-left:-13%;margin-top:-18px;
   display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;
 }
 .slot.low{flex-direction:column-reverse}
 .slot .disc{
-  width:47px;height:47px;border-radius:50%;flex:0 0 auto;
+  width:36px;height:36px;border-radius:50%;flex:0 0 auto;
   display:flex;align-items:center;justify-content:center;
-  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:18px;line-height:1;
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:14px;line-height:1;
   color:#fff;border:2px dashed rgba(255,255,255,.5);background:rgba(0,0,0,.26);
   transition:transform .12s ease;white-space:nowrap;
 }
-.slot .disc.disc-sm{font-size:14px;letter-spacing:-.2px}
-.slot .disc.disc-xs{font-size:11px;letter-spacing:-.4px}
+.slot .disc.disc-sm{font-size:11px;letter-spacing:-.2px}
+.slot .disc.disc-xs{font-size:9px;letter-spacing:-.4px}
 .slot button.disc{cursor:pointer}
 .slot button.disc:hover{transform:scale(1.09)}
 /* colori ruolo come su fantacalcio.it: Por giallo · Dif verde · Cen azzurro · Tre/Ala viola · Att rosso */
@@ -235,9 +235,6 @@ button.jchip:hover i{color:var(--ok)}
   font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:20px;line-height:1.05;
   color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.95), 0 0 3px rgba(0,0,0,.6);max-width:100%;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  /* fondino: su un campo affollato due nomi possono comunque incrociarsi, e
-     senza uno sfondo quello davanti diventa illeggibile sull'erba */
-  background:rgba(8,20,13,.55);border-radius:5px;padding:0 4px;
 }
 /* Corpi ridotti sul campo: l'ingombro verticale lo fanno le riserve, che
    possono essere quattro per slot, quindi stanno piu' piccole del titolare. */
@@ -862,6 +859,38 @@ function iconBtn(cls, name, title){
   const b=el("button",cls); b.type="button"; b.innerHTML=ic(name); if(title) b.title=title; return b;
 }
 
+/* ============================================================
+   DISTRIBUZIONE VERTICALE DELLE RIGHE
+   Le y dei moduli lasciano spazi molto diversi fra un reparto e l'altro
+   (in un 3-4-3: 20, 18, 27 e 12 punti percentuali) e spingono il portiere
+   al 90%, dove nome e riserve finirebbero sotto il bordo del campo.
+   Qui le righe vengono riconosciute (y vicine entro 4 punti sono la stessa
+   riga) e ridistribuite a passo costante dentro una fascia che lascia in
+   fondo lo spazio per il nome e fino a quattro riserve. L'ordine dei
+   reparti e le x non si toccano: la forma del modulo resta quella.
+   ============================================================ */
+// 78 e' il punto piu' basso che regge il caso peggiore: portiere con la
+// panchina piena, dove l'ultima riserva resta dentro il campo per un soffio
+const BANDA_ALTA = 7, BANDA_BASSA = 78;
+const _righe = {};
+function righeModulo(mod){
+  if(_righe[mod]) return _righe[mod];
+  const ys = [...new Set(FORMATIONS[mod].map(s=>s.y))].sort((a,b)=>a-b);
+  const gruppi = [];
+  ys.forEach(y=>{
+    const g = gruppi.find(g=> Math.abs(g[0]-y) <= 4);
+    if(g) g.push(y); else gruppi.push([y]);
+  });
+  const map = {};
+  gruppi.forEach((g,i)=>{
+    const y = gruppi.length===1
+      ? (BANDA_ALTA+BANDA_BASSA)/2
+      : BANDA_ALTA + (BANDA_BASSA-BANDA_ALTA)*i/(gruppi.length-1);
+    g.forEach(orig=> map[orig]=y);
+  });
+  return _righe[mod]=map;
+}
+
 const PITCH_SVG = '<svg viewBox="0 0 680 1000" preserveAspectRatio="none" aria-hidden="true">'
   + '<g fill="none" stroke="rgba(255,255,255,.7)" stroke-width="3">'
   + '<rect x="12" y="12" width="656" height="976"/>'
@@ -947,20 +976,10 @@ function renderBoards(){
 
     const pitch=el("div","pitch");
     pitch.innerHTML=PITCH_SVG;
-    const slots=FORMATIONS[mod], lu=state.lineups[bi];
+    const slots=FORMATIONS[mod], righe=righeModulo(mod), lu=state.lineups[bi];
     slots.forEach((s,i)=>{
       const wrap=el("div","slot");
-      wrap.style.left=s.x+"%";
-      if(s.y>=80){
-        // slot in fondo (il portiere): il nome e la panchina vanno SOPRA il
-        // disco, altrimenti finiscono sotto il bordo del campo, che ritaglia.
-        // Ancorato dal basso, cosi' il centro del disco resta sulla coordinata
-        // qualunque sia l'altezza del blocco.
-        wrap.classList.add("low");
-        wrap.style.bottom="calc("+(100-s.y)+"% - 23.5px)";
-      } else {
-        wrap.style.top=s.y+"%";
-      }
+      wrap.style.left=s.x+"%"; wrap.style.top=righe[s.y]+"%";
       const pid=lu[i];
       const player=pid!=null?rosaById(pid):null;
       const disc=el("button","disc"); disc.type="button";
